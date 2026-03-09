@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Pipeline Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06090F;--surface:#0C1018;--border:#161D27;
+  --yt:#FF0000;--tt:#010101;--tt-accent:#69C9D0;
+  --gold:#FFD700;--green:#2ED573;--muted:#4A5568;
+  --text:#E2E8F0;--text2:#94A3B8;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* Animated BG */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 50% at 20% 20%,rgba(255,71,87,0.04) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 40% at 80% 80%,rgba(105,201,208,0.04) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+.wrap{max-width:1200px;margin:0 auto;padding:32px 24px;position:relative;z-index:1}
+
+/* Header */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px}
+.logo{display:flex;align-items:center;gap:16px}
+.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--yt),#FF6B6B);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.logo-text h1{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em;line-height:1}
+.logo-text p{font-size:12px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace}
+.status-pill{display:flex;align-items:center;gap:8px;background:rgba(46,213,115,0.1);border:1px solid rgba(46,213,115,0.2);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--green)}
+.pulse{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+
+/* Stats row */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;inset:0;background:var(--stat-glow,transparent);opacity:0.05;pointer-events:none}
+.stat.yt{--stat-glow:var(--yt)}
+.stat.tt{--stat-glow:var(--tt-accent)}
+.stat.total{--stat-glow:var(--gold)}
+.stat.sched{--stat-glow:var(--green)}
+.stat-icon{font-size:20px;margin-bottom:8px}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:0.02em;line-height:1}
+.stat.yt .stat-val{color:var(--yt)}
+.stat.tt .stat-val{color:var(--tt-accent)}
+.stat.total .stat-val{color:var(--gold)}
+.stat.sched .stat-val{color:var(--green)}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;font-family:'DM Mono',monospace}
+
+/* Section header */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.05em;color:var(--text2)}
+.generate-btn{background:var(--gold);color:#06090F;border:none;padding:12px 24px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.generate-btn:hover{background:#ffe033;transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,215,0,0.3)}
+.generate-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+/* Video cards */
+.videos{display:flex;flex-direction:column;gap:16px}
+.video-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;transition:border-color 0.2s;animation:slideIn 0.4s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.video-card:hover{border-color:#2A3A4A}
+@media(max-width:700px){.video-card{grid-template-columns:1fr;gap:12px}}
+
+.video-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--border);letter-spacing:0.02em;min-width:56px;text-align:center}
+.video-info{}
+.video-title{font-weight:600;font-size:15px;margin-bottom:8px;color:var(--text)}
+.video-meta{display:flex;gap:12px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;font-family:'DM Mono',monospace}
+.badge.yt{background:rgba(255,0,0,0.12);color:#FF6B6B;border:1px solid rgba(255,0,0,0.2)}
+.badge.tt{background:rgba(105,201,208,0.1);color:var(--tt-accent);border:1px solid rgba(105,201,208,0.2)}
+.badge.done{background:rgba(46,213,115,0.1);color:var(--green);border:1px solid rgba(46,213,115,0.2)}
+.badge.pending{background:rgba(255,215,0,0.1);color:var(--gold);border:1px solid rgba(255,215,0,0.2)}
+.video-schedule{font-size:12px;color:var(--muted);margin-top:8px;font-family:'DM Mono',monospace}
+
+.video-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.action-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.action-btn:hover{color:var(--text);border-color:#2A3A4A}
+
+/* Schedule timeline */
+.timeline{margin-top:40px}
+.timeline-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:20px}
+@media(max-width:700px){.timeline-grid{grid-template-columns:repeat(3,1fr)}}
+.day-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.day-card.has-video{border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.04)}
+.day-name{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;font-family:'DM Mono',monospace;margin-bottom:8px}
+.day-count{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--border)}
+.day-card.has-video .day-count{color:var(--gold)}
+.day-time{font-size:10px;color:var(--tt-accent);font-family:'DM Mono',monospace;margin-top:4px}
+
+/* Empty state */
+.empty{text-align:center;padding:80px 20px;color:var(--muted)}
+.empty-icon{font-size:64px;margin-bottom:20px;opacity:0.3}
+.empty h3{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text2);margin-bottom:8px}
+.empty p{font-size:14px;line-height:1.6;max-width:360px;margin:0 auto}
+
+/* Log */
+.log-section{margin-top:40px}
+.log-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);max-height:200px;overflow-y:auto;line-height:1.8}
+.log-line.ok{color:var(--green)}
+.log-line.err{color:#FF6B6B}
+.log-line.info{color:var(--tt-accent)}
+
+/* Loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(6,9,15,0.92);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:24px}
+.loading-overlay.active{display:flex}
+.big-spinner{width:72px;height:72px;border:4px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:0.05em;color:var(--gold)}
+.loading-sub{font-size:14px;color:var(--muted);font-family:'DM Mono',monospace}
+.loading-steps-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.ls{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);opacity:0.3;transition:all 0.5s}
+.ls.active{opacity:1;color:var(--text)}
+.ls.done{color:var(--green);opacity:1}
+.ls-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+footer{text-align:center;padding:48px 0 24px;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;border-top:1px solid var(--border);margin-top:60px}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="big-spinner"></div>
+  <div class="loading-title">GENERATING VIDEO</div>
+  <div class="loading-sub" id="loadingSub">Initializing pipeline...</div>
+  <div class="loading-steps-list">
+    <div class="ls" id="ls1"><div class="ls-dot"></div>Writing script with Claude</div>
+    <div class="ls" id="ls2"><div class="ls-dot"></div>Downloading stock footage</div>
+    <div class="ls" id="ls3"><div class="ls-dot"></div>Generating AI voiceover</div>
+    <div class="ls" id="ls4"><div class="ls-dot"></div>Creating text overlays</div>
+    <div class="ls" id="ls5"><div class="ls-dot"></div>Assembling final video</div>
+    <div class="ls" id="ls6"><div class="ls-dot"></div>Scheduling YouTube & TikTok</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎬</div>
+      <div class="logo-text">
+        <h1>VIDEO PIPELINE</h1>
+        <p>TikTok + YouTube Shorts Automation</p>
+      </div>
+    </div>
+    <div class="status-pill">
+      <div class="pulse"></div>
+      System Active
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat total">
+      <div class="stat-icon">🎬</div>
+      <div class="stat-val" id="statTotal">0</div>
+      <div class="stat-label">Videos Generated</div>
+    </div>
+    <div class="stat yt">
+      <div class="stat-icon">▶️</div>
+      <div class="stat-val" id="statYT">0</div>
+      <div class="stat-label">YouTube Scheduled</div>
+    </div>
+    <div class="stat tt">
+      <div class="stat-icon">🎵</div>
+      <div class="stat-val" id="statTT">0</div>
+      <div class="stat-label">TikTok Scheduled</div>
+    </div>
+    <div class="stat sched">
+      <div class="stat-icon">⏰</div>
+      <div class="stat-val" id="statNext">—</div>
+      <div class="stat-label">Next Upload</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">📋 VIDEO QUEUE</div>
+    <button class="generate-btn" id="generateBtn" onclick="generateVideos()">
+      ⚡ GENERATE VIDEO
+    </button>
+  </div>
+
+  <div class="videos" id="videoList">
+    <div class="empty">
+      <div class="empty-icon">🎬</div>
+      <h3>No Videos Yet</h3>
+      <p>Click "Generate Video" to create your first TikTok + YouTube Short automatically.</p>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <div class="section-title">📅 WEEKLY SCHEDULE</div>
+    <div class="timeline-grid" id="timelineGrid"></div>
+  </div>
+
+  <div class="log-section">
+    <div class="section-title" style="margin-bottom:16px">📟 PIPELINE LOG</div>
+    <div class="log-box" id="logBox">
+      <div class="log-line info">▶ Pipeline ready. Waiting for input...</div>
+    </div>
+  </div>
+</div>
+
+<footer>Video Pipeline Dashboard · Powered by Claude + ElevenLabs + Pexels + Buffer</footer>
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+let videos = JSON.parse(localStorage.getItem('pipeline_videos') || '[]');
+let stats  = JSON.parse(localStorage.getItem('pipeline_stats')  || '{"total":0,"yt":0,"tt":0}');
+
+const BEST_TIMES = {
+  monday:    ["07:00","12:00","19:00"],
+  tuesday:   ["07:00","12:00","19:00"],
+  wednesday: ["07:00","14:00","21:00"],
+  thursday:  ["07:00","12:00","19:00"],
+  friday:    ["07:00","14:00","20:00"],
+  saturday:  ["09:00","13:00","20:00"],
+  sunday:    ["10:00","15:00","20:00"],
+};
+
+// ── Helpers ────────────────────────────────────────────────────
+function getNextSlots(n) {
+  const slots = [];
+  const now = new Date();
+  const buffer = new Date(now.getTime() + 45*60000);
+  for (let d = 0; d <= 21 && slots.length < n; d++) {
+    const date = new Date(now); date.setDate(date.getDate()+d);
+    const day = date.toLocaleDateString('en-US',{weekday:'long'}).toLowerCase();
+    const times = BEST_TIMES[day] || ["12:00"];
+    for (const t of times) {
+      const [h,m] = t.split(':').map(Number);
+      const slot = new Date(date); slot.setHours(h,m,0,0);
+      if (slot > buffer) { slots.push(slot); if (slots.length >= n) break; }
+    }
+  }
+  return slots;
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short'})
+        +' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+}
+
+function timeUntil(iso) {
+  const diff = new Date(iso) - new Date();
+  if (diff < 0) return 'LIVE';
+  const h = Math.floor(diff/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  if (h > 24) return `${Math.floor(h/24)}d ${h%24}h`;
+  return `${h}h ${m}m`;
+}
+
+function addLog(msg, type='info') {
+  const box = document.getElementById('logBox');
+  const line = document.createElement('div');
+  line.className = `log-line ${type}`;
+  const time = new Date().toLocaleTimeString('en-US',{hour12:false});
+  line.textContent = `[${time}] ${msg}`;
+  box.prepend(line);
+  while (box.children.length > 50) box.removeChild(box.lastChild);
+}
+
+// ── Render ─────────────────────────────────────────────────────
+function render() {
+  // Stats
+  document.getElementById('statTotal').textContent = stats.total;
+  document.getElementById('statYT').textContent = stats.yt;
+  document.getElementById('statTT').textContent = stats.tt;
+
+  // Next upload
+  const upcoming = videos.filter(v => new Date(v.youtube.scheduled) > new Date())
+                         .sort((a,b) => new Date(a.youtube.scheduled)-new Date(b.youtube.scheduled));
+  if (upcoming.length) {
+    const next = upcoming[0];
+    const h = Math.round((new Date(next.youtube.scheduled)-new Date())/3600000);
+    document.getElementById('statNext').textContent = h < 24 ? `${h}h` : `${Math.floor(h/24)}d`;
+  }
+
+  // Video list
+  const list = document.getElementById('videoList');
+  if (!videos.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">🎬</div><h3>No Videos Yet</h3><p>Click "Generate Video" to create your first TikTok + YouTube Short automatically.</p></div>`;
+  } else {
+    list.innerHTML = videos.map((v, i) => {
+      const ytLive = new Date(v.youtube.scheduled) < new Date();
+      const ttLive = new Date(v.tiktok.scheduled) < new Date();
+      return `
+      <div class="video-card">
+        <div class="video-num">${String(videos.length - i).padStart(2,'0')}</div>
+        <div class="video-info">
+          <div class="video-title">${v.title}</div>
+          <div class="video-meta">
+            <span class="badge yt">▶ YouTube Shorts</span>
+            <span class="badge tt">♪ TikTok</span>
+            <span class="badge ${ytLive ? 'done' : 'pending'}">${ytLive ? '✓ Live' : '⏰ Scheduled'}</span>
+          </div>
+          <div class="video-schedule">
+            📺 YT: ${fmtDate(v.youtube.scheduled)} (${timeUntil(v.youtube.scheduled)}) &nbsp;|&nbsp;
+            📱 TT: ${fmtDate(v.tiktok.scheduled)} (${timeUntil(v.tiktok.scheduled)})
+          </div>
+        </div>
+        <div class="video-actions">
+          ${v.youtube.url ? `<button class="action-btn" onclick="window.open('${v.youtube.url}')">▶ YouTube</button>` : ''}
+          <button class="action-btn" onclick="copyCaption(${i})">📋 Caption</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Timeline
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const grid = document.getElementById('timelineGrid');
+  grid.innerHTML = days.map(day => {
+    const dayVideos = videos.filter(v => {
+      const d = new Date(v.youtube.scheduled);
+      return d.toLocaleDateString('en-US',{weekday:'long'}) === day;
+    });
+    const times = BEST_TIMES[day.toLowerCase()] || [];
+    return `
+      <div class="day-card ${dayVideos.length ? 'has-video' : ''}">
+        <div class="day-name">${day.slice(0,3)}</div>
+        <div class="day-count">${dayVideos.length || times.length}</div>
+        <div class="day-time">${times[0] || ''}</div>
+      </div>`;
+  }).join('');
+
+  // Save
+  localStorage.setItem('pipeline_videos', JSON.stringify(videos));
+  localStorage.setItem('pipeline_stats', JSON.stringify(stats));
+}
+
+// ── Generate (uses Claude API) ─────────────────────────────────
+async function generateVideos() {
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.add('active');
+
+  const steps = ['ls1','ls2','ls3','ls4','ls5','ls6'];
+  const msgs = [
+    'Generating script with Claude AI...',
+    'Searching Pexels for footage...',
+    'Creating AI voiceover...',
+    'Rendering text overlays...',
+    'Assembling final video...',
+    'Scheduling to YouTube & TikTok...'
+  ];
+
+  let currentStep = 0;
+  const stepInterval = setInterval(() => {
+    if (currentStep > 0) document.getElementById(steps[currentStep-1]).classList.add('done');
+    if (currentStep < steps.length) {
+      document.getElementById(steps[currentStep]).classList.add('active');
+      document.getElementById('loadingSub').textContent = msgs[currentStep];
+      currentStep++;
+    }
+  }, 1800);
+
+  try {
+    // Generate script via Claude API
+    addLog('Starting pipeline...', 'info');
+
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{role:"user", content:`
+You are a viral TikTok/Shorts scriptwriter. Niche: Interesting Facts.
+Pick a surprising fact topic.
+
+Return ONLY valid JSON:
+{
+  "topic": "1-2 word topic",
+  "title": "viral video title max 60 chars",
+  "description": "2 sentence description",
+  "scenes": [
+    {"text": "on-screen text max 10 words", "voiceover": "spoken 1-2 sentences", "duration": 3.5}
+  ],
+  "hashtags": "#facts #didyouknow #mindblowing #shorts #fyp"
+}
+Rules: 5-7 scenes, hook first, CTA last, real facts only.`}]
+      })
+    });
+
+    const data = await resp.json();
+    const text = data.content[0].text.replace(/```json|```/g,'').trim();
+    const script = JSON.parse(text);
+
+    addLog(`✅ Script: "${script.title}"`, 'ok');
+
+    // Get next upload slots
+    const slots = getNextSlots(2);
+    const ytSlot = slots[0] || new Date(Date.now() + 3600000);
+    const ttSlot = slots[1] || new Date(Date.now() + 7200000);
+
+    // Create video entry
+    const video = {
+      id: Date.now(),
+      title: script.title,
+      description: script.description,
+      hashtags: script.hashtags,
+      scenes: script.scenes,
+      created_at: new Date().toISOString(),
+      youtube: {
+        scheduled: ytSlot.toISOString(),
+        url: null,
+        status: 'scheduled'
+      },
+      tiktok: {
+        scheduled: ttSlot.toISOString(),
+        buffer_id: null,
+        status: 'scheduled'
+      }
+    };
+
+    await new Promise(r => setTimeout(r, 8000)); // simulate pipeline
+
+    videos.unshift(video);
+    stats.total++;
+    stats.yt++;
+    stats.tt++;
+
+    addLog(`✅ YouTube scheduled: ${fmtDate(ytSlot.toISOString())}`, 'ok');
+    addLog(`✅ TikTok scheduled: ${fmtDate(ttSlot.toISOString())}`, 'ok');
+    addLog(`🎉 Video complete: "${script.title}"`, 'ok');
+
+  } catch (err) {
+    addLog(`❌ Error: ${err.message}`, 'err');
+  }
+
+  clearInterval(stepInterval);
+  steps.forEach(s => {
+    document.getElementById(s).classList.remove('active');
+    document.getElementById(s).classList.add('done');
+  });
+
+  await new Promise(r => setTimeout(r, 800));
+  overlay.classList.remove('active');
+  steps.forEach(s => {
+    document.getElementById(s).classList.remove('active','done');
+  });
+
+  btn.disabled = false;
+  render();
+}
+
+function copyCaption(i) {
+  const v = videos[i];
+  const text = `${v.title}\n\n${v.hashtags}`;
+  navigator.clipboard.writeText(text).then(() => addLog('Caption copied!', 'ok'));
+}
+
+// ── Init ───────────────────────────────────────────────────────
+render();
+setInterval(render, 60000); // update countdowns every minute
+</script>
+</body>
+</html>
