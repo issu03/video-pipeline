@@ -55,7 +55,7 @@ def load_env():
 
 load_env()
 
-GEMINI_KEY      = os.environ.get("GEMINI_API_KEY", "")
+GROQ_KEY        = os.environ.get("GROQ_API_KEY", "")
 ELEVEN_KEY      = os.environ.get("ELEVENLABS_KEY", "")
 PEXELS_KEY      = os.environ.get("PEXELS_KEY", "")
 BUFFER_KEY      = os.environ.get("BUFFER_ACCESS_TOKEN", "")
@@ -122,7 +122,7 @@ def get_next_slots(n=14):
 #  STEP 1 — SCRIPT GENERATION
 # ══════════════════════════════════════════════════════════════
 def generate_script():
-    log.info("🤖 Generating script via Gemini...")
+    log.info("🤖 Generating script via Groq...")
     prompt = f"""You are a viral TikTok/YouTube Shorts scriptwriter. Niche: {NICHE}.
 Pick a surprising, counterintuitive, or mind-blowing fact topic.
 
@@ -149,13 +149,21 @@ Rules:
 - Facts must be 100% real and verifiable"""
 
     resp = requests.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}",
-        headers={"Content-Type": "application/json"},
-        json={"contents": [{"parts": [{"text": prompt}]}]},
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {GROQ_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "llama-3.3-70b-versatile",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 1000,
+            "temperature": 0.7
+        },
         timeout=30
     )
     resp.raise_for_status()
-    text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+    text = resp.json()["choices"][0]["message"]["content"]
     text = text.replace("```json","").replace("```","").strip()
     data = json.loads(text)
     log.info(f"   ✅ Script: '{data['title']}'")
