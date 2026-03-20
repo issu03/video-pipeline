@@ -1,5 +1,6 @@
 [build]
 builder = "nixpacks"
+nixpacksPlan = "ffmpeg"
 
 [deploy]
 startCommand = "python pipeline.py 1"
