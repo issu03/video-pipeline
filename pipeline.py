@@ -22,7 +22,25 @@ SETUP:
 SET YOUR KEYS in .env file or environment variables.
 """
 
+
+# ── Auto-install ffmpeg if missing ─────────────────────────
+import shutil as _shutil, os as _os
+if _shutil.which('ffmpeg') is None:
+    print('⚙️  Installing ffmpeg...')
+    _os.system('apt-get update -qq && apt-get install -y -qq ffmpeg')
+    print('✅ ffmpeg installed!')
 import os, sys, json, time, math, textwrap
+import subprocess, shutil, logging
+import requests
+
+# Auto-install ffmpeg
+def ensure_ffmpeg():
+    if shutil.which("ffmpeg") is None:
+        print("Installing ffmpeg...")
+        os.system("apt-get update -qq && apt-get install -y -qq ffmpeg")
+        print("ffmpeg installed!")
+
+ensure_ffmpeg()
 import subprocess, shutil, logging
 import requests
 from datetime import datetime, timedelta
