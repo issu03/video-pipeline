@@ -1,9 +1,5 @@
 [build]
-builder = "nixpacks"
-
-[build.nixpacksPlan.phases.setup]
-nixPkgs = ["ffmpeg"]
+builder = "dockerfile"
 
 [deploy]
-startCommand = "python pipeline.py 1"
 restartPolicyType = "never"
