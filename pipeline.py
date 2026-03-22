@@ -23,19 +23,22 @@ SET YOUR KEYS in .env file or environment variables.
 """
 
 
-# ── Auto-install ffmpeg if missing ─────────────────────────
-import shutil as _shutil, os as _os
-if _shutil.which('ffmpeg') is None:
-    print('⚙️  Installing ffmpeg...')
-    _os.system('apt-get update -qq && apt-get install -y -qq ffmpeg')
-    print('✅ ffmpeg installed!')
+# ── Use imageio-ffmpeg (works on all platforms including Railway) ──
+import imageio_ffmpeg
+import shutil as _shutil
+_ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+if not _shutil.which(FFMPEG_BIN):
+    import os as _os
+    _os.environ['PATH'] = str(__import__('pathlib').Path(_ffmpeg_path).parent) + ':' + _os.environ.get('PATH','')
+FFMPEG_BIN = _ffmpeg_path
+print(f'✅ ffmpeg ready: {_ffmpeg_path}')
 import os, sys, json, time, math, textwrap
 import subprocess, shutil, logging
 import requests
 
 # Auto-install ffmpeg
 def ensure_ffmpeg():
-    if shutil.which("ffmpeg") is None:
+    if shutil.which(FFMPEG_BIN) is None:
         print("Installing ffmpeg...")
         os.system("apt-get update -qq && apt-get install -y -qq ffmpeg")
         print("ffmpeg installed!")
@@ -240,7 +243,7 @@ def generate_voiceover(scenes, work_dir):
     concat_list.write_text("\n".join(f"file '{p.resolve()}'" for p in audio_files))
     final = work_dir / "final_voice.mp3"
     subprocess.run(
-        ["ffmpeg","-y","-f","concat","-safe","0","-i",str(concat_list),"-c","copy",str(final)],
+        [FFMPEG_BIN,"-y","-f","concat","-safe","0","-i",str(concat_list),"-c","copy",str(final)],
         capture_output=True
     )
     log.info("   ✅ Voiceover merged")
@@ -328,7 +331,7 @@ def create_overlays(scenes, work_dir):
 
         ov = work_dir/f"overlay_{si:02d}.mp4"
         subprocess.run([
-            "ffmpeg","-y","-framerate",str(FPS),
+            FFMPEG_BIN,"-y","-framerate",str(FPS),
             "-i",str(frames_dir/"frame_%04d.png"),
             "-c:v","libx264","-preset","fast","-crf","18","-pix_fmt","yuva420p",str(ov)
         ], capture_output=True)
@@ -353,14 +356,14 @@ def assemble_video(script, footage, voiceover, overlays, work_dir, output):
             f"file '{p.resolve()}'" for _ in range(reps) for p in footage
         ))
         subprocess.run([
-            "ffmpeg","-y","-f","concat","-safe","0","-i",str(fl),
+            FFMPEG_BIN,"-y","-f","concat","-safe","0","-i",str(fl),
             "-t",str(total_dur),
             "-vf",f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},setfps={FPS}",
             "-c:v","libx264","-preset","fast","-crf","23","-an",str(bg)
         ], capture_output=True)
     else:
         subprocess.run([
-            "ffmpeg","-y","-f","lavfi",
+            FFMPEG_BIN,"-y","-f","lavfi",
             "-i",f"color=c=0x080C14:size={W}x{H}:rate={FPS}:duration={total_dur}",
             "-c:v","libx264",str(bg)
         ], capture_output=True)
@@ -369,12 +372,12 @@ def assemble_video(script, footage, voiceover, overlays, work_dir, output):
     ol_list.write_text("\n".join(f"file '{p.resolve()}'" for p in overlays))
     ol_concat = work_dir/"overlays.mp4"
     subprocess.run([
-        "ffmpeg","-y","-f","concat","-safe","0","-i",str(ol_list),
+        FFMPEG_BIN,"-y","-f","concat","-safe","0","-i",str(ol_list),
         "-c:v","libx264","-preset","fast","-crf","18","-pix_fmt","yuva420p",str(ol_concat)
     ], capture_output=True)
 
     subprocess.run([
-        "ffmpeg","-y",
+        FFMPEG_BIN,"-y",
         "-i",str(bg),"-i",str(ol_concat),"-i",str(voiceover),
         "-filter_complex",
         "[0:v]eq=brightness=-0.15:saturation=0.7[bg];[bg][1:v]overlay=0:0[comp]",
