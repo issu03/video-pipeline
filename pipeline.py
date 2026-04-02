@@ -9,12 +9,6 @@ import requests
 from datetime import datetime, timedelta
 from pathlib import Path
 
-# ── Auto-install ffmpeg ───────────────────────────────────────
-if not shutil.which("ffmpeg"):
-    print("Installing ffmpeg...")
-    os.system("apt-get update -qq && apt-get install -y -qq ffmpeg")
-    print("ffmpeg installed!")
-
 from PIL import Image, ImageDraw, ImageFont
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s",
@@ -226,6 +220,51 @@ def assemble_video(script, footage, voiceover, overlays, work_dir, output):
     log.info(f"   ✅ {output.name} ({size:.1f}MB, {total_dur:.1f}s)")
     return total_dur
 
+
+def upload_youtube(video_path, title, description, hashtags, publish_at):
+    log.info(f"📺 Scheduling YouTube → {publish_at.strftime('%a %d %b %H:%M')}")
+    try:
+        import pickle, base64
+        from googleapiclient.discovery import build
+        from googleapiclient.http import MediaFileUpload
+        from google.auth.transport.requests import Request
+
+        token_b64 = os.environ.get('YOUTUBE_TOKEN_B64', '')
+        if not token_b64:
+            log.warning('   ⚠️  YOUTUBE_TOKEN_B64 not set')
+            return None
+
+        creds = pickle.loads(base64.b64decode(token_b64))
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        yt = build('youtube', 'v3', credentials=creds)
+        body = {
+            'snippet': {
+                'title': title[:100],
+                'description': description + '\n\n' + hashtags + '\n\n#Shorts',
+#Shorts',
+                'tags': [t.replace('#','') for t in hashtags.split()],
+                'categoryId': '22',
+            },
+            'status': {
+                'privacyStatus': 'private',
+                'publishAt': publish_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'),
+                'selfDeclaredMadeForKids': False,
+            }
+        }
+        media = MediaFileUpload(str(video_path), mimetype='video/mp4', resumable=True)
+        req = yt.videos().insert(part='snippet,status', body=body, media_body=media)
+        response = None
+        while response is None:
+            _, response = req.next_chunk()
+        video_id = response['id']
+        log.info(f'   ✅ YouTube scheduled! youtu.be/{video_id}')
+        return f'https://youtube.com/shorts/{video_id}'
+    except Exception as e:
+        log.error(f'   ❌ YouTube error: {e}')
+        return None
+
 def run_pipeline(n_videos=1):
     log.info("="*55)
     log.info("🚀 AUTO VIDEO PIPELINE STARTING")
@@ -249,9 +288,10 @@ def run_pipeline(n_videos=1):
             duration  = assemble_video(script, footage, voiceover, overlays, work_dir, output)
             yt_time = yt_slots[i] if i < len(yt_slots) else datetime.now()+timedelta(hours=1)
             tt_time = tt_slots[i] if i < len(tt_slots) else datetime.now()+timedelta(hours=2)
+            yt_url = upload_youtube(output, script['title'], script.get('description',''), script['hashtags'], yt_time)
             entry = {"id": ts, "title": script["title"], "file": str(output), "duration": duration,
                      "created_at": datetime.now().isoformat(),
-                     "youtube": {"scheduled": yt_time.isoformat(), "url": None},
+                     "youtube": {"scheduled": yt_time.isoformat(), "url": yt_url},
                      "tiktok":  {"scheduled": tt_time.isoformat(), "buffer_id": None},
                      "hashtags": script["hashtags"], "status": "scheduled"}
             add_to_dashboard(entry)
