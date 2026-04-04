@@ -31,7 +31,18 @@ BUFFER_PROFILE = os.environ.get("BUFFER_TIKTOK_PROFILE_ID", "")
 YT_CLIENT_ID   = os.environ.get("YOUTUBE_CLIENT_ID", "")
 YT_CLIENT_SEC  = os.environ.get("YOUTUBE_CLIENT_SECRET", "")
 VOICE_ID       = "21m00Tcm4TlvDq8ikWAM"
-NICHE          = os.environ.get("NICHE", "Interesting Facts")
+NICHES = [
+    "Interesting Facts",
+    "Unethical ways to earn money (legal but edgy)",
+    "Dating fail stories",
+    "Business ideas and money hacks",
+    "What if scenarios",
+    "Crazy true stories",
+    "Psychology facts",
+    "Life hacks nobody talks about",
+]
+import random
+NICHE = os.environ.get("NICHE", random.choice(NICHES))
 OUTPUT_DIR     = Path("./output_videos")
 DASHBOARD_FILE = Path("./dashboard.json")
 W, H, FPS      = 1080, 1920, 30
@@ -77,19 +88,28 @@ def add_to_dashboard(entry):
 
 def generate_script():
     log.info("🤖 Generating script via Groq...")
-    prompt = f"""You are a viral TikTok/YouTube Shorts scriptwriter. Niche: {NICHE}.
-Pick a surprising mind-blowing fact topic.
+    prompt = f"""You are a viral TikTok/YouTube Shorts scriptwriter for the channel VaultMind.
+VaultMind covers: facts, unethical money tips, dating fails, business ideas, what-if scenarios, crazy true stories, psychology, life hacks.
+Current niche for this video: {NICHE}
+
+Pick a specific, surprising, scroll-stopping topic within this niche.
 Return ONLY valid JSON (no markdown):
 {{
-  "topic": "1-2 word Pexels search term",
-  "title": "viral video title max 60 chars",
-  "description": "2-sentence YouTube description",
+  "topic": "1-2 word Pexels search term that matches the video visually",
+  "title": "viral video title max 60 chars — use power words, numbers, or curiosity gaps",
+  "description": "2-sentence YouTube description with keywords",
   "scenes": [
     {{"text": "on-screen text max 10 words", "voiceover": "spoken 1-2 sentences", "duration": 3.5}}
   ],
-  "hashtags": "#facts #didyouknow #mindblowing #shorts #fyp"
+  "hashtags": "#vaultmind #facts #shorts #fyp #didyouknow #mindblowing #storytime #money #dating #business"
 }}
-Rules: 5-7 scenes, hook first, CTA last, real facts only."""
+Rules:
+- 5-7 scenes, ~20-25 seconds total
+- Scene 1: shocking hook that stops the scroll
+- Scene 2-5: deliver the content with energy
+- Last scene: Follow VaultMind for more
+- Content must be real, specific, and surprising
+- Adapt tone to niche: edgy for money/dating, curious for facts, dramatic for stories"""
 
     resp = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
@@ -279,6 +299,7 @@ def run_pipeline(n_videos=1):
         ts = int(time.time())
         work_dir = Path(f"/tmp/pipeline_{ts}_{i}")
         work_dir.mkdir(parents=True)
+        OUTPUT_DIR.mkdir(exist_ok=True)
         output = OUTPUT_DIR / f"video_{ts}.mp4"
         try:
             script    = generate_script()
