@@ -209,7 +209,7 @@ def create_overlays(scenes, work_dir):
             img.save(frames_dir/f"frame_{f:04d}.png")
         ov = work_dir/f"overlay_{si:02d}.mp4"
         subprocess.run(["ffmpeg","-y","-framerate",str(FPS),"-i",str(frames_dir/"frame_%04d.png"),
-            "-c:v","libx264","-preset","fast","-crf","18","-pix_fmt","yuva420p",str(ov)], capture_output=True)
+            "-c:v","libx264","-preset","fast","-crf","18","-pix_fmt","yuv420p",str(ov)], capture_output=True)
         shutil.rmtree(frames_dir); overlays.append(ov)
     log.info(f"   ✅ {len(overlays)} overlays done")
     return overlays
