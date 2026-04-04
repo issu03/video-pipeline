@@ -300,7 +300,7 @@ def run_pipeline(n_videos=1):
         work_dir = Path(f"/tmp/pipeline_{ts}_{i}")
         work_dir.mkdir(parents=True)
         OUTPUT_DIR.mkdir(exist_ok=True)
-        output = OUTPUT_DIR / f"video_{ts}.mp4"
+        output = Path(f"/tmp/video_{ts}.mp4")
         try:
             script    = generate_script()
             footage   = download_footage(script["topic"], work_dir)
