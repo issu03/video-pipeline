@@ -235,7 +235,9 @@ def assemble_video(script, footage, voiceover, overlays, work_dir, output):
     result = subprocess.run(["ffmpeg","-y","-i",str(bg),"-i",str(ol_concat),"-i",str(voiceover),
         "-filter_complex","[0:v]eq=brightness=-0.15:saturation=0.7[bg];[bg][1:v]overlay=0:0[comp]",
         "-map","[comp]","-map","2:a","-c:v","libx264","-preset","fast","-crf","20","-pix_fmt","yuv420p",
-        "-c:a","aac","-b:a","192k","-t",str(total_dur),"-movflags","+faststart",str(output)], capture_output=True)
+        "-c:a","aac","-b:a","192k","-t",str(total_dur),"-movflags","+faststart",str(output)], capture_output=True, text=True)
+    if result.returncode != 0:
+        log.error(f"   ❌ ffmpeg error: {result.stderr[-500:]}")
     size = output.stat().st_size/1024/1024 if output.exists() else 0
     log.info(f"   ✅ {output.name} ({size:.1f}MB, {total_dur:.1f}s)")
     return total_dur
