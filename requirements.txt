@@ -3,5 +3,3 @@ pillow
 google-auth
 google-auth-oauthlib
 google-api-python-client
-moviepy==1.0.3
-imageio[ffmpeg]
