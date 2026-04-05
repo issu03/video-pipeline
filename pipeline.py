@@ -154,8 +154,12 @@ def generate_voiceover(scenes, work_dir):
             json={"text": scene["voiceover"], "model_id": "eleven_monolingual_v1",
                   "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}, timeout=30)
         path = work_dir / f"voice_{i:02d}.mp3"
-        path.write_bytes(resp.content)
-        audio_files.append(path)
+        if resp.status_code == 200 and len(resp.content) > 1000:
+            path.write_bytes(resp.content)
+            audio_files.append(path)
+            log.info(f"   ✅ voice {i}: {len(resp.content)//1024}KB")
+        else:
+            log.error(f"   ❌ ElevenLabs error {resp.status_code}: {resp.text[:200]}")
     concat_list = work_dir / "audio_list.txt"
     concat_list.write_text("\n".join(f"file '{p.resolve()}'" for p in audio_files))
     final = Path("/tmp/final_voice.mp3")
