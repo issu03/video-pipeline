@@ -182,34 +182,68 @@ def download_photos(topic, n_scenes, work_dir):
 
     return photos
 
-# ── STEP 3: Generate voiceover ────────────────────────────────
+# ── STEP 3: Generate voiceover (espeak — free, offline) ──────
 def generate_voiceover(scenes, work_dir):
-    log.info("🎙️  ElevenLabs voiceover...")
+    log.info("🎙️  Generating voiceover with espeak...")
+
+    # Try ElevenLabs first, fall back to espeak
+    eleven_key = os.environ.get("ELEVENLABS_KEY", "")
     audio_files = []
 
-    for i, scene in enumerate(scenes):
-        resp = requests.post(
-            f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}",
-            headers={"xi-api-key": ELEVEN_KEY, "Content-Type": "application/json"},
-            json={"text": scene["voiceover"],
-                  "model_id": "eleven_turbo_v2_5",
-                  "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}},
-            timeout=30)
+    if eleven_key:
+        voice_id = "21m00Tcm4TlvDq8ikWAM"
+        for i, scene in enumerate(scenes):
+            try:
+                resp = requests.post(
+                    f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+                    headers={"xi-api-key": eleven_key, "Content-Type": "application/json"},
+                    json={"text": scene["voiceover"], "model_id": "eleven_turbo_v2_5",
+                          "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}},
+                    timeout=30)
+                if resp.status_code == 200 and len(resp.content) > 500:
+                    path = work_dir / f"voice_{i:02d}.mp3"
+                    path.write_bytes(resp.content)
+                    audio_files.append(path)
+                    log.info(f"   ✅ ElevenLabs voice {i}: {len(resp.content)//1024}KB")
+                else:
+                    log.warning(f"   ⚠️ ElevenLabs {resp.status_code}, switching to espeak")
+                    audio_files = []
+                    break
+            except Exception as e:
+                log.warning(f"   ⚠️ ElevenLabs error: {e}, switching to espeak")
+                audio_files = []
+                break
 
-        if resp.status_code == 200 and len(resp.content) > 500:
-            path = work_dir / f"voice_{i:02d}.mp3"
-            path.write_bytes(resp.content)
-            audio_files.append(path)
-            log.info(f"   ✅ voice {i}: {len(resp.content)//1024}KB")
-        else:
-            log.error(f"   ❌ ElevenLabs {resp.status_code}: {resp.text[:120]}")
+    # espeak fallback (or primary if no ElevenLabs key)
+    if not audio_files:
+        log.info("   🔄 Using espeak (free offline TTS)...")
+        for i, scene in enumerate(scenes):
+            wav_path = work_dir / f"voice_{i:02d}.wav"
+            mp3_path = work_dir / f"voice_{i:02d}.mp3"
+            # Generate WAV with espeak
+            r1 = subprocess.run(
+                ["espeak", "-w", str(wav_path), "-s", "145", "-p", "50", scene["voiceover"]],
+                capture_output=True, text=True)
+            if r1.returncode != 0 or not wav_path.exists():
+                log.error(f"   ❌ espeak scene {i} failed: {r1.stderr[:100]}")
+                continue
+            # Convert WAV to MP3
+            r2 = subprocess.run(
+                ["ffmpeg", "-y", "-i", str(wav_path),
+                 "-c:a", "libmp3lame", "-q:a", "4", str(mp3_path)],
+                capture_output=True, text=True)
+            wav_path.unlink(missing_ok=True)
+            if r2.returncode == 0 and mp3_path.exists():
+                audio_files.append(mp3_path)
+                log.info(f"   ✅ espeak voice {i}: {mp3_path.stat().st_size//1024}KB")
+            else:
+                log.error(f"   ❌ espeak mp3 {i} failed")
 
     if not audio_files:
         log.error("   ❌ No audio generated!")
         return None
 
     final = Path("/tmp/final_voice.mp3")
-
     if len(audio_files) == 1:
         shutil.copy(str(audio_files[0]), str(final))
     else:
@@ -220,10 +254,10 @@ def generate_voiceover(scenes, work_dir):
              "-i", str(concat_list), "-c", "copy", str(final)],
             capture_output=True, text=True)
         if r.returncode != 0 or not final.exists():
-            log.error(f"   ❌ audio concat failed, using first file")
+            log.error(f"   ❌ concat failed, using first")
             shutil.copy(str(audio_files[0]), str(final))
 
-    log.info(f"   ✅ Voiceover: {final.stat().st_size//1024}KB")
+    log.info(f"   ✅ Voiceover ready: {final.stat().st_size//1024}KB")
     return final
 
 # ── STEP 4: Create scene videos (photo + text overlay) ────────
