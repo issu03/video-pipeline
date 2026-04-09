@@ -182,6 +182,12 @@ def download_photos(topic, n_scenes, work_dir):
 
     return photos
 
+# ── Auto-install espeak if missing ───────────────────────────
+import shutil as _shutil
+if not _shutil.which("espeak"):
+    import os as _os
+    _os.system("apt-get update -qq && apt-get install -y -qq espeak")
+
 # ── STEP 3: Generate voiceover (espeak — free, offline) ──────
 def generate_voiceover(scenes, work_dir):
     log.info("🎙️  Generating voiceover with espeak...")
