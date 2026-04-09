@@ -1,8 +1,10 @@
 """
-VaultMind Auto Video Pipeline
-Groq -> Pexels Photos -> ElevenLabs -> ffmpeg -> YouTube Scheduled Upload
+VaultMind Auto Video Pipeline v3
+Groq -> Pexels Photos -> espeak/ElevenLabs -> ffmpeg
+Style: Minecraft bg + speaking character + animated captions + photo inserts
+Duration: 60-90 seconds
 """
-import os, sys, json, time, random, textwrap, subprocess, shutil, logging, requests
+import os, sys, json, time, random, textwrap, subprocess, shutil, logging, requests, math
 from datetime import datetime, timedelta
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
@@ -24,7 +26,6 @@ ELEVEN_KEY = os.environ.get("ELEVENLABS_KEY", "")
 PEXELS_KEY = os.environ.get("PEXELS_KEY", "")
 VOICE_ID   = "21m00Tcm4TlvDq8ikWAM"
 W, H, FPS  = 720, 1280, 30
-
 OUTPUT_DIR     = Path("./output_videos")
 DASHBOARD_FILE = Path("./dashboard.json")
 
@@ -49,160 +50,122 @@ BEST_TIMES = {
     "sunday":    ["10:00","15:00","20:00"],
 }
 
+ACCENT_COLORS = [
+    (255, 60, 80), (255, 215, 0), (46, 213, 115),
+    (138, 92, 255), (30, 200, 255), (255, 140, 0),
+]
+
 def get_next_slots(n=14):
     slots, now = [], datetime.now()
-    buffer = now + timedelta(minutes=45)
+    buf = now + timedelta(minutes=45)
     for d in range(21):
         date = now + timedelta(days=d)
         day = date.strftime("%A").lower()
         for t in BEST_TIMES.get(day, ["12:00"]):
             h, m = map(int, t.split(":"))
             slot = date.replace(hour=h, minute=m, second=0, microsecond=0)
-            if slot > buffer:
-                slots.append(slot)
-            if len(slots) >= n:
-                return slots
+            if slot > buf: slots.append(slot)
+            if len(slots) >= n: return slots
     return slots
 
 def load_dashboard():
-    if DASHBOARD_FILE.exists():
-        return json.loads(DASHBOARD_FILE.read_text())
+    if DASHBOARD_FILE.exists(): return json.loads(DASHBOARD_FILE.read_text())
     return {"videos": [], "stats": {"generated": 0}}
 
-def save_dashboard(data):
-    DASHBOARD_FILE.write_text(json.dumps(data, indent=2, default=str))
+def save_dashboard(data): DASHBOARD_FILE.write_text(json.dumps(data, indent=2, default=str))
 
 def add_to_dashboard(entry):
-    data = load_dashboard()
-    data["videos"].insert(0, entry)
-    data["stats"]["generated"] += 1
-    save_dashboard(data)
+    data = load_dashboard(); data["videos"].insert(0, entry)
+    data["stats"]["generated"] += 1; save_dashboard(data)
 
 def get_font(size, bold=True):
-    paths = [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
-    ] if bold else [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-    ]
+    paths = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+             "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"] if bold else \
+            ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
     for p in paths:
-        if os.path.exists(p):
-            return ImageFont.truetype(p, size)
+        if os.path.exists(p): return ImageFont.truetype(p, size)
     return ImageFont.load_default()
-
-PALETTES = [
-    (255, 215,   0),
-    (138,  92, 255),
-    ( 46, 213, 115),
-    (255,  71,  87),
-    ( 30, 200, 255),
-    (255, 165,   0),
-]
 
 # ── STEP 1: Generate script ───────────────────────────────────
 def generate_script():
     niche = random.choice(NICHES)
     log.info(f"🤖 Groq script... niche: {niche}")
-    prompt = f"""You are a viral TikTok/Shorts scriptwriter for VaultMind.
+    prompt = f"""You are a viral TikTok/YouTube Shorts scriptwriter for VaultMind.
 Niche: {niche}
 
-Return ONLY valid JSON, no markdown:
+Create a 60-75 second video script. Return ONLY valid JSON:
 {{
-  "topic": "2 word Pexels photo search (e.g. 'night city' or 'ancient temple')",
+  "topic": "2 word Pexels photo search term",
   "title": "viral title max 60 chars",
   "description": "2-sentence YouTube description",
+  "hook": "shocking 1-sentence hook (shown first, 4 seconds)",
   "scenes": [
-    {{"text": "max 8 words on screen", "voiceover": "max 25 words spoken", "duration": 3.5}}
+    {{"text": "max 8 words on screen", "voiceover": "max 20 words spoken", "duration": 4.0, "show_photo": true}}
   ],
   "hashtags": "#vaultmind #facts #shorts #fyp #didyouknow"
 }}
-Rules: 5-6 scenes, hook first, CTA last, real facts only."""
+Rules:
+- 12-16 scenes for 60-75 seconds total
+- Scene 1: use the hook text
+- Alternate show_photo true/false
+- Last 2 scenes: CTA to follow VaultMind
+- Keep voiceover short per scene (max 20 words)
+- Real facts only, high energy"""
 
     resp = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={"Authorization": f"Bearer {GROQ_KEY}", "Content-Type": "application/json"},
         json={"model": "llama-3.3-70b-versatile",
               "messages": [{"role": "user", "content": prompt}],
-              "max_tokens": 800, "temperature": 0.7},
+              "max_tokens": 1200, "temperature": 0.7},
         timeout=30)
     resp.raise_for_status()
     raw = resp.json()["choices"][0]["message"]["content"]
-    raw = raw.replace("```json", "").replace("```", "").strip()
-    s = raw.find("{")
-    e = raw.rfind("}") + 1
+    raw = raw.replace("```json","").replace("```","").strip()
+    s = raw.find("{"); e = raw.rfind("}") + 1
     data = json.loads(raw[s:e])
-    log.info(f"   ✅ '{data['title']}'")
+    log.info(f"   ✅ '{data['title']}' — {len(data['scenes'])} scenes")
     return data
 
-# ── STEP 2: Download Pexels PHOTOS ────────────────────────────
-def download_photos(topic, n_scenes, work_dir):
-    """Download one photo per scene from Pexels."""
-    log.info(f"📸 Downloading {n_scenes} photos for '{topic}'...")
+# ── STEP 2: Download Pexels photos ────────────────────────────
+def download_photos(topic, count, work_dir):
+    log.info(f"📸 Downloading {count} photos for '{topic}'...")
     photos = []
-
-    # Search Pexels Photos API (not videos)
-    resp = requests.get(
-        "https://api.pexels.com/v1/search",
-        headers={"Authorization": PEXELS_KEY},
-        params={"query": topic, "per_page": min(n_scenes + 3, 15),
-                "orientation": "portrait"},
-        timeout=15)
-
-    results = resp.json().get("photos", [])
-
-    # Also try landscape if not enough
-    if len(results) < n_scenes:
-        resp2 = requests.get(
-            "https://api.pexels.com/v1/search",
+    for orientation in ["portrait", "landscape"]:
+        resp = requests.get("https://api.pexels.com/v1/search",
             headers={"Authorization": PEXELS_KEY},
-            params={"query": topic, "per_page": 15},
-            timeout=15)
-        results += resp2.json().get("photos", [])
+            params={"query": topic, "per_page": min(count+5, 15),
+                    "orientation": orientation}, timeout=15)
+        results = resp.json().get("photos", [])
+        if len(results) >= count: break
 
-    if not results:
-        log.warning(f"   ⚠️ No photos found for '{topic}', using fallback")
-        return []
-
-    for i in range(n_scenes):
-        photo = results[i % len(results)]
-        # Use medium size (fit for mobile)
-        url = photo["src"].get("large", photo["src"]["original"])
+    for i in range(count):
+        if i >= len(results):
+            photos.append(None); continue
+        url = results[i]["src"].get("large2x", results[i]["src"]["original"])
         path = work_dir / f"photo_{i:02d}.jpg"
         r = requests.get(url, stream=True, timeout=30)
         if r.status_code == 200:
             with open(path, "wb") as f:
-                for chunk in r.iter_content(8192):
-                    f.write(chunk)
+                for chunk in r.iter_content(8192): f.write(chunk)
             log.info(f"   ✅ Photo {i}: {path.stat().st_size//1024}KB")
             photos.append(path)
         else:
-            log.warning(f"   ⚠️ Photo {i} download failed: {r.status_code}")
             photos.append(None)
-
     return photos
 
-# ── Auto-install espeak if missing ───────────────────────────
-import shutil as _shutil
-if not _shutil.which("espeak"):
-    import os as _os
-    _os.system("apt-get update -qq && apt-get install -y -qq espeak")
-
-# ── STEP 3: Generate voiceover (espeak — free, offline) ──────
+# ── STEP 3: Generate voiceover ────────────────────────────────
 def generate_voiceover(scenes, work_dir):
-    log.info("🎙️  Generating voiceover with espeak...")
-
-    # Try ElevenLabs first, fall back to espeak
-    eleven_key = os.environ.get("ELEVENLABS_KEY", "")
+    log.info("🎙️  Generating voiceover...")
     audio_files = []
 
-    if eleven_key:
-        voice_id = "21m00Tcm4TlvDq8ikWAM"
+    # Try ElevenLabs first
+    if ELEVEN_KEY:
         for i, scene in enumerate(scenes):
             try:
                 resp = requests.post(
-                    f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
-                    headers={"xi-api-key": eleven_key, "Content-Type": "application/json"},
+                    f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}",
+                    headers={"xi-api-key": ELEVEN_KEY, "Content-Type": "application/json"},
                     json={"text": scene["voiceover"], "model_id": "eleven_turbo_v2_5",
                           "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}},
                     timeout=30)
@@ -210,232 +173,376 @@ def generate_voiceover(scenes, work_dir):
                     path = work_dir / f"voice_{i:02d}.mp3"
                     path.write_bytes(resp.content)
                     audio_files.append(path)
-                    log.info(f"   ✅ ElevenLabs voice {i}: {len(resp.content)//1024}KB")
+                    log.info(f"   ✅ ElevenLabs {i}: {len(resp.content)//1024}KB")
                 else:
-                    log.warning(f"   ⚠️ ElevenLabs {resp.status_code}, switching to espeak")
-                    audio_files = []
-                    break
+                    log.warning(f"   ⚠️ ElevenLabs {resp.status_code} → espeak fallback")
+                    audio_files = []; break
             except Exception as e:
-                log.warning(f"   ⚠️ ElevenLabs error: {e}, switching to espeak")
-                audio_files = []
-                break
+                log.warning(f"   ⚠️ ElevenLabs error → espeak fallback")
+                audio_files = []; break
 
-    # espeak fallback (or primary if no ElevenLabs key)
+    # espeak fallback
     if not audio_files:
-        log.info("   🔄 Using espeak (free offline TTS)...")
+        log.info("   🔄 Using espeak...")
         for i, scene in enumerate(scenes):
-            wav_path = work_dir / f"voice_{i:02d}.wav"
-            mp3_path = work_dir / f"voice_{i:02d}.mp3"
-            # Generate WAV with espeak
+            wav = work_dir / f"voice_{i:02d}.wav"
+            mp3 = work_dir / f"voice_{i:02d}.mp3"
             r1 = subprocess.run(
-                ["espeak", "-w", str(wav_path), "-s", "145", "-p", "50", scene["voiceover"]],
+                ["espeak", "-w", str(wav), "-s", "148", "-p", "52", scene["voiceover"]],
                 capture_output=True, text=True)
-            if r1.returncode != 0 or not wav_path.exists():
-                log.error(f"   ❌ espeak scene {i} failed: {r1.stderr[:100]}")
-                continue
-            # Convert WAV to MP3
+            if r1.returncode != 0: continue
             r2 = subprocess.run(
-                ["ffmpeg", "-y", "-i", str(wav_path),
-                 "-c:a", "libmp3lame", "-q:a", "4", str(mp3_path)],
+                ["ffmpeg", "-y", "-i", str(wav), "-c:a", "libmp3lame", "-q:a", "4", str(mp3)],
                 capture_output=True, text=True)
-            wav_path.unlink(missing_ok=True)
-            if r2.returncode == 0 and mp3_path.exists():
-                audio_files.append(mp3_path)
-                log.info(f"   ✅ espeak voice {i}: {mp3_path.stat().st_size//1024}KB")
-            else:
-                log.error(f"   ❌ espeak mp3 {i} failed")
+            wav.unlink(missing_ok=True)
+            if r2.returncode == 0 and mp3.exists():
+                audio_files.append(mp3)
+                log.info(f"   ✅ espeak {i}: {mp3.stat().st_size//1024}KB")
 
-    if not audio_files:
-        log.error("   ❌ No audio generated!")
-        return None
+    if not audio_files: return None
 
     final = Path("/tmp/final_voice.mp3")
     if len(audio_files) == 1:
         shutil.copy(str(audio_files[0]), str(final))
     else:
-        concat_list = work_dir / "audio_list.txt"
-        concat_list.write_text("\n".join(f"file '{p.resolve()}'" for p in audio_files))
-        r = subprocess.run(
-            ["ffmpeg", "-y", "-f", "concat", "-safe", "0",
-             "-i", str(concat_list), "-c", "copy", str(final)],
+        cl = work_dir / "audio_list.txt"
+        cl.write_text("\n".join(f"file '{p.resolve()}'" for p in audio_files))
+        r = subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i",str(cl),"-c","copy",str(final)],
             capture_output=True, text=True)
         if r.returncode != 0 or not final.exists():
-            log.error(f"   ❌ concat failed, using first")
             shutil.copy(str(audio_files[0]), str(final))
 
-    log.info(f"   ✅ Voiceover ready: {final.stat().st_size//1024}KB")
+    log.info(f"   ✅ Voiceover: {final.stat().st_size//1024}KB")
     return final
 
-# ── STEP 4: Create scene videos (photo + text overlay) ────────
-def create_scene_video(scene_idx, scene, photo_path, work_dir):
-    """Create one scene: photo background + animated text overlay."""
-    accent = PALETTES[scene_idx % len(PALETTES)]
-    n_frames = int(scene["duration"] * FPS)
-    frames_dir = work_dir / f"sc{scene_idx}_frames"
-    frames_dir.mkdir()
+# ── VISUAL HELPERS ────────────────────────────────────────────
+def make_minecraft_bg(frame_num):
+    img = Image.new("RGB", (W, H))
+    draw = ImageDraw.Draw(img)
+    scroll = frame_num * 2
 
-    font_main  = get_font(68)
-    font_label = get_font(40)
+    # Sky gradient
+    for y in range(int(H * 0.52)):
+        t = y / (H * 0.52)
+        draw.line([(0,y),(W,y)], fill=(int(80+t*80), int(140+t*60), int(200+t*30)))
 
-    # Load and resize photo
-    if photo_path and photo_path.exists():
-        try:
-            bg_img = Image.open(photo_path).convert("RGB")
-            # Crop to 9:16
-            orig_w, orig_h = bg_img.size
-            target_ratio = W / H
-            orig_ratio = orig_w / orig_h
-            if orig_ratio > target_ratio:
-                new_w = int(orig_h * target_ratio)
-                offset = (orig_w - new_w) // 2
-                bg_img = bg_img.crop((offset, 0, offset + new_w, orig_h))
-            else:
-                new_h = int(orig_w / target_ratio)
-                offset = (orig_h - new_h) // 2
-                bg_img = bg_img.crop((0, offset, orig_w, offset + new_h))
-            bg_img = bg_img.resize((W, H), Image.LANCZOS)
-        except Exception as e:
-            log.warning(f"   ⚠️ Photo load failed: {e}, using dark bg")
-            bg_img = Image.new("RGB", (W, H), (8, 12, 20))
-    else:
-        bg_img = Image.new("RGB", (W, H), (8, 12, 20))
+    # Sun
+    draw.ellipse([W-110, 45, W-55, 105], fill=(255, 220, 50))
+    # Sun glow
+    draw.ellipse([W-125, 30, W-40, 120], fill=(255, 240, 100, 40) if hasattr(Image, 'RGBA') else (255,240,100))
 
-    label = "FOLLOW FOR MORE" if scene_idx == -1 else \
-            "DID YOU KNOW?" if scene_idx == 0 else f"FACT #{scene_idx}"
+    # Clouds
+    for i in range(6):
+        cx = int((i*160 - scroll*0.25) % (W+180)) - 60
+        cy = 50 + (i%4)*45
+        for dx,dy,r in [(0,0,32),(28,4,26),(-26,4,23),(14,-16,20),(-14,-16,18)]:
+            draw.ellipse([cx+dx-r,cy+dy-r,cx+dx+r,cy+dy+r], fill=(235,240,255))
 
-    for f in range(n_frames):
-        t = f / max(n_frames - 1, 1)
-        slide = min(1.0, t * 4) ** 0.4
+    gl = int(H * 0.52)
 
-        img = bg_img.copy()
-        draw = ImageDraw.Draw(img)
+    # Grass top
+    for bx in range(-1, W//32+2):
+        x = bx*32-(scroll%32)
+        draw.rectangle([x,gl,x+31,gl+18], fill=(55,160,55))
+        draw.rectangle([x,gl+18,x+31,gl+50], fill=(130,85,40))
+        for row in range(2,16):
+            sh = max(15, 130-row*8)
+            draw.rectangle([x,gl+18+row*32,x+31,gl+18+(row+1)*32], fill=(sh,max(0,sh-45),max(0,sh-80)))
 
-        # Dark gradient overlay top
-        for y in range(200):
-            alpha = int(180 * (1 - y / 200))
-            r_col = max(0, 8 - alpha // 20)
-            draw.line([(0, y), (W, y)], fill=(r_col, r_col + 4, r_col + 12))
+    # Trees
+    for i in range(5):
+        tx = int((i*220+60-scroll)%(W+250))-100
+        draw.rectangle([tx-5,gl-95,tx+5,gl], fill=(90,55,25))
+        draw.rectangle([tx-34,gl-160,tx+34,gl-75], fill=(28,108,28))
+        draw.rectangle([tx-24,gl-195,tx+24,gl-135], fill=(32,128,32))
 
-        # Accent top bar
-        draw.rectangle([0, 0, W, 10], fill=accent)
+    # Underground (visible at bottom)
+    draw.rectangle([0,gl+480,W,H], fill=(35,18,5))
+    # Stone layer
+    for bx in range(-1, W//32+2):
+        x = bx*32-(scroll%64)
+        if (bx+int(scroll/64))%3==0:
+            draw.rectangle([x,gl+490,x+31,gl+521], fill=(100,100,110))
 
-        # Label
-        lb = draw.textbbox((0, 0), label, font=font_label)
-        lw = lb[2] - lb[0]
-        draw.text(((W - lw) // 2 + 2, 25), label, font=font_label, fill=(0, 0, 0))
-        draw.text(((W - lw) // 2, 23), label, font=font_label, fill=accent)
+    return img
 
-        # Dark bottom overlay for text
-        for y in range(H - 520, H):
-            alpha = min(220, int(220 * (y - (H - 520)) / 520))
-            draw.line([(0, y), (W, y)], fill=(5, 5, 15))
-
-        # Main text with slide-up animation
-        wrapped = textwrap.fill(scene["text"], width=14)
-        lines = wrapped.split("\n")
-        base_y = H - 440 + int((1 - slide) * 60)
-
-        for li, line in enumerate(lines):
-            lb2 = draw.textbbox((0, 0), line, font=font_main)
-            lw2 = lb2[2] - lb2[0]
-            lx = (W - lw2) // 2
-            ly = base_y + li * 82
-            # Shadow
-            draw.text((lx + 3, ly + 3), line, font=font_main, fill=(0, 0, 0))
-            draw.text((lx, ly), line, font=font_main, fill=(255, 255, 255))
-
-        # Accent underline
-        line_w = int(220 * slide)
-        draw.rectangle([(W // 2 - line_w, H - 170),
-                         (W // 2 + line_w, H - 163)], fill=accent)
-
-        # Progress bar
-        prog = (scene_idx + t) / max(6, scene_idx + 1)
-        bw = int(W * min(prog, 1.0))
-        draw.rectangle([0, H - 10, bw, H], fill=accent)
-        draw.rectangle([bw, H - 10, W, H], fill=(25, 25, 35))
-
-        img.save(frames_dir / f"frame_{f:04d}.png")
-
-    # Render scene to mp4
-    out_path = work_dir / f"scene_{scene_idx:02d}.mp4"
-    r = subprocess.run([
-        "ffmpeg", "-y", "-framerate", str(FPS),
-        "-i", str(frames_dir / "frame_%04d.png"),
-        "-c:v", "libx264", "-preset", "fast", "-crf", "20",
-        "-pix_fmt", "yuv420p", str(out_path)
-    ], capture_output=True, text=True)
-
-    shutil.rmtree(frames_dir)
-
-    if r.returncode == 0 and out_path.exists():
-        log.info(f"   ✅ scene {scene_idx}: {out_path.stat().st_size // 1024}KB")
-        return out_path
-    else:
-        log.error(f"   ❌ scene {scene_idx} failed: {r.stderr[-150:]}")
+def crop_photo_to_916(photo_path):
+    try:
+        img = Image.open(photo_path).convert("RGB")
+        ow, oh = img.size
+        tr = W/H
+        if ow/oh > tr:
+            nw = int(oh*tr); off=(ow-nw)//2
+            img = img.crop((off,0,off+nw,oh))
+        else:
+            nh = int(ow/tr); off=(oh-nh)//2
+            img = img.crop((0,off,ow,off+nh))
+        return img.resize((W,H), Image.LANCZOS)
+    except:
         return None
 
-# ── STEP 5: Assemble final video ──────────────────────────────
-def assemble_video(script, photos, voiceover, work_dir, output):
-    log.info("🎞️  Assembling video...")
-    total_dur = sum(s["duration"] for s in script["scenes"])
+def draw_photo_insert(img, photo_path, progress, slide_dir="right"):
+    """Animate a photo sliding in from side with rounded corners."""
+    if not photo_path or not photo_path.exists(): return img
+    photo = crop_photo_to_916(photo_path)
+    if photo is None: return img
 
-    if voiceover is None or not voiceover.exists():
-        log.error("   ❌ No voiceover!")
-        return total_dur
+    # Photo shown in top 55% of screen
+    ph_h = int(H * 0.52)
+    photo_resized = photo.resize((W, ph_h), Image.LANCZOS)
 
-    # Create each scene video
-    scene_videos = []
-    for si, scene in enumerate(script["scenes"]):
-        photo = photos[si] if si < len(photos) else None
-        sv = create_scene_video(si, scene, photo, work_dir)
-        if sv:
-            scene_videos.append(sv)
-
-    if not scene_videos:
-        log.error("   ❌ No scene videos!")
-        return total_dur
-
-    log.info(f"   ✅ {len(scene_videos)} scene videos created")
-
-    # Concat all scenes
-    concat_list = work_dir / "scenes_list.txt"
-    concat_list.write_text("\n".join(f"file '{p.resolve()}'" for p in scene_videos))
-    concat_video = work_dir / "concat.mp4"
-
-    r1 = subprocess.run([
-        "ffmpeg", "-y", "-f", "concat", "-safe", "0",
-        "-i", str(concat_list),
-        "-c:v", "libx264", "-preset", "fast", "-crf", "18",
-        "-pix_fmt", "yuv420p", str(concat_video)
-    ], capture_output=True, text=True)
-
-    if r1.returncode != 0 or not concat_video.exists():
-        log.error(f"   ❌ scene concat failed: {r1.stderr[-200:]}")
-        return total_dur
-
-    log.info(f"   ✅ concat: {concat_video.stat().st_size // 1024}KB")
-
-    # Add audio
-    r2 = subprocess.run([
-        "ffmpeg", "-y",
-        "-i", str(concat_video),
-        "-i", str(voiceover),
-        "-map", "0:v", "-map", "1:a",
-        "-c:v", "copy",
-        "-c:a", "aac", "-b:a", "128k",
-        "-t", str(total_dur),
-        "-movflags", "+faststart",
-        str(output)
-    ], capture_output=True, text=True)
-
-    if r2.returncode != 0:
-        log.error(f"   ❌ audio merge failed: {r2.stderr[-200:]}")
+    # Slide animation
+    ease = min(1.0, progress * 2) ** 0.5
+    if slide_dir == "right":
+        offset_x = int((1-ease) * W)
+    elif slide_dir == "left":
+        offset_x = -int((1-ease) * W)
     else:
-        size = output.stat().st_size / 1024 / 1024 if output.exists() else 0
-        log.info(f"   ✅ {output.name} ({size:.1f}MB, {total_dur:.1f}s)")
+        offset_x = 0
 
-    return total_dur
+    # Dark overlay on photo
+    overlay = Image.new("RGBA", (W, ph_h), (0,0,20,int(120*(1-ease*0.3))))
+    photo_resized_rgba = photo_resized.convert("RGBA")
+    photo_final = Image.alpha_composite(photo_resized_rgba, overlay).convert("RGB")
+
+    img.paste(photo_final, (offset_x, 0))
+    return img
+
+def draw_speaking_character(img, frame, mouth_open=False, accent=(255,60,80)):
+    draw = ImageDraw.Draw(img, 'RGBA')
+    x, y = 155, H - 370
+    bob = int(math.sin(frame * 0.35) * 5)
+    y += bob
+
+    # Shadow
+    draw.ellipse([x-50,y+195,x+50,y+212], fill=(0,0,0,50))
+
+    # Legs
+    lleg_x = int(math.sin(frame*0.2)*5)
+    draw.rectangle([x-26+lleg_x, y+148, x-8+lleg_x, y+200], fill=(40,40,180))
+    draw.rectangle([x+8-lleg_x, y+148, x+26-lleg_x, y+200], fill=(40,40,180))
+    # Shoes
+    draw.ellipse([x-30+lleg_x, y+190, x-2+lleg_x, y+208], fill=(20,20,20))
+    draw.ellipse([x+2-lleg_x, y+190, x+30-lleg_x, y+208], fill=(20,20,20))
+
+    # Body
+    draw.rectangle([x-34, y+58, x+34, y+152], fill=accent)
+    # Shirt detail
+    draw.rectangle([x-2, y+58, x+2, y+152], fill=(max(0,accent[0]-40), max(0,accent[1]-40), max(0,accent[2]-40)))
+
+    # Arms animated
+    arm_swing = math.sin(frame*0.35)*20
+    # Left arm
+    draw.line([x-34,y+80,x-68,y+120+int(arm_swing)], fill=accent, width=16)
+    draw.ellipse([x-76,y+112+int(arm_swing),x-56,y+132+int(arm_swing)], fill=(255,210,170))
+    # Right arm
+    draw.line([x+34,y+80,x+68,y+120-int(arm_swing)], fill=accent, width=16)
+    draw.ellipse([x+56,y+112-int(arm_swing),x+76,y+132-int(arm_swing)], fill=(255,210,170))
+
+    # Neck
+    draw.rectangle([x-10,y+42,x+10,y+64], fill=(255,210,170))
+
+    # Head
+    draw.ellipse([x-38,y-10,x+38,y+52], fill=(255,210,170))
+
+    # Hair
+    draw.ellipse([x-38,y-10,x+38,y+15], fill=(80,50,20))
+    draw.ellipse([x-30,y-22,x+30,y+5], fill=(90,55,22))
+
+    # Eyes (blink every ~3 sec)
+    blink = (frame % 90 < 4)
+    ey = y+10
+    if blink:
+        draw.line([x-20,ey+8,x-8,ey+8], fill=(60,40,20), width=3)
+        draw.line([x+8,ey+8,x+20,ey+8], fill=(60,40,20), width=3)
+    else:
+        # Whites
+        draw.ellipse([x-22,ey,x-6,ey+18], fill=(255,255,255))
+        draw.ellipse([x+6,ey,x+22,ey+18], fill=(255,255,255))
+        # Iris
+        draw.ellipse([x-20,ey+2,x-8,ey+16], fill=(60,120,200))
+        draw.ellipse([x+8,ey+2,x+20,ey+16], fill=(60,120,200))
+        # Pupil
+        draw.ellipse([x-17,ey+5,x-11,ey+13], fill=(10,10,10))
+        draw.ellipse([x+11,ey+5,x+17,ey+13], fill=(10,10,10))
+        # Shine
+        draw.ellipse([x-15,ey+5,x-13,ey+8], fill=(255,255,255))
+        draw.ellipse([x+13,ey+5,x+15,ey+8], fill=(255,255,255))
+
+    # Eyebrows
+    draw.line([x-22,ey-3,x-8,ey], fill=(70,45,15), width=3)
+    draw.line([x+8,ey-3,x+22,ey], fill=(70,45,15), width=3)
+
+    # Mouth
+    if mouth_open:
+        draw.ellipse([x-14,y+28,x+14,y+44], fill=(160,30,30))
+        draw.ellipse([x-11,y+30,x+11,y+42], fill=(200,60,60))
+        draw.rectangle([x-10,y+28,x+10,y+33], fill=(235,225,215))
+    else:
+        draw.arc([x-12,y+28,x+12,y+44], 10, 170, fill=(140,60,60), width=3)
+
+    return img
+
+def draw_animated_caption(draw, text, word_progress, font_big, font_med, accent, y_pos):
+    """Word-by-word caption with highlight on current word."""
+    words = text.split()
+    total = len(words)
+    visible = max(1, int(word_progress * total))
+
+    # Show last 6 words max at a time
+    start = max(0, visible-6)
+    show_words = words[start:visible]
+    display = ' '.join(show_words)
+
+    wrapped = textwrap.fill(display, width=22)
+    lines_text = wrapped.split('\n')
+    lh = 58
+    total_h = len(lines_text)*lh + 24
+
+    # Caption background
+    pad = 20
+    draw.rectangle([pad, y_pos-total_h//2-12, W-pad, y_pos+total_h//2+12],
+                   fill=(0,0,0,210))
+    # Accent line top
+    draw.rectangle([pad, y_pos-total_h//2-12, W-pad, y_pos-total_h//2-6], fill=accent)
+
+    for li, line in enumerate(lines_text):
+        lb = draw.textbbox((0,0), line, font=font_big)
+        lw = lb[2]-lb[0]
+        lx = (W-lw)//2
+        ly = y_pos - total_h//2 + li*lh + 4
+        # Shadow
+        draw.text((lx+2,ly+2), line, font=font_big, fill=(0,0,0))
+        # Main text
+        draw.text((lx,ly), line, font=font_big, fill=(255,255,255))
+
+def draw_top_bar(draw, channel_name, font_sm, accent):
+    draw.rectangle([0, 0, W, 72], fill=(0,0,0,180))
+    draw.rectangle([0, 0, W, 6], fill=accent)
+    # Channel badge
+    draw.rectangle([16, 14, 220, 56], fill=accent)
+    lb = draw.textbbox((0,0), channel_name, font=font_sm)
+    lx = 16 + (204-(lb[2]-lb[0]))//2
+    draw.text((lx, 18), channel_name, font=font_sm, fill=(0,0,8))
+
+# ── STEP 4: Render full video ─────────────────────────────────
+def render_video(script, photos, work_dir, output):
+    log.info("🎬 Rendering video...")
+    scenes = script["scenes"]
+    total_dur = sum(s["duration"] for s in scenes)
+    total_frames = int(total_dur * FPS)
+    accent = random.choice(ACCENT_COLORS)
+
+    font_caption = get_font(52)
+    font_label   = get_font(34)
+    font_channel = get_font(28)
+
+    frames_dir = work_dir / "frames"
+    frames_dir.mkdir()
+
+    # Photo pool
+    photo_pool = [p for p in photos if p and p.exists()]
+    photo_idx = 0
+
+    global_frame = 0
+    for si, scene in enumerate(scenes):
+        n_frames = int(scene["duration"] * FPS)
+        show_photo = scene.get("show_photo", si % 2 == 0) and photo_pool
+        current_photo = photo_pool[photo_idx % len(photo_pool)] if show_photo else None
+        if show_photo: photo_idx += 1
+        slide_dir = "right" if si % 2 == 0 else "left"
+
+        for f in range(n_frames):
+            t = f / max(n_frames-1, 1)
+            mouth_open = (f % 8) < 5
+
+            # 1. Minecraft background
+            bg = make_minecraft_bg(global_frame)
+
+            # 2. Photo insert (top area)
+            if current_photo:
+                photo_progress = min(1.0, t * 3)
+                bg = draw_photo_insert(bg, current_photo, photo_progress, slide_dir)
+            else:
+                # Dark overlay on bg top
+                ov = Image.new("RGBA", (W, int(H*0.52)), (0,0,0,120))
+                bg.paste(Image.new("RGB",(W,int(H*0.52)),(0,0,0)), (0,0),
+                         Image.new("L",(W,int(H*0.52)), 120))
+
+            # 3. Speaking character
+            bg = draw_speaking_character(bg, global_frame, mouth_open, accent)
+
+            # 4. Overlays
+            draw = ImageDraw.Draw(bg, 'RGBA')
+
+            # Top bar
+            draw_top_bar(draw, "VAULTMIND", font_channel, accent)
+
+            # Caption
+            caption_text = scene["voiceover"]
+            word_prog = min(1.0, t * 2.0 + 0.1)
+            draw_animated_caption(draw, caption_text, word_prog,
+                                  font_caption, font_label, accent,
+                                  H - 290)
+
+            # Scene label (small, top right)
+            scene_label = f"{si+1}/{len(scenes)}"
+            draw.rectangle([W-80, 14, W-14, 54], fill=(0,0,0,160))
+            lb = draw.textbbox((0,0), scene_label, font=font_label)
+            draw.text((W-80+(66-(lb[2]-lb[0]))//2, 20), scene_label, font=font_label, fill=accent)
+
+            # Progress bar
+            prog = global_frame / max(total_frames-1, 1)
+            bw = int(W*prog)
+            draw.rectangle([0, H-10, bw, H], fill=accent)
+            draw.rectangle([bw, H-10, W, H], fill=(15,15,15,220))
+
+            bg.save(frames_dir / f"frame_{global_frame:06d}.png")
+            global_frame += 1
+
+        if global_frame % 50 == 0:
+            log.info(f"   🎨 Frame {global_frame}/{total_frames}")
+
+    log.info(f"   ✅ {global_frame} frames rendered")
+
+    # ffmpeg: frames → video
+    r = subprocess.run([
+        "ffmpeg", "-y", "-framerate", str(FPS),
+        "-i", str(frames_dir/"frame_%06d.png"),
+        "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+        "-pix_fmt", "yuv420p", str(output)
+    ], capture_output=True, text=True)
+    shutil.rmtree(frames_dir)
+
+    if r.returncode == 0 and output.exists():
+        log.info(f"   ✅ Video: {output.stat().st_size//1024}KB, {total_dur:.1f}s")
+        return True
+    else:
+        log.error(f"   ❌ render failed: {r.stderr[-200:]}")
+        return False
+
+# ── STEP 5: Merge audio + video ───────────────────────────────
+def merge_audio(video_path, voice_path, output):
+    total_dur = None
+    # Get video duration
+    r = subprocess.run(["ffprobe","-v","quiet","-print_format","json",
+                        "-show_format",str(video_path)], capture_output=True, text=True)
+    try: total_dur = float(json.loads(r.stdout)["format"]["duration"])
+    except: pass
+
+    cmd = ["ffmpeg","-y","-i",str(video_path),"-i",str(voice_path),
+           "-map","0:v","-map","1:a","-c:v","copy",
+           "-c:a","aac","-b:a","128k","-movflags","+faststart"]
+    if total_dur: cmd += ["-t", str(total_dur)]
+    cmd.append(str(output))
+
+    r2 = subprocess.run(cmd, capture_output=True, text=True)
+    if r2.returncode == 0 and output.exists():
+        log.info(f"   ✅ Final: {output.stat().st_size//1024}KB")
+        return True
+    else:
+        log.error(f"   ❌ merge failed: {r2.stderr[-150:]}")
+        return False
 
 # ── STEP 6: YouTube upload ────────────────────────────────────
 def upload_youtube(video_path, title, description, hashtags, publish_at):
@@ -445,49 +552,43 @@ def upload_youtube(video_path, title, description, hashtags, publish_at):
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaFileUpload
         from google.auth.transport.requests import Request
-
         token_b64 = os.environ.get("YOUTUBE_TOKEN_B64", "")
-        if not token_b64:
-            log.warning("   ⚠️ YOUTUBE_TOKEN_B64 not set")
-            return None
-
+        if not token_b64: log.warning("   ⚠️ No YouTube token"); return None
         creds = pickle.loads(base64.b64decode(token_b64))
-        if creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-
-        yt = build("youtube", "v3", credentials=creds)
+        if creds.expired and creds.refresh_token: creds.refresh(Request())
+        yt = build("youtube","v3",credentials=creds)
         body = {
-            "snippet": {
-                "title": title[:100],
-                "description": description + "\n\n" + hashtags + "\n\n#Shorts",
-                "tags": [t.replace("#", "") for t in hashtags.split()],
-                "categoryId": "22",
-            },
-            "status": {
-                "privacyStatus": "private",
-                "publishAt": publish_at.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-                "selfDeclaredMadeForKids": False,
-            }
+            "snippet": {"title": title[:100],
+                       "description": description+"\n\n"+hashtags+"\n\n#Shorts",
+                       "tags": [t.replace("#","") for t in hashtags.split()],
+                       "categoryId": "22"},
+            "status": {"privacyStatus": "private",
+                      "publishAt": publish_at.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                      "selfDeclaredMadeForKids": False}
         }
         media = MediaFileUpload(str(video_path), mimetype="video/mp4", resumable=True)
         req = yt.videos().insert(part="snippet,status", body=body, media_body=media)
         response = None
-        while response is None:
-            _, response = req.next_chunk()
+        while response is None: _, response = req.next_chunk()
         vid = response["id"]
-        log.info(f"   ✅ Uploaded! youtu.be/{vid}")
+        log.info(f"   ✅ youtu.be/{vid}")
         return f"https://youtube.com/shorts/{vid}"
     except Exception as e:
-        log.error(f"   ❌ YouTube: {e}")
-        return None
+        log.error(f"   ❌ YouTube: {e}"); return None
 
 # ── MAIN ──────────────────────────────────────────────────────
 def run_pipeline(n_videos=1):
-    log.info("=" * 55)
-    log.info("🚀 VAULTMIND PIPELINE")
-    log.info("=" * 55)
+    # Auto-install espeak if missing
+    import shutil as _sh
+    if not _sh.which("espeak"):
+        log.info("Installing espeak...")
+        os.system("apt-get update -qq && apt-get install -y -qq espeak")
+
+    log.info("="*55)
+    log.info("🚀 VAULTMIND PIPELINE v3")
+    log.info("="*55)
     OUTPUT_DIR.mkdir(exist_ok=True)
-    slots = get_next_slots(n_videos * 2)
+    slots = get_next_slots(n_videos*2)
     yt_slots = slots[0::2][:n_videos]
     tt_slots = slots[1::2][:n_videos]
     results = []
@@ -497,53 +598,58 @@ def run_pipeline(n_videos=1):
         ts = int(time.time())
         work_dir = Path(f"/tmp/pipeline_{ts}_{i}")
         work_dir.mkdir(parents=True)
-        output = Path(f"/tmp/video_{ts}.mp4")
+        raw_video = Path(f"/tmp/raw_{ts}.mp4")
+        final_video = Path(f"/tmp/video_{ts}.mp4")
         voice_file = Path("/tmp/final_voice.mp3")
 
         try:
             script    = generate_script()
-            n_scenes  = len(script["scenes"])
-            photos    = download_photos(script["topic"], n_scenes, work_dir)
+            n_photos  = sum(1 for s in script["scenes"] if s.get("show_photo", True))
+            photos    = download_photos(script["topic"], n_photos, work_dir)
             voiceover = generate_voiceover(script["scenes"], work_dir)
-            duration  = assemble_video(script, photos, voiceover, work_dir, output)
 
-            yt_time = yt_slots[i] if i < len(yt_slots) else datetime.now() + timedelta(hours=1)
-            tt_time = tt_slots[i] if i < len(tt_slots) else datetime.now() + timedelta(hours=2)
+            ok = render_video(script, photos, work_dir, raw_video)
+            if not ok: raise Exception("Video render failed")
 
-            if output.exists() and output.stat().st_size > 10000:
-                yt_url = upload_youtube(output, script["title"],
-                                        script.get("description", ""),
+            if voiceover and voiceover.exists():
+                ok2 = merge_audio(raw_video, voiceover, final_video)
+                if not ok2:
+                    shutil.copy(str(raw_video), str(final_video))
+            else:
+                shutil.copy(str(raw_video), str(final_video))
+
+            yt_time = yt_slots[i] if i < len(yt_slots) else datetime.now()+timedelta(hours=1)
+            tt_time = tt_slots[i] if i < len(tt_slots) else datetime.now()+timedelta(hours=2)
+
+            if final_video.exists() and final_video.stat().st_size > 50000:
+                yt_url = upload_youtube(final_video, script["title"],
+                                        script.get("description",""),
                                         script["hashtags"], yt_time)
             else:
-                log.error("   ❌ Video missing/too small, skipping upload")
+                log.error("   ❌ Video too small, skipping upload")
                 yt_url = None
 
-            entry = {
-                "id": ts, "title": script["title"], "duration": duration,
-                "created_at": datetime.now().isoformat(),
-                "youtube": {"scheduled": yt_time.isoformat(), "url": yt_url},
-                "tiktok":  {"scheduled": tt_time.isoformat()},
-                "hashtags": script["hashtags"], "status": "scheduled",
-            }
+            entry = {"id": ts, "title": script["title"],
+                    "duration": sum(s["duration"] for s in script["scenes"]),
+                    "created_at": datetime.now().isoformat(),
+                    "youtube": {"scheduled": yt_time.isoformat(), "url": yt_url},
+                    "tiktok": {"scheduled": tt_time.isoformat()},
+                    "hashtags": script["hashtags"], "status": "scheduled"}
             add_to_dashboard(entry)
             results.append(entry)
             log.info(f"✅ Video {i+1} done! YT: {yt_time.strftime('%a %d %b %H:%M')}")
 
         except Exception as e:
             import traceback
-            log.error(f"❌ Video {i+1} failed: {e}")
-            log.error(traceback.format_exc())
+            log.error(f"❌ Failed: {e}\n{traceback.format_exc()}")
         finally:
             shutil.rmtree(work_dir, ignore_errors=True)
-            if voice_file.exists():
-                voice_file.unlink()
+            for p in [raw_video, voice_file]:
+                if p.exists(): p.unlink()
 
-        if i < n_videos - 1:
-            time.sleep(3)
+        if i < n_videos-1: time.sleep(3)
 
-    log.info(f"\n{'='*55}")
-    log.info(f"🎉 DONE — {len(results)}/{n_videos} videos scheduled")
-    log.info(f"{'='*55}")
+    log.info(f"\n🎉 DONE — {len(results)}/{n_videos} videos")
     return results
 
 if __name__ == "__main__":
