@@ -1,9 +1,0 @@
-[build]
-builder = "nixpacks"
-
-[build.nixpacksPlan.phases.setup]
-nixPkgs = ["ffmpeg", "python312", "espeak"]
-
-[deploy]
-startCommand = "python pipeline.py 1"
-restartPolicyType = "never"
