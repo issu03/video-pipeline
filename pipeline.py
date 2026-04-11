@@ -1,8 +1,6 @@
 """
-VaultMind Auto Video Pipeline v3
-Groq -> Pexels Photos -> espeak/ElevenLabs -> ffmpeg
-Style: Minecraft bg + speaking character + animated captions + photo inserts
-Duration: 60-90 seconds
+VaultMind Auto Video Pipeline v4
+Real gameplay bg + Reddit story format + speaking character + animated captions
 """
 import os, sys, json, time, random, textwrap, subprocess, shutil, logging, requests, math
 from datetime import datetime, timedelta
@@ -28,16 +26,17 @@ VOICE_ID   = "21m00Tcm4TlvDq8ikWAM"
 W, H, FPS  = 720, 1280, 30
 OUTPUT_DIR     = Path("./output_videos")
 DASHBOARD_FILE = Path("./dashboard.json")
+GAMEPLAY_FILE  = Path("/app/gameplay_bg.mp4")
 
 NICHES = [
-    "Interesting Facts",
-    "Unethical ways to earn money (legal but edgy)",
-    "Dating fail stories",
-    "Business ideas and money hacks",
-    "What if scenarios",
-    "Crazy true stories",
-    "Psychology facts",
-    "Life hacks nobody talks about",
+    {"type": "reddit", "prompt": "Reddit AITA or never again story — dramatic, relatable, real sounding"},
+    {"type": "reddit", "prompt": "Reddit relationship fail or revenge story"},
+    {"type": "reddit", "prompt": "Reddit workplace drama or entitled boss story"},
+    {"type": "fact",   "prompt": "Mind-blowing psychology fact most people don't know"},
+    {"type": "fact",   "prompt": "Shocking money or business fact"},
+    {"type": "fact",   "prompt": "Insane historical fact that sounds fake but is true"},
+    {"type": "money",  "prompt": "Unethical but legal way to earn money online"},
+    {"type": "whatif", "prompt": "What if scenario that makes people think"},
 ]
 
 BEST_TIMES = {
@@ -51,8 +50,8 @@ BEST_TIMES = {
 }
 
 ACCENT_COLORS = [
-    (255, 60, 80), (255, 215, 0), (46, 213, 115),
-    (138, 92, 255), (30, 200, 255), (255, 140, 0),
+    (255, 215, 0), (255, 60, 80), (46, 213, 115),
+    (138, 92, 255), (30, 200, 255),
 ]
 
 def get_next_slots(n=14):
@@ -81,7 +80,8 @@ def add_to_dashboard(entry):
 def get_font(size, bold=True):
     paths = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
              "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"] if bold else \
-            ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
+            ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+             "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"]
     for p in paths:
         if os.path.exists(p): return ImageFont.truetype(p, size)
     return ImageFont.load_default()
@@ -89,35 +89,62 @@ def get_font(size, bold=True):
 # ── STEP 1: Generate script ───────────────────────────────────
 def generate_script():
     niche = random.choice(NICHES)
-    log.info(f"🤖 Groq script... niche: {niche}")
-    prompt = f"""You are a viral TikTok/YouTube Shorts scriptwriter for VaultMind.
-Niche: {niche}
+    log.info(f"🤖 Groq script... type: {niche['type']}")
 
-Create a 60-75 second video script. Return ONLY valid JSON:
+    if niche["type"] == "reddit":
+        prompt = f"""You are writing viral TikTok content for VaultMind channel.
+Topic: {niche['prompt']}
+
+Create a realistic Reddit-style story video script. Return ONLY valid JSON:
 {{
-  "topic": "2 word Pexels photo search term",
-  "title": "viral title max 60 chars",
+  "type": "reddit",
+  "title": "viral TikTok title max 60 chars",
   "description": "2-sentence YouTube description",
-  "hook": "shocking 1-sentence hook (shown first, 4 seconds)",
+  "reddit_title": "realistic Reddit post title (like real Reddit — casual, specific, emotional)",
+  "reddit_sub": "AITA",
+  "reddit_user": "u/ThrowawayAccount_{random.randint(1000,9999)}",
   "scenes": [
-    {{"text": "max 8 words on screen", "voiceover": "max 20 words spoken", "duration": 4.0, "show_photo": true}}
+    {{"text": "caption text max 10 words", "voiceover": "narration max 25 words", "duration": 5.0}}
   ],
-  "hashtags": "#vaultmind #facts #shorts #fyp #didyouknow"
+  "hashtags": "#vaultmind #reddit #storytime #fyp #shorts"
 }}
 Rules:
-- 12-16 scenes for 60-75 seconds total
-- Scene 1: use the hook text
-- Alternate show_photo true/false
-- Last 2 scenes: CTA to follow VaultMind
-- Keep voiceover short per scene (max 20 words)
-- Real facts only, high energy"""
+- 12-16 scenes, 60-80 seconds total
+- Scene 1 (5s): Show reddit post title only, voiceover reads it
+- Scenes 2-14: Tell the story in chunks, dramatic, engaging
+- Last 2 scenes: resolution + CTA follow VaultMind
+- Make the story REALISTIC and SPECIFIC (names, places, details)
+- High drama, relatable, scroll-stopping"""
+    else:
+        prompt = f"""You are writing viral TikTok content for VaultMind channel.
+Topic: {niche['prompt']}
+
+Return ONLY valid JSON:
+{{
+  "type": "fact",
+  "title": "viral TikTok title max 60 chars",
+  "description": "2-sentence YouTube description",
+  "reddit_title": "",
+  "reddit_sub": "",
+  "reddit_user": "",
+  "scenes": [
+    {{"text": "caption text max 10 words", "voiceover": "narration max 25 words", "duration": 4.5}}
+  ],
+  "hashtags": "#vaultmind #facts #didyouknow #fyp #shorts"
+}}
+Rules:
+- 12-16 scenes, 60-75 seconds total
+- Scene 1: shocking hook
+- Scenes 2-13: build the content
+- Last 2: CTA follow VaultMind
+- Real, verifiable, surprising content"""
 
     resp = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={"Authorization": f"Bearer {GROQ_KEY}", "Content-Type": "application/json"},
         json={"model": "llama-3.3-70b-versatile",
               "messages": [{"role": "user", "content": prompt}],
-              "max_tokens": 1200, "temperature": 0.7},
+              "max_tokens": 1500, "temperature": 0.8},
         timeout=30)
     resp.raise_for_status()
     raw = resp.json()["choices"][0]["message"]["content"]
@@ -127,39 +154,11 @@ Rules:
     log.info(f"   ✅ '{data['title']}' — {len(data['scenes'])} scenes")
     return data
 
-# ── STEP 2: Download Pexels photos ────────────────────────────
-def download_photos(topic, count, work_dir):
-    log.info(f"📸 Downloading {count} photos for '{topic}'...")
-    photos = []
-    for orientation in ["portrait", "landscape"]:
-        resp = requests.get("https://api.pexels.com/v1/search",
-            headers={"Authorization": PEXELS_KEY},
-            params={"query": topic, "per_page": min(count+5, 15),
-                    "orientation": orientation}, timeout=15)
-        results = resp.json().get("photos", [])
-        if len(results) >= count: break
-
-    for i in range(count):
-        if i >= len(results):
-            photos.append(None); continue
-        url = results[i]["src"].get("large2x", results[i]["src"]["original"])
-        path = work_dir / f"photo_{i:02d}.jpg"
-        r = requests.get(url, stream=True, timeout=30)
-        if r.status_code == 200:
-            with open(path, "wb") as f:
-                for chunk in r.iter_content(8192): f.write(chunk)
-            log.info(f"   ✅ Photo {i}: {path.stat().st_size//1024}KB")
-            photos.append(path)
-        else:
-            photos.append(None)
-    return photos
-
-# ── STEP 3: Generate voiceover ────────────────────────────────
+# ── STEP 2: Voiceover ─────────────────────────────────────────
 def generate_voiceover(scenes, work_dir):
     log.info("🎙️  Generating voiceover...")
     audio_files = []
 
-    # Try ElevenLabs first
     if ELEVEN_KEY:
         for i, scene in enumerate(scenes):
             try:
@@ -173,31 +172,23 @@ def generate_voiceover(scenes, work_dir):
                     path = work_dir / f"voice_{i:02d}.mp3"
                     path.write_bytes(resp.content)
                     audio_files.append(path)
-                    log.info(f"   ✅ ElevenLabs {i}: {len(resp.content)//1024}KB")
                 else:
-                    log.warning(f"   ⚠️ ElevenLabs {resp.status_code} → espeak fallback")
+                    log.warning(f"   ⚠️ ElevenLabs {resp.status_code} → espeak")
                     audio_files = []; break
-            except Exception as e:
-                log.warning(f"   ⚠️ ElevenLabs error → espeak fallback")
+            except:
                 audio_files = []; break
 
-    # espeak fallback
     if not audio_files:
-        log.info("   🔄 Using espeak...")
+        log.info("   🔄 espeak...")
         for i, scene in enumerate(scenes):
-            wav = work_dir / f"voice_{i:02d}.wav"
+            wav = work_dir / f"v_{i}.wav"
             mp3 = work_dir / f"voice_{i:02d}.mp3"
-            r1 = subprocess.run(
-                ["espeak", "-w", str(wav), "-s", "148", "-p", "52", scene["voiceover"]],
-                capture_output=True, text=True)
-            if r1.returncode != 0: continue
-            r2 = subprocess.run(
-                ["ffmpeg", "-y", "-i", str(wav), "-c:a", "libmp3lame", "-q:a", "4", str(mp3)],
-                capture_output=True, text=True)
+            subprocess.run(["espeak","-w",str(wav),"-s","148","-p","52",scene["voiceover"]],
+                          capture_output=True)
+            subprocess.run(["ffmpeg","-y","-i",str(wav),"-c:a","libmp3lame","-q:a","4",str(mp3)],
+                          capture_output=True)
             wav.unlink(missing_ok=True)
-            if r2.returncode == 0 and mp3.exists():
-                audio_files.append(mp3)
-                log.info(f"   ✅ espeak {i}: {mp3.stat().st_size//1024}KB")
+            if mp3.exists(): audio_files.append(mp3)
 
     if not audio_files: return None
 
@@ -205,307 +196,261 @@ def generate_voiceover(scenes, work_dir):
     if len(audio_files) == 1:
         shutil.copy(str(audio_files[0]), str(final))
     else:
-        cl = work_dir / "audio_list.txt"
+        cl = work_dir / "al.txt"
         cl.write_text("\n".join(f"file '{p.resolve()}'" for p in audio_files))
         r = subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i",str(cl),"-c","copy",str(final)],
             capture_output=True, text=True)
         if r.returncode != 0 or not final.exists():
             shutil.copy(str(audio_files[0]), str(final))
 
-    log.info(f"   ✅ Voiceover: {final.stat().st_size//1024}KB")
+    log.info(f"   ✅ Audio: {final.stat().st_size//1024}KB")
     return final
 
-# ── VISUAL HELPERS ────────────────────────────────────────────
-def make_minecraft_bg(frame_num):
-    img = Image.new("RGB", (W, H))
-    draw = ImageDraw.Draw(img)
-    scroll = frame_num * 2
+# ── VISUAL: Reddit card ───────────────────────────────────────
+def draw_reddit_card(img, script, progress, font_title, font_meta, font_small):
+    """Draw realistic Reddit post card at top of screen."""
+    if not script.get("reddit_title"): return img
 
-    # Sky gradient
-    for y in range(int(H * 0.52)):
-        t = y / (H * 0.52)
-        draw.line([(0,y),(W,y)], fill=(int(80+t*80), int(140+t*60), int(200+t*30)))
-
-    # Sun
-    draw.ellipse([W-110, 45, W-55, 105], fill=(255, 220, 50))
-    # Sun glow
-    draw.ellipse([W-125, 30, W-40, 120], fill=(255, 240, 100, 40) if hasattr(Image, 'RGBA') else (255,240,100))
-
-    # Clouds
-    for i in range(6):
-        cx = int((i*160 - scroll*0.25) % (W+180)) - 60
-        cy = 50 + (i%4)*45
-        for dx,dy,r in [(0,0,32),(28,4,26),(-26,4,23),(14,-16,20),(-14,-16,18)]:
-            draw.ellipse([cx+dx-r,cy+dy-r,cx+dx+r,cy+dy+r], fill=(235,240,255))
-
-    gl = int(H * 0.52)
-
-    # Grass top
-    for bx in range(-1, W//32+2):
-        x = bx*32-(scroll%32)
-        draw.rectangle([x,gl,x+31,gl+18], fill=(55,160,55))
-        draw.rectangle([x,gl+18,x+31,gl+50], fill=(130,85,40))
-        for row in range(2,16):
-            sh = max(15, 130-row*8)
-            draw.rectangle([x,gl+18+row*32,x+31,gl+18+(row+1)*32], fill=(sh,max(0,sh-45),max(0,sh-80)))
-
-    # Trees
-    for i in range(5):
-        tx = int((i*220+60-scroll)%(W+250))-100
-        draw.rectangle([tx-5,gl-95,tx+5,gl], fill=(90,55,25))
-        draw.rectangle([tx-34,gl-160,tx+34,gl-75], fill=(28,108,28))
-        draw.rectangle([tx-24,gl-195,tx+24,gl-135], fill=(32,128,32))
-
-    # Underground (visible at bottom)
-    draw.rectangle([0,gl+480,W,H], fill=(35,18,5))
-    # Stone layer
-    for bx in range(-1, W//32+2):
-        x = bx*32-(scroll%64)
-        if (bx+int(scroll/64))%3==0:
-            draw.rectangle([x,gl+490,x+31,gl+521], fill=(100,100,110))
-
-    return img
-
-def crop_photo_to_916(photo_path):
-    try:
-        img = Image.open(photo_path).convert("RGB")
-        ow, oh = img.size
-        tr = W/H
-        if ow/oh > tr:
-            nw = int(oh*tr); off=(ow-nw)//2
-            img = img.crop((off,0,off+nw,oh))
-        else:
-            nh = int(ow/tr); off=(oh-nh)//2
-            img = img.crop((0,off,ow,off+nh))
-        return img.resize((W,H), Image.LANCZOS)
-    except:
-        return None
-
-def draw_photo_insert(img, photo_path, progress, slide_dir="right"):
-    """Animate a photo sliding in from side with rounded corners."""
-    if not photo_path or not photo_path.exists(): return img
-    photo = crop_photo_to_916(photo_path)
-    if photo is None: return img
-
-    # Photo shown in top 55% of screen
-    ph_h = int(H * 0.52)
-    photo_resized = photo.resize((W, ph_h), Image.LANCZOS)
-
-    # Slide animation
-    ease = min(1.0, progress * 2) ** 0.5
-    if slide_dir == "right":
-        offset_x = int((1-ease) * W)
-    elif slide_dir == "left":
-        offset_x = -int((1-ease) * W)
-    else:
-        offset_x = 0
-
-    # Dark overlay on photo
-    overlay = Image.new("RGBA", (W, ph_h), (0,0,20,int(120*(1-ease*0.3))))
-    photo_resized_rgba = photo_resized.convert("RGBA")
-    photo_final = Image.alpha_composite(photo_resized_rgba, overlay).convert("RGB")
-
-    img.paste(photo_final, (offset_x, 0))
-    return img
-
-def draw_speaking_character(img, frame, mouth_open=False, accent=(255,60,80)):
     draw = ImageDraw.Draw(img, 'RGBA')
-    x, y = 155, H - 370
-    bob = int(math.sin(frame * 0.35) * 5)
+    card_x, card_y = 20, 85
+    card_w, card_h = W - 40, 175
+    slide = min(1.0, progress * 4) ** 0.5
+
+    # Card background (Reddit dark mode style)
+    alpha = int(230 * slide)
+    draw.rectangle([card_x, card_y, card_x+card_w, card_y+card_h],
+                   fill=(26, 26, 27, alpha))
+    draw.rectangle([card_x, card_y, card_x+card_w, card_y+2],
+                   fill=(255, 69, 0, alpha))  # Reddit orange top
+
+    # Subreddit + user
+    sub_text = f"r/{script.get('reddit_sub','AskReddit')}  •  {script.get('reddit_user','u/throwaway')}"
+    draw.text((card_x+12, card_y+12), sub_text, font=font_small, fill=(129, 132, 135, alpha))
+
+    # Reddit title (wrapped)
+    title = script.get("reddit_title", "")
+    wrapped = textwrap.fill(title, width=38)
+    lines = wrapped.split('\n')
+    ty = card_y + 38
+    for line in lines[:3]:
+        draw.text((card_x+12, ty), line, font=font_title, fill=(215, 218, 220, alpha))
+        ty += 38
+
+    # Upvotes + comments (fake but realistic)
+    upvotes = f"▲ {random.randint(8,42)}k  💬 {random.randint(200,3000)}"
+    draw.text((card_x+12, card_y+card_h-28), upvotes, font=font_small, fill=(129,132,135,alpha))
+
+    return img
+
+# ── VISUAL: Speaking character (bottom right) ─────────────────
+def draw_character_br(img, frame, mouth_open, accent):
+    """Character bottom-right, standing on the platform level."""
+    draw = ImageDraw.Draw(img, 'RGBA')
+    x = W - 130
+    y = H - 310
+    bob = int(math.sin(frame * 0.35) * 4)
     y += bob
 
+    def c(r,g,b,a=255): return (r,g,b,a)
+
     # Shadow
-    draw.ellipse([x-50,y+195,x+50,y+212], fill=(0,0,0,50))
+    draw.ellipse([x-45, y+190, x+45, y+205], fill=c(0,0,0,50))
 
     # Legs
-    lleg_x = int(math.sin(frame*0.2)*5)
-    draw.rectangle([x-26+lleg_x, y+148, x-8+lleg_x, y+200], fill=(40,40,180))
-    draw.rectangle([x+8-lleg_x, y+148, x+26-lleg_x, y+200], fill=(40,40,180))
-    # Shoes
-    draw.ellipse([x-30+lleg_x, y+190, x-2+lleg_x, y+208], fill=(20,20,20))
-    draw.ellipse([x+2-lleg_x, y+190, x+30-lleg_x, y+208], fill=(20,20,20))
+    ls = int(math.sin(frame*0.2)*4)
+    draw.rectangle([x-24+ls, y+145, x-7+ls, y+195], fill=c(35,35,170))
+    draw.rectangle([x+7-ls,  y+145, x+24-ls, y+195], fill=c(35,35,170))
+    draw.ellipse([x-28+ls, y+185, x-3+ls, y+200], fill=c(15,15,15))
+    draw.ellipse([x+3-ls,  y+185, x+28-ls, y+200], fill=c(15,15,15))
 
     # Body
-    draw.rectangle([x-34, y+58, x+34, y+152], fill=accent)
-    # Shirt detail
-    draw.rectangle([x-2, y+58, x+2, y+152], fill=(max(0,accent[0]-40), max(0,accent[1]-40), max(0,accent[2]-40)))
+    draw.rectangle([x-30, y+55, x+30, y+150], fill=accent)
+    draw.rectangle([x-2, y+55, x+2, y+150], fill=(max(0,accent[0]-50), max(0,accent[1]-50), max(0,accent[2]-50)))
 
-    # Arms animated
-    arm_swing = math.sin(frame*0.35)*20
-    # Left arm
-    draw.line([x-34,y+80,x-68,y+120+int(arm_swing)], fill=accent, width=16)
-    draw.ellipse([x-76,y+112+int(arm_swing),x-56,y+132+int(arm_swing)], fill=(255,210,170))
-    # Right arm
-    draw.line([x+34,y+80,x+68,y+120-int(arm_swing)], fill=accent, width=16)
-    draw.ellipse([x+56,y+112-int(arm_swing),x+76,y+132-int(arm_swing)], fill=(255,210,170))
+    # Arms
+    sw = int(math.sin(frame*0.35)*18)
+    draw.line([x-30,y+75, x-60,y+115+sw], fill=accent, width=14)
+    draw.ellipse([x-68,y+107+sw, x-50,y+123+sw], fill=c(255,210,170))
+    draw.line([x+30,y+75, x+60,y+115-sw], fill=accent, width=14)
+    draw.ellipse([x+50,y+107-sw, x+68,y+123-sw], fill=c(255,210,170))
 
-    # Neck
-    draw.rectangle([x-10,y+42,x+10,y+64], fill=(255,210,170))
-
-    # Head
-    draw.ellipse([x-38,y-10,x+38,y+52], fill=(255,210,170))
+    # Neck + head
+    draw.rectangle([x-9,y+40, x+9,y+60], fill=c(255,210,170))
+    draw.ellipse([x-34,y-8, x+34,y+48], fill=c(255,210,170))
 
     # Hair
-    draw.ellipse([x-38,y-10,x+38,y+15], fill=(80,50,20))
-    draw.ellipse([x-30,y-22,x+30,y+5], fill=(90,55,22))
+    draw.ellipse([x-34,y-8, x+34,y+15], fill=c(75,45,18))
+    draw.ellipse([x-28,y-20, x+28,y+2], fill=c(85,50,20))
 
-    # Eyes (blink every ~3 sec)
-    blink = (frame % 90 < 4)
-    ey = y+10
+    # Eyes
+    blink = (frame % 85 < 3)
+    ey = y+8
     if blink:
-        draw.line([x-20,ey+8,x-8,ey+8], fill=(60,40,20), width=3)
-        draw.line([x+8,ey+8,x+20,ey+8], fill=(60,40,20), width=3)
+        draw.line([x-18,ey+7, x-7,ey+7], fill=c(50,35,15), width=3)
+        draw.line([x+7,ey+7, x+18,ey+7], fill=c(50,35,15), width=3)
     else:
-        # Whites
-        draw.ellipse([x-22,ey,x-6,ey+18], fill=(255,255,255))
-        draw.ellipse([x+6,ey,x+22,ey+18], fill=(255,255,255))
-        # Iris
-        draw.ellipse([x-20,ey+2,x-8,ey+16], fill=(60,120,200))
-        draw.ellipse([x+8,ey+2,x+20,ey+16], fill=(60,120,200))
-        # Pupil
-        draw.ellipse([x-17,ey+5,x-11,ey+13], fill=(10,10,10))
-        draw.ellipse([x+11,ey+5,x+17,ey+13], fill=(10,10,10))
-        # Shine
-        draw.ellipse([x-15,ey+5,x-13,ey+8], fill=(255,255,255))
-        draw.ellipse([x+13,ey+5,x+15,ey+8], fill=(255,255,255))
-
-    # Eyebrows
-    draw.line([x-22,ey-3,x-8,ey], fill=(70,45,15), width=3)
-    draw.line([x+8,ey-3,x+22,ey], fill=(70,45,15), width=3)
+        draw.ellipse([x-20,ey+1, x-6,ey+17], fill=c(255,255,255))
+        draw.ellipse([x+6,ey+1,  x+20,ey+17], fill=c(255,255,255))
+        draw.ellipse([x-18,ey+3, x-8,ey+15], fill=c(55,110,195))
+        draw.ellipse([x+8,ey+3,  x+18,ey+15], fill=c(55,110,195))
+        draw.ellipse([x-16,ey+5, x-10,ey+13], fill=c(5,5,5))
+        draw.ellipse([x+10,ey+5, x+16,ey+13], fill=c(5,5,5))
+        draw.ellipse([x-15,ey+5, x-13,ey+8], fill=c(255,255,255))
+        draw.ellipse([x+13,ey+5, x+15,ey+8], fill=c(255,255,255))
 
     # Mouth
     if mouth_open:
-        draw.ellipse([x-14,y+28,x+14,y+44], fill=(160,30,30))
-        draw.ellipse([x-11,y+30,x+11,y+42], fill=(200,60,60))
-        draw.rectangle([x-10,y+28,x+10,y+33], fill=(235,225,215))
+        draw.ellipse([x-12,y+26, x+12,y+40], fill=c(160,30,30))
+        draw.ellipse([x-9, y+28, x+9, y+38], fill=c(200,60,60))
+        draw.rectangle([x-8,y+26, x+8,y+31], fill=c(235,225,215))
     else:
-        draw.arc([x-12,y+28,x+12,y+44], 10, 170, fill=(140,60,60), width=3)
+        draw.arc([x-11,y+26, x+11,y+40], 10, 170, fill=c(140,55,55), width=2)
 
     return img
 
-def draw_animated_caption(draw, text, word_progress, font_big, font_med, accent, y_pos):
-    """Word-by-word caption with highlight on current word."""
+# ── VISUAL: Animated caption (yellow, bottom center) ──────────
+def draw_caption_viral(draw, text, word_progress, font_big, font_sm, y_pos):
+    """YouTube/TikTok style yellow caption with black outline."""
     words = text.split()
     total = len(words)
     visible = max(1, int(word_progress * total))
 
-    # Show last 6 words max at a time
-    start = max(0, visible-6)
-    show_words = words[start:visible]
-    display = ' '.join(show_words)
+    # Show max 5 words at a time
+    start = max(0, visible - 5)
+    show = words[start:visible]
 
-    wrapped = textwrap.fill(display, width=22)
-    lines_text = wrapped.split('\n')
-    lh = 58
-    total_h = len(lines_text)*lh + 24
+    # Highlight last word
+    if len(show) > 1:
+        normal = ' '.join(show[:-1]) + ' '
+        highlight = show[-1]
+    else:
+        normal = ''
+        highlight = show[0] if show else ''
 
-    # Caption background
-    pad = 20
-    draw.rectangle([pad, y_pos-total_h//2-12, W-pad, y_pos+total_h//2+12],
-                   fill=(0,0,0,210))
-    # Accent line top
-    draw.rectangle([pad, y_pos-total_h//2-12, W-pad, y_pos-total_h//2-6], fill=accent)
+    def text_w(t, font):
+        bb = draw.textbbox((0,0), t, font=font)
+        return bb[2]-bb[0]
 
-    for li, line in enumerate(lines_text):
-        lb = draw.textbbox((0,0), line, font=font_big)
-        lw = lb[2]-lb[0]
-        lx = (W-lw)//2
-        ly = y_pos - total_h//2 + li*lh + 4
-        # Shadow
-        draw.text((lx+2,ly+2), line, font=font_big, fill=(0,0,0))
-        # Main text
-        draw.text((lx,ly), line, font=font_big, fill=(255,255,255))
+    nw = text_w(normal, font_big)
+    hw = text_w(highlight, font_big)
+    total_w = nw + hw
+    start_x = (W - total_w) // 2
 
-def draw_top_bar(draw, channel_name, font_sm, accent):
-    draw.rectangle([0, 0, W, 72], fill=(0,0,0,180))
-    draw.rectangle([0, 0, W, 6], fill=accent)
-    # Channel badge
-    draw.rectangle([16, 14, 220, 56], fill=accent)
-    lb = draw.textbbox((0,0), channel_name, font=font_sm)
-    lx = 16 + (204-(lb[2]-lb[0]))//2
-    draw.text((lx, 18), channel_name, font=font_sm, fill=(0,0,8))
+    # Outline function
+    def outlined(x, y, t, font, fill, outline=(0,0,0)):
+        for dx, dy in [(-3,0),(3,0),(0,-3),(0,3),(-2,-2),(2,-2),(-2,2),(2,2)]:
+            draw.text((x+dx, y+dy), t, font=font, fill=outline)
+        draw.text((x,y), t, font=font, fill=fill)
 
-# ── STEP 4: Render full video ─────────────────────────────────
-def render_video(script, photos, work_dir, output):
-    log.info("🎬 Rendering video...")
+    if normal:
+        outlined(start_x, y_pos, normal, font_big, (255,255,255))
+    outlined(start_x + nw, y_pos, highlight, font_big, (255, 220, 0))
+
+# ── STEP 3: Render frames with gameplay bg ────────────────────
+def render_video(script, work_dir, output, gameplay_path):
+    log.info("🎬 Rendering video with gameplay background...")
     scenes = script["scenes"]
     total_dur = sum(s["duration"] for s in scenes)
     total_frames = int(total_dur * FPS)
     accent = random.choice(ACCENT_COLORS)
 
-    font_caption = get_font(52)
-    font_label   = get_font(34)
-    font_channel = get_font(28)
+    font_caption = get_font(56)
+    font_caption_sm = get_font(38)
+    font_reddit_title = get_font(30)
+    font_reddit_meta = get_font(26, bold=False)
+    font_reddit_sm = get_font(22, bold=False)
+    font_channel = get_font(26)
 
+    is_reddit = script.get("type") == "reddit"
+
+    # Extract gameplay frames
     frames_dir = work_dir / "frames"
     frames_dir.mkdir()
+    gameplay_frames_dir = work_dir / "gp_frames"
+    gameplay_frames_dir.mkdir()
 
-    # Photo pool
-    photo_pool = [p for p in photos if p and p.exists()]
-    photo_idx = 0
+    # Extract gameplay at target FPS (use random start offset)
+    max_offset = 60
+    gp_offset = random.uniform(0, max_offset)
+    log.info(f"   📼 Extracting gameplay frames (offset {gp_offset:.1f}s)...")
+
+    if gameplay_path.exists():
+        r = subprocess.run([
+            "ffmpeg", "-y",
+            "-ss", str(gp_offset),
+            "-i", str(gameplay_path),
+            "-vf", f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}",
+            "-r", str(FPS),
+            "-t", str(total_dur + 2),
+            "-q:v", "5",
+            str(gameplay_frames_dir / "frame_%06d.jpg")
+        ], capture_output=True, text=True)
+        gp_frames = sorted(gameplay_frames_dir.glob("frame_*.jpg"))
+        log.info(f"   ✅ {len(gp_frames)} gameplay frames extracted")
+    else:
+        gp_frames = []
+        log.warning("   ⚠️ No gameplay file, using dark background")
 
     global_frame = 0
     for si, scene in enumerate(scenes):
         n_frames = int(scene["duration"] * FPS)
-        show_photo = scene.get("show_photo", si % 2 == 0) and photo_pool
-        current_photo = photo_pool[photo_idx % len(photo_pool)] if show_photo else None
-        if show_photo: photo_idx += 1
-        slide_dir = "right" if si % 2 == 0 else "left"
-
         for f in range(n_frames):
             t = f / max(n_frames-1, 1)
             mouth_open = (f % 8) < 5
 
-            # 1. Minecraft background
-            bg = make_minecraft_bg(global_frame)
-
-            # 2. Photo insert (top area)
-            if current_photo:
-                photo_progress = min(1.0, t * 3)
-                bg = draw_photo_insert(bg, current_photo, photo_progress, slide_dir)
+            # 1. Gameplay background
+            gp_idx = min(global_frame, len(gp_frames)-1)
+            if gp_frames and gp_idx >= 0:
+                bg = Image.open(gp_frames[gp_idx]).convert("RGB")
+                if bg.size != (W, H):
+                    bg = bg.resize((W, H), Image.BILINEAR)
             else:
-                # Dark overlay on bg top
-                ov = Image.new("RGBA", (W, int(H*0.52)), (0,0,0,120))
-                bg.paste(Image.new("RGB",(W,int(H*0.52)),(0,0,0)), (0,0),
-                         Image.new("L",(W,int(H*0.52)), 120))
+                bg = Image.new("RGB", (W, H), (10, 10, 20))
 
-            # 3. Speaking character
-            bg = draw_speaking_character(bg, global_frame, mouth_open, accent)
+            # 2. Semi-transparent dark overlay (so text is readable)
+            overlay = Image.new("RGBA", (W, H), (0, 0, 0, 80))
+            bg = Image.alpha_composite(bg.convert("RGBA"), overlay).convert("RGB")
 
-            # 4. Overlays
+            # 3. Character bottom-right
+            bg = draw_character_br(bg, global_frame, mouth_open, accent)
+
+            # 4. Overlay elements
             draw = ImageDraw.Draw(bg, 'RGBA')
 
             # Top bar
-            draw_top_bar(draw, "VAULTMIND", font_channel, accent)
+            draw.rectangle([0, 0, W, 68], fill=(0,0,0,170))
+            draw.rectangle([0, 0, W, 5], fill=accent)
+            # Channel name
+            lb = draw.textbbox((0,0), "VAULTMIND", font=font_channel)
+            draw.text(((W-(lb[2]-lb[0]))//2, 16), "VAULTMIND", font=font_channel, fill=accent)
 
-            # Caption
-            caption_text = scene["voiceover"]
-            word_prog = min(1.0, t * 2.0 + 0.1)
-            draw_animated_caption(draw, caption_text, word_prog,
-                                  font_caption, font_label, accent,
-                                  H - 290)
+            # Reddit card (first 3 scenes or when is_reddit)
+            if is_reddit and si <= 2:
+                card_progress = min(1.0, (si * n_frames + f) / (3 * n_frames))
+                bg = draw_reddit_card(bg, script, card_progress,
+                                      font_reddit_title, font_reddit_meta, font_reddit_sm)
 
-            # Scene label (small, top right)
-            scene_label = f"{si+1}/{len(scenes)}"
-            draw.rectangle([W-80, 14, W-14, 54], fill=(0,0,0,160))
-            lb = draw.textbbox((0,0), scene_label, font=font_label)
-            draw.text((W-80+(66-(lb[2]-lb[0]))//2, 20), scene_label, font=font_label, fill=accent)
+            # Animated caption (bottom center)
+            word_prog = min(1.0, t * 2.2 + 0.05)
+            draw_caption_viral(draw, scene["voiceover"], word_prog,
+                               font_caption, font_caption_sm, H - 270)
 
             # Progress bar
             prog = global_frame / max(total_frames-1, 1)
-            bw = int(W*prog)
-            draw.rectangle([0, H-10, bw, H], fill=accent)
-            draw.rectangle([bw, H-10, W, H], fill=(15,15,15,220))
+            bw = int(W * prog)
+            draw.rectangle([0, H-8, bw, H], fill=accent)
+            draw.rectangle([bw, H-8, W, H], fill=(0,0,0,180))
 
             bg.save(frames_dir / f"frame_{global_frame:06d}.png")
             global_frame += 1
 
-        if global_frame % 50 == 0:
-            log.info(f"   🎨 Frame {global_frame}/{total_frames}")
+        if si % 3 == 0:
+            log.info(f"   🎨 Scene {si+1}/{len(scenes)} done")
 
+    shutil.rmtree(gameplay_frames_dir, ignore_errors=True)
     log.info(f"   ✅ {global_frame} frames rendered")
 
-    # ffmpeg: frames → video
+    # Render frames to video
     r = subprocess.run([
         "ffmpeg", "-y", "-framerate", str(FPS),
         "-i", str(frames_dir/"frame_%06d.png"),
@@ -517,34 +462,21 @@ def render_video(script, photos, work_dir, output):
     if r.returncode == 0 and output.exists():
         log.info(f"   ✅ Video: {output.stat().st_size//1024}KB, {total_dur:.1f}s")
         return True
-    else:
-        log.error(f"   ❌ render failed: {r.stderr[-200:]}")
-        return False
+    log.error(f"   ❌ Render failed: {r.stderr[-200:]}")
+    return False
 
-# ── STEP 5: Merge audio + video ───────────────────────────────
 def merge_audio(video_path, voice_path, output):
-    total_dur = None
-    # Get video duration
-    r = subprocess.run(["ffprobe","-v","quiet","-print_format","json",
-                        "-show_format",str(video_path)], capture_output=True, text=True)
-    try: total_dur = float(json.loads(r.stdout)["format"]["duration"])
-    except: pass
-
-    cmd = ["ffmpeg","-y","-i",str(video_path),"-i",str(voice_path),
-           "-map","0:v","-map","1:a","-c:v","copy",
-           "-c:a","aac","-b:a","128k","-movflags","+faststart"]
-    if total_dur: cmd += ["-t", str(total_dur)]
-    cmd.append(str(output))
-
-    r2 = subprocess.run(cmd, capture_output=True, text=True)
-    if r2.returncode == 0 and output.exists():
+    r = subprocess.run([
+        "ffmpeg", "-y", "-i", str(video_path), "-i", str(voice_path),
+        "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+        "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", str(output)
+    ], capture_output=True, text=True)
+    if r.returncode == 0 and output.exists():
         log.info(f"   ✅ Final: {output.stat().st_size//1024}KB")
         return True
-    else:
-        log.error(f"   ❌ merge failed: {r2.stderr[-150:]}")
-        return False
+    log.error(f"   ❌ Merge: {r.stderr[-150:]}")
+    return False
 
-# ── STEP 6: YouTube upload ────────────────────────────────────
 def upload_youtube(video_path, title, description, hashtags, publish_at):
     log.info(f"📺 YouTube -> {publish_at.strftime('%a %d %b %H:%M')}")
     try:
@@ -553,7 +485,7 @@ def upload_youtube(video_path, title, description, hashtags, publish_at):
         from googleapiclient.http import MediaFileUpload
         from google.auth.transport.requests import Request
         token_b64 = os.environ.get("YOUTUBE_TOKEN_B64", "")
-        if not token_b64: log.warning("   ⚠️ No YouTube token"); return None
+        if not token_b64: return None
         creds = pickle.loads(base64.b64decode(token_b64))
         if creds.expired and creds.refresh_token: creds.refresh(Request())
         yt = build("youtube","v3",credentials=creds)
@@ -578,14 +510,13 @@ def upload_youtube(video_path, title, description, hashtags, publish_at):
 
 # ── MAIN ──────────────────────────────────────────────────────
 def run_pipeline(n_videos=1):
-    # Auto-install espeak if missing
     import shutil as _sh
     if not _sh.which("espeak"):
         log.info("Installing espeak...")
         os.system("apt-get update -qq && apt-get install -y -qq espeak")
 
     log.info("="*55)
-    log.info("🚀 VAULTMIND PIPELINE v3")
+    log.info("🚀 VAULTMIND PIPELINE v4")
     log.info("="*55)
     OUTPUT_DIR.mkdir(exist_ok=True)
     slots = get_next_slots(n_videos*2)
@@ -604,17 +535,12 @@ def run_pipeline(n_videos=1):
 
         try:
             script    = generate_script()
-            n_photos  = sum(1 for s in script["scenes"] if s.get("show_photo", True))
-            photos    = download_photos(script["topic"], n_photos, work_dir)
             voiceover = generate_voiceover(script["scenes"], work_dir)
-
-            ok = render_video(script, photos, work_dir, raw_video)
-            if not ok: raise Exception("Video render failed")
+            ok        = render_video(script, work_dir, raw_video, GAMEPLAY_FILE)
+            if not ok: raise Exception("Render failed")
 
             if voiceover and voiceover.exists():
-                ok2 = merge_audio(raw_video, voiceover, final_video)
-                if not ok2:
-                    shutil.copy(str(raw_video), str(final_video))
+                merge_audio(raw_video, voiceover, final_video)
             else:
                 shutil.copy(str(raw_video), str(final_video))
 
@@ -626,11 +552,10 @@ def run_pipeline(n_videos=1):
                                         script.get("description",""),
                                         script["hashtags"], yt_time)
             else:
-                log.error("   ❌ Video too small, skipping upload")
-                yt_url = None
+                log.error("   ❌ Video too small"); yt_url = None
 
             entry = {"id": ts, "title": script["title"],
-                    "duration": sum(s["duration"] for s in script["scenes"]),
+                    "type": script.get("type","fact"),
                     "created_at": datetime.now().isoformat(),
                     "youtube": {"scheduled": yt_time.isoformat(), "url": yt_url},
                     "tiktok": {"scheduled": tt_time.isoformat()},
@@ -646,7 +571,6 @@ def run_pipeline(n_videos=1):
             shutil.rmtree(work_dir, ignore_errors=True)
             for p in [raw_video, voice_file]:
                 if p.exists(): p.unlink()
-
         if i < n_videos-1: time.sleep(3)
 
     log.info(f"\n🎉 DONE — {len(results)}/{n_videos} videos")

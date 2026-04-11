@@ -1,17 +1,12 @@
 FROM python:3.11-slim
 
-# Install ffmpeg
-RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -y -qq ffmpeg espeak && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
-
-# Install Python dependencies
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt --no-cache-dir
 
-# Copy all files
-COPY . .
+COPY pipeline.py .
+COPY gameplay_bg.mp4 .
 
-# Run pipeline
 CMD ["python", "pipeline.py", "1"]
