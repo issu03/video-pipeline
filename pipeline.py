@@ -98,7 +98,7 @@ Topic: {niche['prompt']}
 Create a realistic Reddit-style story video script. Return ONLY valid JSON:
 {{
   "type": "reddit",
-  "title": "viral TikTok title max 60 chars",
+  "title": "viral title — emotional, specific, max 60 chars. Use numbers or power words. NO generic titles.",
   "description": "2-sentence YouTube description",
   "reddit_title": "realistic Reddit post title (like real Reddit — casual, specific, emotional)",
   "reddit_sub": "AITA",
@@ -109,9 +109,9 @@ Create a realistic Reddit-style story video script. Return ONLY valid JSON:
   "hashtags": "#vaultmind #reddit #storytime #fyp #shorts"
 }}
 Rules:
-- 12-16 scenes, 60-80 seconds total
+- 16-20 scenes, 70-90 seconds total (MUST exceed 60 seconds)
 - Scene 1 (5s): Show reddit post title only, voiceover reads it
-- Scenes 2-14: Tell the story in chunks, dramatic, engaging
+- Scenes 2-17: Tell the story in chunks, dramatic, engaging
 - Last 2 scenes: resolution + CTA follow VaultMind
 - Make the story REALISTIC and SPECIFIC (names, places, details)
 - High drama, relatable, scroll-stopping"""
@@ -122,7 +122,7 @@ Topic: {niche['prompt']}
 Return ONLY valid JSON:
 {{
   "type": "fact",
-  "title": "viral TikTok title max 60 chars",
+  "title": "viral title — emotional, specific, max 60 chars. Use numbers or power words. NO generic titles.",
   "description": "2-sentence YouTube description",
   "reddit_title": "",
   "reddit_sub": "",
@@ -133,7 +133,7 @@ Return ONLY valid JSON:
   "hashtags": "#vaultmind #facts #didyouknow #fyp #shorts"
 }}
 Rules:
-- 12-16 scenes, 60-75 seconds total
+- 16-20 scenes, 70-85 seconds total (MUST exceed 60 seconds)
 - Scene 1: shocking hook
 - Scenes 2-13: build the content
 - Last 2: CTA follow VaultMind
@@ -159,6 +159,7 @@ def generate_voiceover(scenes, work_dir):
     log.info("🎙️  Generating voiceover...")
     audio_files = []
 
+    # Priority 1: ElevenLabs (best quality)
     if ELEVEN_KEY:
         for i, scene in enumerate(scenes):
             try:
@@ -173,19 +174,44 @@ def generate_voiceover(scenes, work_dir):
                     path.write_bytes(resp.content)
                     audio_files.append(path)
                 else:
-                    log.warning(f"   ⚠️ ElevenLabs {resp.status_code} → espeak")
+                    log.warning(f"   ⚠️ ElevenLabs {resp.status_code} → edge-tts")
                     audio_files = []; break
             except:
                 audio_files = []; break
 
+    # Priority 2: edge-tts (Microsoft neural TTS — free, sounds natural)
     if not audio_files:
-        log.info("   🔄 espeak...")
+        try:
+            import asyncio, edge_tts
+            log.info("   🔄 edge-tts (Microsoft neural TTS)...")
+            EDGE_VOICE = "en-US-ChristopherNeural"
+
+            async def gen_edge(text, path):
+                tts = edge_tts.Communicate(text, voice=EDGE_VOICE, rate="+10%")
+                await tts.save(str(path))
+
+            for i, scene in enumerate(scenes):
+                path = work_dir / f"voice_{i:02d}.mp3"
+                asyncio.run(gen_edge(scene["voiceover"], path))
+                if path.exists() and path.stat().st_size > 500:
+                    audio_files.append(path)
+                    log.info(f"   ✅ edge-tts {i}: {path.stat().st_size//1024}KB")
+                else:
+                    log.warning(f"   ⚠️ edge-tts {i} failed")
+                    audio_files = []; break
+        except Exception as e:
+            log.warning(f"   ⚠️ edge-tts failed: {e} → espeak fallback")
+            audio_files = []
+
+    # Priority 3: espeak (offline fallback)
+    if not audio_files:
+        log.info("   🔄 espeak fallback...")
         for i, scene in enumerate(scenes):
             wav = work_dir / f"v_{i}.wav"
             mp3 = work_dir / f"voice_{i:02d}.mp3"
-            subprocess.run(["espeak","-w",str(wav),"-s","148","-p","52",scene["voiceover"]],
-                          capture_output=True)
-            subprocess.run(["ffmpeg","-y","-i",str(wav),"-c:a","libmp3lame","-q:a","4",str(mp3)],
+            subprocess.run(["espeak","-w",str(wav),"-s","140","-p","45","-g","3",
+                           scene["voiceover"]], capture_output=True)
+            subprocess.run(["ffmpeg","-y","-i",str(wav),"-c:a","libmp3lame","-q:a","2",str(mp3)],
                           capture_output=True)
             wav.unlink(missing_ok=True)
             if mp3.exists(): audio_files.append(mp3)
@@ -374,6 +400,7 @@ def render_video(script, work_dir, output, gameplay_path):
     gp_offset = random.uniform(0, max_offset)
     log.info(f"   📼 Extracting gameplay frames (offset {gp_offset:.1f}s)...")
 
+    log.info(f"   📁 Gameplay path: {gameplay_path} exists={gameplay_path.exists()}")
     if gameplay_path.exists():
         r = subprocess.run([
             "ffmpeg", "-y",
@@ -385,11 +412,16 @@ def render_video(script, work_dir, output, gameplay_path):
             "-q:v", "5",
             str(gameplay_frames_dir / "frame_%06d.jpg")
         ], capture_output=True, text=True)
+        if r.returncode != 0:
+            log.error(f"   ❌ ffmpeg gameplay extract: {r.stderr[-200:]}")
         gp_frames = sorted(gameplay_frames_dir.glob("frame_*.jpg"))
         log.info(f"   ✅ {len(gp_frames)} gameplay frames extracted")
     else:
         gp_frames = []
         log.warning("   ⚠️ No gameplay file, using dark background")
+        # List /app to debug
+        import glob as _g
+        log.info(f"   📂 /app contents: {_g.glob('/app/*')}")
 
     global_frame = 0
     for si, scene in enumerate(scenes):
@@ -491,7 +523,7 @@ def upload_youtube(video_path, title, description, hashtags, publish_at):
         yt = build("youtube","v3",credentials=creds)
         body = {
             "snippet": {"title": title[:100],
-                       "description": description+"\n\n"+hashtags+"\n\n#Shorts",
+                       "description": description+"\n\n"+hashtags,
                        "tags": [t.replace("#","") for t in hashtags.split()],
                        "categoryId": "22"},
             "status": {"privacyStatus": "private",
