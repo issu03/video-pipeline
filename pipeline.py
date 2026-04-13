@@ -26,7 +26,7 @@ VOICE_ID   = "21m00Tcm4TlvDq8ikWAM"
 W, H, FPS  = 720, 1280, 30
 OUTPUT_DIR     = Path("./output_videos")
 DASHBOARD_FILE = Path("./dashboard.json")
-GAMEPLAY_FILE  = Path("/app/gameplay_bg.mp4")
+GAMEPLAY_FILE  = Path(os.environ.get("GAMEPLAY_PATH", "./gameplay_bg.mp4"))
 
 NICHES = [
     {"type": "reddit", "prompt": "Reddit AITA or never again story — dramatic, relatable, real sounding"},
