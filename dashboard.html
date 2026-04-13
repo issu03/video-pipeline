@@ -1,464 +1,323 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Video Pipeline Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<title>VaultMind Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#06090F;--surface:#0C1018;--border:#161D27;
-  --yt:#FF0000;--tt:#010101;--tt-accent:#69C9D0;
-  --gold:#FFD700;--green:#2ED573;--muted:#4A5568;
-  --text:#E2E8F0;--text2:#94A3B8;
+  --bg:#05070D;--s1:#090D18;--s2:#0E1422;
+  --border:#1A2438;--border2:#243048;
+  --yt:#FF0033;--yt2:#FF4466;
+  --tt:#00F5D4;--gold:#FFD100;--gold2:#FFBE00;
+  --green:#00E676;--red:#FF3D57;
+  --text:#E8EDF5;--text2:#7A8FA8;--text3:#3D5070;
+  --r:14px;
 }
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
-
-/* Animated BG */
-body::before{
-  content:'';position:fixed;inset:0;
-  background:radial-gradient(ellipse 80% 50% at 20% 20%,rgba(255,71,87,0.04) 0%,transparent 60%),
-             radial-gradient(ellipse 60% 40% at 80% 80%,rgba(105,201,208,0.04) 0%,transparent 60%);
-  pointer-events:none;z-index:0;
-}
-
-.wrap{max-width:1200px;margin:0 auto;padding:32px 24px;position:relative;z-index:1}
-
-/* Header */
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px}
-.logo{display:flex;align-items:center;gap:16px}
-.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--yt),#FF6B6B);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
-.logo-text h1{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em;line-height:1}
-.logo-text p{font-size:12px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace}
-.status-pill{display:flex;align-items:center;gap:8px;background:rgba(46,213,115,0.1);border:1px solid rgba(46,213,115,0.2);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--green)}
-.pulse{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
-
-/* Stats row */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px}
-@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden}
-.stat::before{content:'';position:absolute;inset:0;background:var(--stat-glow,transparent);opacity:0.05;pointer-events:none}
-.stat.yt{--stat-glow:var(--yt)}
-.stat.tt{--stat-glow:var(--tt-accent)}
-.stat.total{--stat-glow:var(--gold)}
-.stat.sched{--stat-glow:var(--green)}
-.stat-icon{font-size:20px;margin-bottom:8px}
-.stat-val{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:0.02em;line-height:1}
-.stat.yt .stat-val{color:var(--yt)}
-.stat.tt .stat-val{color:var(--tt-accent)}
-.stat.total .stat-val{color:var(--gold)}
-.stat.sched .stat-val{color:var(--green)}
-.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;font-family:'DM Mono',monospace}
-
-/* Section header */
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.section-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.05em;color:var(--text2)}
-.generate-btn{background:var(--gold);color:#06090F;border:none;padding:12px 24px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px}
-.generate-btn:hover{background:#ffe033;transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,215,0,0.3)}
-.generate-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-
-/* Video cards */
-.videos{display:flex;flex-direction:column;gap:16px}
-.video-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;transition:border-color 0.2s;animation:slideIn 0.4s ease}
-@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.video-card:hover{border-color:#2A3A4A}
-@media(max-width:700px){.video-card{grid-template-columns:1fr;gap:12px}}
-
-.video-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--border);letter-spacing:0.02em;min-width:56px;text-align:center}
-.video-info{}
-.video-title{font-weight:600;font-size:15px;margin-bottom:8px;color:var(--text)}
-.video-meta{display:flex;gap:12px;flex-wrap:wrap}
-.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;font-family:'DM Mono',monospace}
-.badge.yt{background:rgba(255,0,0,0.12);color:#FF6B6B;border:1px solid rgba(255,0,0,0.2)}
-.badge.tt{background:rgba(105,201,208,0.1);color:var(--tt-accent);border:1px solid rgba(105,201,208,0.2)}
-.badge.done{background:rgba(46,213,115,0.1);color:var(--green);border:1px solid rgba(46,213,115,0.2)}
-.badge.pending{background:rgba(255,215,0,0.1);color:var(--gold);border:1px solid rgba(255,215,0,0.2)}
-.video-schedule{font-size:12px;color:var(--muted);margin-top:8px;font-family:'DM Mono',monospace}
-
-.video-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-.action-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
-.action-btn:hover{color:var(--text);border-color:#2A3A4A}
-
-/* Schedule timeline */
-.timeline{margin-top:40px}
-.timeline-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:20px}
-@media(max-width:700px){.timeline-grid{grid-template-columns:repeat(3,1fr)}}
-.day-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
-.day-card.has-video{border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.04)}
-.day-name{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;font-family:'DM Mono',monospace;margin-bottom:8px}
-.day-count{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--border)}
-.day-card.has-video .day-count{color:var(--gold)}
-.day-time{font-size:10px;color:var(--tt-accent);font-family:'DM Mono',monospace;margin-top:4px}
-
-/* Empty state */
-.empty{text-align:center;padding:80px 20px;color:var(--muted)}
-.empty-icon{font-size:64px;margin-bottom:20px;opacity:0.3}
-.empty h3{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text2);margin-bottom:8px}
-.empty p{font-size:14px;line-height:1.6;max-width:360px;margin:0 auto}
-
-/* Log */
-.log-section{margin-top:40px}
-.log-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);max-height:200px;overflow-y:auto;line-height:1.8}
-.log-line.ok{color:var(--green)}
-.log-line.err{color:#FF6B6B}
-.log-line.info{color:var(--tt-accent)}
-
-/* Loading overlay */
-.loading-overlay{position:fixed;inset:0;background:rgba(6,9,15,0.92);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:24px}
-.loading-overlay.active{display:flex}
-.big-spinner{width:72px;height:72px;border:4px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:0.05em;color:var(--gold)}
-.loading-sub{font-size:14px;color:var(--muted);font-family:'DM Mono',monospace}
-.loading-steps-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.ls{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);opacity:0.3;transition:all 0.5s}
-.ls.active{opacity:1;color:var(--text)}
-.ls.done{color:var(--green);opacity:1}
-.ls-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
-
-footer{text-align:center;padding:48px 0 24px;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;border-top:1px solid var(--border);margin-top:60px}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+.glow-r{position:fixed;top:-200px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(255,0,51,0.06),transparent 70%);pointer-events:none;z-index:0}
+.glow-t{position:fixed;bottom:-200px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(0,245,212,0.05),transparent 70%);pointer-events:none;z-index:0}
+.wrap{max-width:1280px;margin:0 auto;padding:36px 28px;position:relative;z-index:1}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:16px}
+.brand-mark{width:52px;height:52px;background:linear-gradient(135deg,var(--yt),var(--gold));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 32px rgba(255,0,51,0.2)}
+.brand-name{font-size:26px;font-weight:800;letter-spacing:.06em;line-height:1}
+.brand-sub{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px}
+.hright{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:100px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;border:1px solid}
+.pill.on{background:rgba(0,230,118,.08);border-color:rgba(0,230,118,.25);color:var(--green)}
+.pill.sok{background:rgba(0,245,212,.06);border-color:rgba(0,245,212,.2);color:var(--tt)}
+.pill.swarn{background:rgba(255,208,0,.06);border-color:rgba(255,208,0,.2);color:var(--gold)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:44px}
+@media(max-width:760px){.sgrid{grid-template-columns:repeat(2,1fr)}}
+.sc{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:22px 20px;position:relative;overflow:hidden;transition:border-color .2s}
+.sc::before{content:'';position:absolute;inset:0;opacity:.06;background:var(--c);pointer-events:none}
+.sc.cg{--c:var(--gold)}.sc.cy{--c:var(--yt)}.sc.ct{--c:var(--tt)}.sc.cn{--c:var(--green)}
+.sc-icon{font-size:18px;margin-bottom:10px}
+.sc-num{font-size:46px;font-weight:800;line-height:1;letter-spacing:-.02em}
+.sc.cg .sc-num{color:var(--gold)}.sc.cy .sc-num{color:var(--yt)}.sc.ct .sc-num{color:var(--tt)}.sc.cn .sc-num{color:var(--green)}
+.sc-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.14em;margin-top:5px;font-family:'JetBrains Mono',monospace}
+.sc-sub{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-top:6px}
+.secrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.sectit{font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--text2);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.btn-gen{background:var(--gold);color:#05070D;border:none;padding:12px 26px;border-radius:10px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.06em;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-gen:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,208,0,.28)}
+.btn-gen:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-sm{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:7px 13px;border-radius:8px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-sm:hover{color:var(--text);border-color:var(--text3)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:44px}
+@media(max-width:700px){.cal{grid-template-columns:repeat(4,1fr)}}
+.cday{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;transition:all .2s;position:relative;min-height:88px}
+.cday.today{border-color:var(--border2);background:var(--s2)}
+.cday.h1{border-color:rgba(0,245,212,.3);background:rgba(0,245,212,.04)}
+.cday.h2{border-color:rgba(255,208,0,.35);background:rgba(255,208,0,.05)}
+.cday.full{border-color:rgba(255,0,51,.3);background:rgba(255,0,51,.04)}
+.cdn{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;font-family:'JetBrains Mono',monospace;margin-bottom:4px}
+.cdd{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.cday.today .cdd{color:var(--gold)}
+.cdc{font-size:30px;font-weight:800;color:var(--border2)}
+.cday.h1 .cdc{color:var(--tt)}.cday.h2 .cdc,.cday.full .cdc{color:var(--gold)}
+.cslt{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;line-height:1.7}
+.cslt span{display:block}.cslt .used{color:var(--yt2);text-decoration:line-through}.cslt .free{color:var(--green)}
+.fbadge{position:absolute;top:5px;right:5px;font-size:8px;background:rgba(255,0,51,.15);color:var(--yt2);padding:2px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:700}
+.vlist{display:flex;flex-direction:column;gap:12px;margin-bottom:44px}
+.vc{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;display:grid;grid-template-columns:52px 1fr auto;gap:18px;align-items:center;transition:border-color .2s;animation:fu .35s ease both}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.vc:hover{border-color:var(--border2)}
+@media(max-width:640px){.vc{grid-template-columns:1fr;gap:10px}}
+.vn{font-size:36px;font-weight:800;color:var(--border2);font-family:'JetBrains Mono',monospace;text-align:center}
+.vt{font-size:15px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.vb{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.b{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;border:1px solid}
+.b.yt{background:rgba(255,0,51,.1);color:var(--yt2);border-color:rgba(255,0,51,.2)}
+.b.tt{background:rgba(0,245,212,.08);color:var(--tt);border-color:rgba(0,245,212,.2)}
+.b.live{background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.25)}
+.b.sch{background:rgba(255,208,0,.08);color:var(--gold);border-color:rgba(255,208,0,.2)}
+.b.red{background:rgba(255,100,0,.1);color:#FF7733;border-color:rgba(255,100,0,.2)}
+.b.fct{background:rgba(138,92,255,.1);color:#A78BFA;border-color:rgba(138,92,255,.2)}
+.vtm{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.9}
+.vtm strong{color:var(--text2)}
+.vact{display:flex;flex-direction:column;gap:7px;align-items:flex-end}
+.vcol{font-size:10px;color:var(--yt2);font-family:'JetBrains Mono',monospace;margin-top:3px;display:none}
+.vcol.show{display:block}
+.empty{text-align:center;padding:70px 20px;color:var(--text3)}
+.empty-icon{font-size:56px;margin-bottom:16px;opacity:.25}
+.empty h3{font-size:22px;font-weight:800;color:var(--text2);margin-bottom:8px}
+.empty p{font-size:13px;line-height:1.7;max-width:340px;margin:0 auto}
+.logwrap{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.logbody{padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);max-height:180px;overflow-y:auto;line-height:2;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.logbody .ok{color:var(--green)}.logbody .err{color:var(--red)}.logbody .info{color:var(--tt)}.logbody .warn{color:var(--gold)}
+.ov{position:fixed;inset:0;background:rgba(5,7,13,.94);display:none;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:22px;backdrop-filter:blur(8px)}
+.ov.on{display:flex}
+.spin{width:64px;height:64px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:sp .75s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ovt{font-size:28px;font-weight:800;letter-spacing:.06em;color:var(--gold)}
+.ovs{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.ovst{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.os{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text3);opacity:.3;transition:all .4s;font-family:'JetBrains Mono',monospace}
+.os.on{opacity:1;color:var(--text)}.os.done{color:var(--green);opacity:1}
+.osd{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+footer{text-align:center;padding:44px 0 20px;color:var(--text3);font-size:11px;font-family:'JetBrains Mono',monospace;border-top:1px solid var(--border);margin-top:60px}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
 </head>
 <body>
-
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="big-spinner"></div>
-  <div class="loading-title">GENERATING VIDEO</div>
-  <div class="loading-sub" id="loadingSub">Initializing pipeline...</div>
-  <div class="loading-steps-list">
-    <div class="ls" id="ls1"><div class="ls-dot"></div>Writing script with Claude</div>
-    <div class="ls" id="ls2"><div class="ls-dot"></div>Downloading stock footage</div>
-    <div class="ls" id="ls3"><div class="ls-dot"></div>Generating AI voiceover</div>
-    <div class="ls" id="ls4"><div class="ls-dot"></div>Creating text overlays</div>
-    <div class="ls" id="ls5"><div class="ls-dot"></div>Assembling final video</div>
-    <div class="ls" id="ls6"><div class="ls-dot"></div>Scheduling YouTube & TikTok</div>
+<div class="glow-r"></div><div class="glow-t"></div>
+<div class="ov" id="ov">
+  <div class="spin"></div>
+  <div class="ovt">GENERIERE VIDEO</div>
+  <div class="ovs" id="ovs">Starte Pipeline...</div>
+  <div class="ovst">
+    <div class="os" id="os1"><div class="osd"></div>Script schreiben</div>
+    <div class="os" id="os2"><div class="osd"></div>Freien Slot prüfen</div>
+    <div class="os" id="os3"><div class="osd"></div>Voiceover generieren</div>
+    <div class="os" id="os4"><div class="osd"></div>Frames rendern</div>
+    <div class="os" id="os5"><div class="osd"></div>Video zusammenstellen</div>
+    <div class="os" id="os6"><div class="osd"></div>Einplanen</div>
   </div>
 </div>
-
 <div class="wrap">
   <header>
-    <div class="logo">
-      <div class="logo-icon">🎬</div>
-      <div class="logo-text">
-        <h1>VIDEO PIPELINE</h1>
-        <p>TikTok + YouTube Shorts Automation</p>
-      </div>
+    <div class="brand">
+      <div class="brand-mark">🎬</div>
+      <div><div class="brand-name">VAULTMIND</div><div class="brand-sub">AUTO VIDEO PIPELINE v4</div></div>
     </div>
-    <div class="status-pill">
-      <div class="pulse"></div>
-      System Active
+    <div class="hright">
+      <div class="pill on"><div class="dot"></div>System aktiv</div>
+      <div class="pill sok" id="slotPill"><div class="dot"></div><span id="slotTxt">…</span></div>
     </div>
   </header>
-
-  <div class="stats">
-    <div class="stat total">
-      <div class="stat-icon">🎬</div>
-      <div class="stat-val" id="statTotal">0</div>
-      <div class="stat-label">Videos Generated</div>
-    </div>
-    <div class="stat yt">
-      <div class="stat-icon">▶️</div>
-      <div class="stat-val" id="statYT">0</div>
-      <div class="stat-label">YouTube Scheduled</div>
-    </div>
-    <div class="stat tt">
-      <div class="stat-icon">🎵</div>
-      <div class="stat-val" id="statTT">0</div>
-      <div class="stat-label">TikTok Scheduled</div>
-    </div>
-    <div class="stat sched">
-      <div class="stat-icon">⏰</div>
-      <div class="stat-val" id="statNext">—</div>
-      <div class="stat-label">Next Upload</div>
-    </div>
+  <div class="sgrid">
+    <div class="sc cg"><div class="sc-icon">🎬</div><div class="sc-num" id="sT">0</div><div class="sc-lbl">Videos gesamt</div></div>
+    <div class="sc cy"><div class="sc-icon">▶</div><div class="sc-num" id="sY">0</div><div class="sc-lbl">YouTube geplant</div></div>
+    <div class="sc ct"><div class="sc-icon">♪</div><div class="sc-num" id="sTT">0</div><div class="sc-lbl">TikTok geplant</div></div>
+    <div class="sc cn"><div class="sc-icon">⏱</div><div class="sc-num" id="sN">—</div><div class="sc-lbl">Nächster Upload</div><div class="sc-sub" id="sND"></div></div>
   </div>
-
-  <div class="section-header">
-    <div class="section-title">📋 VIDEO QUEUE</div>
-    <button class="generate-btn" id="generateBtn" onclick="generateVideos()">
-      ⚡ GENERATE VIDEO
-    </button>
+  <div class="secrow">
+    <div class="sectit">📅 7-Tage-Zeitplan</div>
+    <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">Max 2/Tag · <span style="color:var(--green)">✓</span> frei · <span style="color:var(--yt2)">✗</span> belegt</div>
   </div>
-
-  <div class="videos" id="videoList">
-    <div class="empty">
-      <div class="empty-icon">🎬</div>
-      <h3>No Videos Yet</h3>
-      <p>Click "Generate Video" to create your first TikTok + YouTube Short automatically.</p>
-    </div>
+  <div class="cal" id="cal"></div>
+  <div class="secrow">
+    <div class="sectit">📋 Warteschlange</div>
+    <button class="btn-gen" id="genBtn" onclick="gen()">⚡ Video generieren</button>
   </div>
-
-  <div class="timeline">
-    <div class="section-title">📅 WEEKLY SCHEDULE</div>
-    <div class="timeline-grid" id="timelineGrid"></div>
+  <div class="vlist" id="vlist"></div>
+  <div class="secrow" style="margin-top:4px">
+    <div class="sectit">📟 Pipeline-Log</div>
+    <button class="btn-sm" onclick="clrLog()">Leeren</button>
   </div>
-
-  <div class="log-section">
-    <div class="section-title" style="margin-bottom:16px">📟 PIPELINE LOG</div>
-    <div class="log-box" id="logBox">
-      <div class="log-line info">▶ Pipeline ready. Waiting for input...</div>
-    </div>
-  </div>
+  <div class="logwrap"><div class="logbody" id="log"><div class="info">[BOOT] Pipeline bereit.</div></div></div>
 </div>
-
-<footer>Video Pipeline Dashboard · Powered by Claude + ElevenLabs + Pexels + Buffer</footer>
-
+<footer>VaultMind Pipeline · Claude AI + ElevenLabs + Buffer</footer>
 <script>
-// ── State ──────────────────────────────────────────────────────
-let videos = JSON.parse(localStorage.getItem('pipeline_videos') || '[]');
-let stats  = JSON.parse(localStorage.getItem('pipeline_stats')  || '{"total":0,"yt":0,"tt":0}');
+let videos=JSON.parse(localStorage.getItem('vm_v')||'[]');
+let stats=JSON.parse(localStorage.getItem('vm_s')||'{"t":0,"y":0,"tt":0}');
+const TIMES={monday:["07:00","19:00"],tuesday:["07:00","19:00"],wednesday:["07:00","21:00"],thursday:["07:00","19:00"],friday:["07:00","20:00"],saturday:["09:00","20:00"],sunday:["10:00","20:00"]};
+const DAYS=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+const MAX=2;
 
-const BEST_TIMES = {
-  monday:    ["07:00","12:00","19:00"],
-  tuesday:   ["07:00","12:00","19:00"],
-  wednesday: ["07:00","14:00","21:00"],
-  thursday:  ["07:00","12:00","19:00"],
-  friday:    ["07:00","14:00","20:00"],
-  saturday:  ["09:00","13:00","20:00"],
-  sunday:    ["10:00","15:00","20:00"],
-};
-
-// ── Helpers ────────────────────────────────────────────────────
-function getNextSlots(n) {
-  const slots = [];
-  const now = new Date();
-  const buffer = new Date(now.getTime() + 45*60000);
-  for (let d = 0; d <= 21 && slots.length < n; d++) {
-    const date = new Date(now); date.setDate(date.getDate()+d);
-    const day = date.toLocaleDateString('en-US',{weekday:'long'}).toLowerCase();
-    const times = BEST_TIMES[day] || ["12:00"];
-    for (const t of times) {
-      const [h,m] = t.split(':').map(Number);
-      const slot = new Date(date); slot.setHours(h,m,0,0);
-      if (slot > buffer) { slots.push(slot); if (slots.length >= n) break; }
+function normSlot(d){const c=new Date(d);c.setSeconds(0,0);return c.toISOString().slice(0,16);}
+function getOccupied(){
+  const s=new Set();
+  for(const v of videos){
+    if(v.youtube?.scheduled)s.add(normSlot(new Date(v.youtube.scheduled)));
+    if(v.tiktok?.scheduled)s.add(normSlot(new Date(v.tiktok.scheduled)));
+  }
+  return s;
+}
+function slotOccupied(slot,occ){
+  const t=slot.getTime();
+  for(const k of occ){if(Math.abs(new Date(k+":00").getTime()-t)<600000)return true;}
+  return false;
+}
+function getNextSlots(n){
+  const res=[],occ=getOccupied(),now=new Date(),buf=new Date(now.getTime()+2700000),pd={};
+  for(let d=0;d<=90&&res.length<n;d++){
+    const date=new Date(now);date.setDate(date.getDate()+d);
+    const dk=date.toISOString().slice(0,10),dn=DAYS[date.getDay()];
+    for(const t of(TIMES[dn]||["12:00","20:00"])){
+      if(res.length>=n)break;
+      const[h,m]=t.split(':').map(Number);
+      const slot=new Date(date);slot.setHours(h,m,0,0);
+      if(slot<=buf)continue;
+      if((pd[dk]||0)>=MAX)break;
+      if(slotOccupied(slot,occ))continue;
+      res.push(slot);occ.add(normSlot(slot));pd[dk]=(pd[dk]||0)+1;
     }
   }
-  return slots;
+  return res;
 }
-
-function fmtDate(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short'})
-        +' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+function countFree(days){
+  const occ=getOccupied(),now=new Date(),buf=new Date(now.getTime()+2700000);
+  let c=0;const pd={};
+  for(let d=0;d<=days;d++){
+    const date=new Date(now);date.setDate(date.getDate()+d);
+    const dk=date.toISOString().slice(0,10),dn=DAYS[date.getDay()];
+    for(const t of(TIMES[dn]||["12:00","20:00"])){
+      const[h,m]=t.split(':').map(Number);
+      const slot=new Date(date);slot.setHours(h,m,0,0);
+      if(slot<=buf)continue;
+      if((pd[dk]||0)>=MAX)break;
+      if(!slotOccupied(slot,occ)){c++;occ.add(normSlot(slot));pd[dk]=(pd[dk]||0)+1;}
+    }
+  }
+  return c;
 }
-
-function timeUntil(iso) {
-  const diff = new Date(iso) - new Date();
-  if (diff < 0) return 'LIVE';
-  const h = Math.floor(diff/3600000);
-  const m = Math.floor((diff%3600000)/60000);
-  if (h > 24) return `${Math.floor(h/24)}d ${h%24}h`;
-  return `${h}h ${m}m`;
+function fmt(iso){const d=new Date(iso);return d.toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'})+' '+d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
+function until(iso){
+  const diff=new Date(iso)-new Date();
+  if(diff<0)return'LIVE 🔴';
+  const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000);
+  if(h>48)return`${Math.floor(h/24)}T`;if(h>0)return`in ${h}h ${m}m`;return`in ${m}m`;
 }
-
-function addLog(msg, type='info') {
-  const box = document.getElementById('logBox');
-  const line = document.createElement('div');
-  line.className = `log-line ${type}`;
-  const time = new Date().toLocaleTimeString('en-US',{hour12:false});
-  line.textContent = `[${time}] ${msg}`;
-  box.prepend(line);
-  while (box.children.length > 50) box.removeChild(box.lastChild);
+function save(){localStorage.setItem('vm_v',JSON.stringify(videos));localStorage.setItem('vm_s',JSON.stringify(stats));}
+function log(msg,tp='info'){
+  const b=document.getElementById('log'),l=document.createElement('div');
+  l.className=tp;const ts=new Date().toLocaleTimeString('de-DE',{hour12:false});
+  l.textContent=`[${ts}] ${msg}`;b.prepend(l);
+  while(b.children.length>80)b.removeChild(b.lastChild);
 }
+function clrLog(){document.getElementById('log').innerHTML='<div class="info">[SYS] Log geleert.</div>';}
 
-// ── Render ─────────────────────────────────────────────────────
-function render() {
+function render(){
   // Stats
-  document.getElementById('statTotal').textContent = stats.total;
-  document.getElementById('statYT').textContent = stats.yt;
-  document.getElementById('statTT').textContent = stats.tt;
-
-  // Next upload
-  const upcoming = videos.filter(v => new Date(v.youtube.scheduled) > new Date())
-                         .sort((a,b) => new Date(a.youtube.scheduled)-new Date(b.youtube.scheduled));
-  if (upcoming.length) {
-    const next = upcoming[0];
-    const h = Math.round((new Date(next.youtube.scheduled)-new Date())/3600000);
-    document.getElementById('statNext').textContent = h < 24 ? `${h}h` : `${Math.floor(h/24)}d`;
-  }
-
-  // Video list
-  const list = document.getElementById('videoList');
-  if (!videos.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">🎬</div><h3>No Videos Yet</h3><p>Click "Generate Video" to create your first TikTok + YouTube Short automatically.</p></div>`;
-  } else {
-    list.innerHTML = videos.map((v, i) => {
-      const ytLive = new Date(v.youtube.scheduled) < new Date();
-      const ttLive = new Date(v.tiktok.scheduled) < new Date();
-      return `
-      <div class="video-card">
-        <div class="video-num">${String(videos.length - i).padStart(2,'0')}</div>
-        <div class="video-info">
-          <div class="video-title">${v.title}</div>
-          <div class="video-meta">
-            <span class="badge yt">▶ YouTube Shorts</span>
-            <span class="badge tt">♪ TikTok</span>
-            <span class="badge ${ytLive ? 'done' : 'pending'}">${ytLive ? '✓ Live' : '⏰ Scheduled'}</span>
-          </div>
-          <div class="video-schedule">
-            📺 YT: ${fmtDate(v.youtube.scheduled)} (${timeUntil(v.youtube.scheduled)}) &nbsp;|&nbsp;
-            📱 TT: ${fmtDate(v.tiktok.scheduled)} (${timeUntil(v.tiktok.scheduled)})
-          </div>
-        </div>
-        <div class="video-actions">
-          ${v.youtube.url ? `<button class="action-btn" onclick="window.open('${v.youtube.url}')">▶ YouTube</button>` : ''}
-          <button class="action-btn" onclick="copyCaption(${i})">📋 Caption</button>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  // Timeline
-  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const grid = document.getElementById('timelineGrid');
-  grid.innerHTML = days.map(day => {
-    const dayVideos = videos.filter(v => {
-      const d = new Date(v.youtube.scheduled);
-      return d.toLocaleDateString('en-US',{weekday:'long'}) === day;
-    });
-    const times = BEST_TIMES[day.toLowerCase()] || [];
-    return `
-      <div class="day-card ${dayVideos.length ? 'has-video' : ''}">
-        <div class="day-name">${day.slice(0,3)}</div>
-        <div class="day-count">${dayVideos.length || times.length}</div>
-        <div class="day-time">${times[0] || ''}</div>
-      </div>`;
+  document.getElementById('sT').textContent=stats.t;
+  document.getElementById('sY').textContent=stats.y;
+  document.getElementById('sTT').textContent=stats.tt;
+  const up=videos.filter(v=>new Date(v.youtube.scheduled)>new Date()).sort((a,b)=>new Date(a.youtube.scheduled)-new Date(b.youtube.scheduled));
+  if(up.length){const nx=up[0];const h=Math.floor((new Date(nx.youtube.scheduled)-new Date())/3600000);document.getElementById('sN').textContent=h<24?`${h}h`:`${Math.floor(h/24)}T`;document.getElementById('sND').textContent=fmt(nx.youtube.scheduled);}
+  else{document.getElementById('sN').textContent='—';document.getElementById('sND').textContent='Keine geplant';}
+  // Slot pill
+  const free=countFree(7);
+  document.getElementById('slotTxt').textContent=`${free} Slots frei (7T)`;
+  document.getElementById('slotPill').className='pill '+(free<=2?'swarn':'sok');
+  // Calendar
+  const cal=document.getElementById('cal');const now=new Date();
+  const occ=getOccupied();
+  cal.innerHTML=Array.from({length:7},(_,d)=>{
+    const date=new Date(now);date.setDate(date.getDate()+d);
+    const dk=date.toISOString().slice(0,10),dn=DAYS[date.getDay()];
+    const cnt=videos.filter(v=>v.youtube?.scheduled?.slice(0,10)===dk).length;
+    const full=cnt>=MAX,cls=full?'full':cnt===2?'h2':cnt===1?'h1':'';
+    const times=TIMES[dn]||[];
+    const shtml=times.map(t=>{const[h,m]=t.split(':').map(Number);const s=new Date(date);s.setHours(h,m,0,0);const u=slotOccupied(s,occ);return`<span class="${u?'used':'free'}">${t}${u?' ✗':' ✓'}</span>`;}).join('');
+    const dnames=['So','Mo','Di','Mi','Do','Fr','Sa'];
+    return`<div class="cday ${cls} ${d===0?'today':''}">${full?'<div class="fbadge">VOLL</div>':''}<div class="cdn">${dnames[date.getDay()]}</div><div class="cdd">${date.getDate()}.${date.getMonth()+1}.</div><div class="cdc">${cnt}/${MAX}</div><div class="cslt">${shtml}</div></div>`;
   }).join('');
-
-  // Save
-  localStorage.setItem('pipeline_videos', JSON.stringify(videos));
-  localStorage.setItem('pipeline_stats', JSON.stringify(stats));
+  // Queue
+  const vl=document.getElementById('vlist');
+  if(!videos.length){vl.innerHTML='<div class="empty"><div class="empty-icon">🎬</div><h3>Noch keine Videos</h3><p>Klicke auf "Video generieren" — der nächste freie Slot wird automatisch gewählt.</p></div>';return;}
+  vl.innerHTML=videos.map((v,i)=>{
+    const live=new Date(v.youtube.scheduled)<new Date();
+    const tc=v.type==='reddit'?'red':'fct',tl=v.type==='reddit'?'📖 Reddit':'💡 Fakt';
+    const coll=videos.filter((ov,oi)=>oi!==i&&ov.youtube?.scheduled&&Math.abs(new Date(ov.youtube.scheduled)-new Date(v.youtube.scheduled))<600000);
+    return`<div class="vc" style="animation-delay:${i*.05}s">
+      <div class="vn">${String(videos.length-i).padStart(2,'0')}</div>
+      <div>
+        <div class="vt">${v.title}</div>
+        <div class="vb"><span class="b yt">▶ YouTube</span><span class="b tt">♪ TikTok</span><span class="b ${tc}">${tl}</span><span class="b ${live?'live':'sch'}">${live?'🔴 Live':'⏰ Geplant'}</span></div>
+        <div class="vtm">📺 YT: <strong>${fmt(v.youtube.scheduled)}</strong> — ${until(v.youtube.scheduled)}<br>📱 TT: <strong>${fmt(v.tiktok.scheduled)}</strong> — ${until(v.tiktok.scheduled)}</div>
+        <div class="vcol ${coll.length?'show':''}">⚠ Zeitüberschneidung erkannt!</div>
+      </div>
+      <div class="vact">
+        ${v.youtube.url?`<button class="btn-sm" onclick="window.open('${v.youtube.url}')">▶ YT</button>`:''}
+        <button class="btn-sm" onclick="cpCap(${i})">📋 Caption</button>
+        <button class="btn-sm" onclick="del(${i})" style="color:var(--red)">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-// ── Generate (uses Claude API) ─────────────────────────────────
-async function generateVideos() {
-  const btn = document.getElementById('generateBtn');
-  btn.disabled = true;
+function cpCap(i){const v=videos[i];navigator.clipboard.writeText(`${v.title}\n\n${v.hashtags}`).then(()=>log('Caption kopiert!','ok'));}
+function del(i){if(!confirm('Löschen?'))return;videos.splice(i,1);stats.t=Math.max(0,stats.t-1);stats.y=Math.max(0,stats.y-1);stats.tt=Math.max(0,stats.tt-1);save();log('Video gelöscht.','warn');render();}
 
-  const overlay = document.getElementById('loadingOverlay');
-  overlay.classList.add('active');
-
-  const steps = ['ls1','ls2','ls3','ls4','ls5','ls6'];
-  const msgs = [
-    'Generating script with Claude AI...',
-    'Searching Pexels for footage...',
-    'Creating AI voiceover...',
-    'Rendering text overlays...',
-    'Assembling final video...',
-    'Scheduling to YouTube & TikTok...'
-  ];
-
-  let currentStep = 0;
-  const stepInterval = setInterval(() => {
-    if (currentStep > 0) document.getElementById(steps[currentStep-1]).classList.add('done');
-    if (currentStep < steps.length) {
-      document.getElementById(steps[currentStep]).classList.add('active');
-      document.getElementById('loadingSub').textContent = msgs[currentStep];
-      currentStep++;
-    }
-  }, 1800);
-
-  try {
-    // Generate script via Claude API
-    addLog('Starting pipeline...', 'info');
-
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        messages: [{role:"user", content:`
-You are a viral TikTok/Shorts scriptwriter. Niche: Interesting Facts.
-Pick a surprising fact topic.
-
-Return ONLY valid JSON:
-{
-  "topic": "1-2 word topic",
-  "title": "viral video title max 60 chars",
-  "description": "2 sentence description",
-  "scenes": [
-    {"text": "on-screen text max 10 words", "voiceover": "spoken 1-2 sentences", "duration": 3.5}
-  ],
-  "hashtags": "#facts #didyouknow #mindblowing #shorts #fyp"
-}
-Rules: 5-7 scenes, hook first, CTA last, real facts only.`}]
-      })
-    });
-
-    const data = await resp.json();
-    const text = data.content[0].text.replace(/```json|```/g,'').trim();
-    const script = JSON.parse(text);
-
-    addLog(`✅ Script: "${script.title}"`, 'ok');
-
-    // Get next upload slots
-    const slots = getNextSlots(2);
-    const ytSlot = slots[0] || new Date(Date.now() + 3600000);
-    const ttSlot = slots[1] || new Date(Date.now() + 7200000);
-
-    // Create video entry
-    const video = {
-      id: Date.now(),
-      title: script.title,
-      description: script.description,
-      hashtags: script.hashtags,
-      scenes: script.scenes,
-      created_at: new Date().toISOString(),
-      youtube: {
-        scheduled: ytSlot.toISOString(),
-        url: null,
-        status: 'scheduled'
-      },
-      tiktok: {
-        scheduled: ttSlot.toISOString(),
-        buffer_id: null,
-        status: 'scheduled'
-      }
-    };
-
-    await new Promise(r => setTimeout(r, 8000)); // simulate pipeline
-
-    videos.unshift(video);
-    stats.total++;
-    stats.yt++;
-    stats.tt++;
-
-    addLog(`✅ YouTube scheduled: ${fmtDate(ytSlot.toISOString())}`, 'ok');
-    addLog(`✅ TikTok scheduled: ${fmtDate(ttSlot.toISOString())}`, 'ok');
-    addLog(`🎉 Video complete: "${script.title}"`, 'ok');
-
-  } catch (err) {
-    addLog(`❌ Error: ${err.message}`, 'err');
-  }
-
-  clearInterval(stepInterval);
-  steps.forEach(s => {
-    document.getElementById(s).classList.remove('active');
-    document.getElementById(s).classList.add('done');
-  });
-
-  await new Promise(r => setTimeout(r, 800));
-  overlay.classList.remove('active');
-  steps.forEach(s => {
-    document.getElementById(s).classList.remove('active','done');
-  });
-
-  btn.disabled = false;
-  render();
+const OST=['os1','os2','os3','os4','os5','os6'];
+const OSM=['Script schreiben...','Freien Slot prüfen...','Voiceover generieren...','Frames rendern...','Video mergen...','Einplanen...'];
+let ostep=0;
+function advOS(){
+  if(ostep>0)document.getElementById(OST[ostep-1]).classList.replace('on','done');
+  if(ostep<OST.length){document.getElementById(OST[ostep]).classList.add('on');document.getElementById('ovs').textContent=OSM[ostep];ostep++;}
 }
 
-function copyCaption(i) {
-  const v = videos[i];
-  const text = `${v.title}\n\n${v.hashtags}`;
-  navigator.clipboard.writeText(text).then(() => addLog('Caption copied!', 'ok'));
+async function gen(){
+  const btn=document.getElementById('genBtn');btn.disabled=true;
+  document.getElementById('ov').classList.add('on');
+  ostep=0;OST.forEach(s=>document.getElementById(s).className='os');
+  advOS();
+  try{
+    log('Pipeline gestartet...','info');
+    advOS();
+    const slots=getNextSlots(2);
+    if(!slots.length)throw new Error('Keine freien Slots in den nächsten 90 Tagen!');
+    const ytSlot=slots[0],ttSlot=slots[1]||new Date(ytSlot.getTime()+1800000);
+    log(`Nächster Slot: ${fmt(ytSlot.toISOString())}`,'info');
+    advOS();
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:`Viral TikTok/Shorts Skriptschreiber. Nische: Interessante Fakten. Antworte NUR mit JSON (kein Markdown):\n{"type":"fact","title":"viraler Titel max 60 Zeichen","description":"2-Satz Beschreibung","scenes":[{"text":"Bildschirmtext max 10 Wörter","voiceover":"gesprochener Satz","duration":3.5}],"hashtags":"#facts #didyouknow #shorts #fyp"}\nRegeln: 5-7 Szenen, Hook zuerst, CTA am Ende, echte Fakten.`}]})});
+    const d=await resp.json();
+    if(d.error)throw new Error(d.error.message);
+    const raw=d.content[0].text.replace(/```json|```/g,'').trim();
+    const s=raw.indexOf('{'),e=raw.lastIndexOf('}')+1;
+    const sc=JSON.parse(raw.slice(s,e));
+    log(`✅ Script: "${sc.title}"`,'ok');
+    advOS();await delay(1800);advOS();await delay(1600);advOS();await delay(1200);
+    const v={id:Date.now(),title:sc.title,description:sc.description||'',hashtags:sc.hashtags,type:sc.type||'fact',scenes:sc.scenes,created_at:new Date().toISOString(),youtube:{scheduled:ytSlot.toISOString(),url:null,status:'scheduled'},tiktok:{scheduled:ttSlot.toISOString(),buffer_id:null,status:'scheduled'}};
+    videos.unshift(v);stats.t++;stats.y++;stats.tt++;save();
+    log(`📅 YouTube: ${fmt(ytSlot.toISOString())}`,'ok');
+    log(`📅 TikTok: ${fmt(ttSlot.toISOString())}`,'ok');
+    log(`🎉 Fertig: "${sc.title}"`,'ok');
+  }catch(err){log(`❌ ${err.message}`,'err');}
+  await delay(600);
+  document.getElementById('ov').classList.remove('on');
+  OST.forEach(s=>document.getElementById(s).className='os');
+  btn.disabled=false;render();
 }
-
-// ── Init ───────────────────────────────────────────────────────
-render();
-setInterval(render, 60000); // update countdowns every minute
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+render();setInterval(render,60000);
 </script>
 </body>
 </html>

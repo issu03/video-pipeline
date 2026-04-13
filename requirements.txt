@@ -1,6 +1,9 @@
 requests
 pillow
-google-auth
-google-auth-oauthlib
-google-api-python-client
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-api-python-client>=2.0.0
+# Do NOT add oauth2client — it conflicts with google-auth and causes
+# "file_cache is only supported with oauth2client<4.0.0" warning.
+# cache_discovery=False is already set in pipeline.py to suppress it.
 edge-tts

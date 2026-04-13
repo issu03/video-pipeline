@@ -40,31 +40,68 @@ NICHES = [
 ]
 
 BEST_TIMES = {
-    "monday":    ["07:00","12:00","19:00"],
-    "tuesday":   ["07:00","12:00","19:00"],
-    "wednesday": ["07:00","14:00","21:00"],
-    "thursday":  ["07:00","12:00","19:00"],
-    "friday":    ["07:00","14:00","20:00"],
-    "saturday":  ["09:00","13:00","20:00"],
-    "sunday":    ["10:00","15:00","20:00"],
+    "monday":    ["07:00","19:00"],
+    "tuesday":   ["07:00","19:00"],
+    "wednesday": ["07:00","21:00"],
+    "thursday":  ["07:00","19:00"],
+    "friday":    ["07:00","20:00"],
+    "saturday":  ["09:00","20:00"],
+    "sunday":    ["10:00","20:00"],
 }
+MAX_UPLOADS_PER_DAY = 2
 
 ACCENT_COLORS = [
     (255, 215, 0), (255, 60, 80), (46, 213, 115),
     (138, 92, 255), (30, 200, 255),
 ]
 
-def get_next_slots(n=14):
+def load_scheduled_slots():
+    """Return set of already-scheduled datetime slots from dashboard."""
+    data = load_dashboard()
+    scheduled = set()
+    for v in data.get("videos", []):
+        for key in ("youtube", "tiktok"):
+            t = v.get(key, {}).get("scheduled")
+            if t:
+                try:
+                    dt = datetime.fromisoformat(str(t))
+                    # Normalise to minute precision for collision check
+                    scheduled.add(dt.replace(second=0, microsecond=0))
+                except Exception:
+                    pass
+    return scheduled
+
+def get_next_slots(n=14, existing_slots=None):
+    """Return n upcoming upload slots, max MAX_UPLOADS_PER_DAY per day,
+    skipping any slot already occupied in existing_slots."""
+    if existing_slots is None:
+        existing_slots = load_scheduled_slots()
+
     slots, now = [], datetime.now()
     buf = now + timedelta(minutes=45)
-    for d in range(21):
+    uploads_per_day: dict = {}  # date -> count
+
+    for d in range(60):  # look up to 60 days ahead
         date = now + timedelta(days=d)
-        day = date.strftime("%A").lower()
-        for t in BEST_TIMES.get(day, ["12:00"]):
+        day_key = date.strftime("%Y-%m-%d")
+        day_name = date.strftime("%A").lower()
+        for t in BEST_TIMES.get(day_name, ["12:00", "20:00"]):
             h, m = map(int, t.split(":"))
             slot = date.replace(hour=h, minute=m, second=0, microsecond=0)
-            if slot > buf: slots.append(slot)
-            if len(slots) >= n: return slots
+            if slot <= buf:
+                continue
+            # Skip if already occupied (within 10-min window)
+            occupied = any(abs((slot - s).total_seconds()) < 600 for s in existing_slots)
+            if occupied:
+                continue
+            # Max uploads per day
+            if uploads_per_day.get(day_key, 0) >= MAX_UPLOADS_PER_DAY:
+                continue
+            slots.append(slot)
+            existing_slots.add(slot)
+            uploads_per_day[day_key] = uploads_per_day.get(day_key, 0) + 1
+            if len(slots) >= n:
+                return slots
     return slots
 
 def load_dashboard():
@@ -516,24 +553,46 @@ def upload_youtube(video_path, title, description, hashtags, publish_at):
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaFileUpload
         from google.auth.transport.requests import Request
+
         token_b64 = os.environ.get("YOUTUBE_TOKEN_B64", "")
         if not token_b64: return None
         creds = pickle.loads(base64.b64decode(token_b64))
         if creds.expired and creds.refresh_token: creds.refresh(Request())
-        yt = build("youtube","v3",credentials=creds)
+
+        # Build without file cache to avoid oauth2client<4.0.0 warning
+        import googleapiclient.discovery as gd
+        try:
+            yt = gd.build("youtube", "v3", credentials=creds, cache_discovery=False)
+        except TypeError:
+            # Older versions don't support cache_discovery kwarg
+            yt = gd.build("youtube", "v3", credentials=creds)
+
+        # Ensure publish_at is UTC-aware ISO format
+        if publish_at.tzinfo is None:
+            from datetime import timezone
+            publish_at = publish_at.replace(tzinfo=timezone.utc)
+        publish_str = publish_at.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
         body = {
-            "snippet": {"title": title[:100],
-                       "description": description+"\n\n"+hashtags,
-                       "tags": [t.replace("#","") for t in hashtags.split()],
-                       "categoryId": "22"},
-            "status": {"privacyStatus": "private",
-                      "publishAt": publish_at.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-                      "selfDeclaredMadeForKids": False}
+            "snippet": {
+                "title": title[:100],
+                "description": description + "\n\n" + hashtags,
+                "tags": [t.replace("#", "") for t in hashtags.split() if t.startswith("#")],
+                "categoryId": "22"
+            },
+            "status": {
+                "privacyStatus": "private",
+                "publishAt": publish_str,
+                "selfDeclaredMadeForKids": False
+            }
         }
         media = MediaFileUpload(str(video_path), mimetype="video/mp4", resumable=True)
         req = yt.videos().insert(part="snippet,status", body=body, media_body=media)
         response = None
-        while response is None: _, response = req.next_chunk()
+        while response is None:
+            status, response = req.next_chunk()
+            if status:
+                log.info(f"   📤 Upload {int(status.progress()*100)}%")
         vid = response["id"]
         log.info(f"   ✅ youtu.be/{vid}")
         return f"https://youtube.com/shorts/{vid}"
@@ -551,9 +610,11 @@ def run_pipeline(n_videos=1):
     log.info("🚀 VAULTMIND PIPELINE v4")
     log.info("="*55)
     OUTPUT_DIR.mkdir(exist_ok=True)
-    slots = get_next_slots(n_videos*2)
-    yt_slots = slots[0::2][:n_videos]
-    tt_slots = slots[1::2][:n_videos]
+    existing_slots = load_scheduled_slots()
+    # Each video needs 1 YT slot; TT uses the same slot offset by 30min
+    slots = get_next_slots(n_videos, existing_slots)
+    yt_slots = slots[:n_videos]
+    tt_slots = [s + timedelta(minutes=30) for s in yt_slots]
     results = []
 
     for i in range(n_videos):
