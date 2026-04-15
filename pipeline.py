@@ -221,7 +221,7 @@ def generate_voiceover(scenes, work_dir):
         try:
             import asyncio, edge_tts
             log.info("   🔄 edge-tts (Microsoft neural TTS)...")
-            EDGE_VOICE = "en-US-ChristopherNeural"
+            EDGE_VOICE = "en-US-GuyNeural"
 
             async def gen_edge(text, path):
                 tts = edge_tts.Communicate(text, voice=EDGE_VOICE, rate="+10%")
@@ -304,6 +304,61 @@ def draw_reddit_card(img, script, progress, font_title, font_meta, font_small):
     draw.text((card_x+12, card_y+card_h-28), upvotes, font=font_small, fill=(129,132,135,alpha))
 
     return img
+
+# ── VISUAL: TikTok-style captions (2 words, centered) ────────
+def draw_caption_tiktok(img, text, word_progress):
+    """Viral TikTok caption: 2 words at a time, white+yellow, heavy outline, never out of frame."""
+    words = text.split()
+    if not words:
+        return img
+    total = len(words)
+    visible_idx = max(1, int(word_progress * total))
+    chunk_size = 2
+    chunk_start = ((visible_idx - 1) // chunk_size) * chunk_size
+    chunk = words[chunk_start:chunk_start + chunk_size]
+    if not chunk:
+        return img
+
+    draw = ImageDraw.Draw(img, 'RGBA')
+    MARGIN = 50
+
+    def outline_text(x, y, txt, font, fill):
+        stroke = 7
+        for dx in range(-stroke, stroke+1, 2):
+            for dy in range(-stroke, stroke+1, 2):
+                if dx == 0 and dy == 0:
+                    continue
+                draw.text((x+dx, y+dy), txt, font=font, fill=(0, 0, 0, 255))
+        draw.text((x, y), txt, font=font, fill=fill)
+
+    def text_size(txt, font):
+        bb = draw.textbbox((0, 0), txt, font=font)
+        return bb[2]-bb[0], bb[3]-bb[1]
+
+    # Auto-size font to fit within frame
+    size = 80
+    font = get_font(size)
+    full_text = ' '.join(chunk)
+    tw, th = text_size(full_text, font)
+    while tw > W - MARGIN * 2 and size > 32:
+        size -= 4
+        font = get_font(size)
+        tw, th = text_size(full_text, font)
+
+    # Center vertically slightly below middle (TikTok safe zone)
+    y_pos = H // 2 - th // 2 + 80
+
+    # Draw word by word, last word = yellow
+    x_cursor = (W - tw) // 2
+    for wi, word in enumerate(chunk):
+        color = (255, 220, 0, 255) if wi == len(chunk)-1 else (255, 255, 255, 255)
+        outline_text(x_cursor, y_pos, word, font, color)
+        space = word + (' ' if wi < len(chunk)-1 else '')
+        ww, _ = text_size(space, font)
+        x_cursor += ww
+
+    return img
+
 
 # ── VISUAL: Speaking character (bottom right) ─────────────────
 def draw_character_br(img, frame, mouth_open, accent):
@@ -417,12 +472,10 @@ def render_video(script, work_dir, output, gameplay_path):
     total_frames = int(total_dur * FPS)
     accent = random.choice(ACCENT_COLORS)
 
-    font_caption = get_font(56)
-    font_caption_sm = get_font(38)
-    font_reddit_title = get_font(30)
-    font_reddit_meta = get_font(26, bold=False)
-    font_reddit_sm = get_font(22, bold=False)
-    font_channel = get_font(26)
+    font_caption    = get_font(80)
+    font_reddit_title = get_font(32)
+    font_reddit_meta  = get_font(24, bold=False)
+    font_reddit_sm    = get_font(20, bold=False)
 
     is_reddit = script.get("type") == "reddit"
 
@@ -465,7 +518,6 @@ def render_video(script, work_dir, output, gameplay_path):
         n_frames = int(scene["duration"] * FPS)
         for f in range(n_frames):
             t = f / max(n_frames-1, 1)
-            mouth_open = (f % 8) < 5
 
             # 1. Gameplay background
             gp_idx = min(global_frame, len(gp_frames)-1)
@@ -476,39 +528,26 @@ def render_video(script, work_dir, output, gameplay_path):
             else:
                 bg = Image.new("RGB", (W, H), (10, 10, 20))
 
-            # 2. Semi-transparent dark overlay (so text is readable)
-            overlay = Image.new("RGBA", (W, H), (0, 0, 0, 80))
+            # 2. Dark overlay for readability
+            overlay = Image.new("RGBA", (W, H), (0, 0, 0, 70))
             bg = Image.alpha_composite(bg.convert("RGBA"), overlay).convert("RGB")
 
-            # 3. Character bottom-right
-            bg = draw_character_br(bg, global_frame, mouth_open, accent)
-
-            # 4. Overlay elements
-            draw = ImageDraw.Draw(bg, 'RGBA')
-
-            # Top bar
-            draw.rectangle([0, 0, W, 68], fill=(0,0,0,170))
-            draw.rectangle([0, 0, W, 5], fill=accent)
-            # Channel name
-            lb = draw.textbbox((0,0), "VAULTMIND", font=font_channel)
-            draw.text(((W-(lb[2]-lb[0]))//2, 16), "VAULTMIND", font=font_channel, fill=accent)
-
-            # Reddit card (first 3 scenes or when is_reddit)
+            # 3. Reddit card (first 3 scenes)
             if is_reddit and si <= 2:
                 card_progress = min(1.0, (si * n_frames + f) / (3 * n_frames))
                 bg = draw_reddit_card(bg, script, card_progress,
                                       font_reddit_title, font_reddit_meta, font_reddit_sm)
 
-            # Animated caption (bottom center)
-            word_prog = min(1.0, t * 2.2 + 0.05)
-            draw_caption_viral(draw, scene["voiceover"], word_prog,
-                               font_caption, font_caption_sm, H - 270)
+            # 4. TikTok-style captions (center screen, 2 words)
+            word_prog = min(1.0, t * 2.0 + 0.05)
+            bg = draw_caption_tiktok(bg, scene["voiceover"], word_prog)
 
-            # Progress bar
+            # 5. Thin progress bar at very bottom
+            draw = ImageDraw.Draw(bg, 'RGBA')
             prog = global_frame / max(total_frames-1, 1)
             bw = int(W * prog)
-            draw.rectangle([0, H-8, bw, H], fill=accent)
-            draw.rectangle([bw, H-8, W, H], fill=(0,0,0,180))
+            draw.rectangle([0, H-6, bw, H], fill=(255, 255, 255, 180))
+            draw.rectangle([bw, H-6, W, H], fill=(0, 0, 0, 100))
 
             bg.save(frames_dir / f"frame_{global_frame:06d}.png")
             global_frame += 1
