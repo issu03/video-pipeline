@@ -1,6 +1,23 @@
 {
   "videos": [
     {
+      "id": 1776591679,
+      "title": "You're Blind 40% Time",
+      "type": "fact",
+      "created_at": "2026-04-19T09:52:30.852041",
+      "youtube": {
+        "scheduled": "2026-04-19T20:00:00",
+        "url": "https://youtube.com/shorts/9dLtcF5po9c",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-04-19T20:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#facts #mindblowing #didyouknow #fyp #shorts #viral",
+      "status": "scheduled"
+    },
+    {
       "id": 1776511822,
       "title": "Napoleon Was Short?",
       "type": "fact",
@@ -19,6 +36,6 @@
     }
   ],
   "stats": {
-    "generated": 1
+    "generated": 2
   }
 }
