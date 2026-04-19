@@ -3,147 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="refresh" content="300">
-<title>VaultMind Pipeline v5</title>
+<title>VaultMind Pipeline v6</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#04060C;--s1:#080C16;--s2:#0C1220;
-  --border:#182030;--border2:#22304A;
+  --bd:#182030;--bd2:#22304A;
   --yt:#FF0033;--yt2:#FF4466;
   --tt:#00F5D4;--gold:#FFD100;--gold2:#FFBE00;
   --green:#00E676;--red:#FF3D57;--orange:#FF7A00;
   --text:#E8EDF5;--text2:#6A85A8;--text3:#2D4060;
   --r:14px;
 }
-html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
-.glow1{position:fixed;top:-300px;left:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(255,0,51,.05),transparent 65%);pointer-events:none;z-index:0}
-.glow2{position:fixed;bottom:-300px;right:-200px;width:800px;height:800px;background:radial-gradient(circle,rgba(0,245,212,.04),transparent 65%);pointer-events:none;z-index:0}
+.g1{position:fixed;top:-250px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(255,0,51,.06),transparent 65%);pointer-events:none;z-index:0}
+.g2{position:fixed;bottom:-250px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(0,245,212,.04),transparent 65%);pointer-events:none;z-index:0}
 .wrap{max-width:1300px;margin:0 auto;padding:36px 24px;position:relative;z-index:1}
 
-/* HEADER */
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;gap:16px;flex-wrap:wrap}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:44px;gap:16px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:16px}
-.bmark{width:54px;height:54px;background:linear-gradient(135deg,var(--yt),var(--gold));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 0 40px rgba(255,0,51,.2);flex-shrink:0}
-.bname{font-size:28px;font-weight:800;letter-spacing:.06em;line-height:1}
-.bsub{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;letter-spacing:.14em}
-.hpills{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.pill{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:100px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;border:1px solid;letter-spacing:.05em}
-.pill.on{background:rgba(0,230,118,.08);border-color:rgba(0,230,118,.25);color:var(--green)}
-.pill.src{background:rgba(0,245,212,.06);border-color:rgba(0,245,212,.2);color:var(--tt)}
-.pill.warn{background:rgba(255,122,0,.06);border-color:rgba(255,122,0,.2);color:var(--orange)}
+.bmark{width:52px;height:52px;background:linear-gradient(135deg,var(--yt),var(--gold));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 36px rgba(255,0,51,.2);flex-shrink:0}
+.bname{font-size:26px;font-weight:800;letter-spacing:.06em}
+.bsub{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px;letter-spacing:.12em}
+.hpills{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;border:1px solid;letter-spacing:.04em;white-space:nowrap}
+.pill.green{background:rgba(0,230,118,.08);border-color:rgba(0,230,118,.25);color:var(--green)}
+.pill.blue{background:rgba(0,245,212,.06);border-color:rgba(0,245,212,.2);color:var(--tt)}
+.pill.yellow{background:rgba(255,208,0,.06);border-color:rgba(255,208,0,.2);color:var(--gold)}
 .dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* SOURCE BADGE */
-.src-note{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:32px;padding:10px 16px;background:rgba(0,245,212,.04);border:1px solid rgba(0,245,212,.1);border-radius:8px;display:flex;align-items:center;gap:8px}
-.src-note span{color:var(--tt)}
+/* NICHES */
+.niches{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px}
+.nchip{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;border:1px solid;cursor:pointer;transition:all .2s;letter-spacing:.04em}
+.nchip:hover{transform:translateY(-1px)}
 
 /* STATS */
-.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:44px}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:40px}
 @media(max-width:760px){.sgrid{grid-template-columns:repeat(2,1fr)}}
-.sc{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:22px 20px;position:relative;overflow:hidden;transition:border-color .2s}
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:20px 18px;position:relative;overflow:hidden;transition:border-color .2s}
 .sc::before{content:'';position:absolute;inset:0;opacity:.06;background:var(--c);pointer-events:none}
 .sc.cg{--c:var(--gold)}.sc.cy{--c:var(--yt)}.sc.ct{--c:var(--tt)}.sc.cn{--c:var(--green)}
-.sc-icon{font-size:18px;margin-bottom:10px}
-.sc-num{font-size:46px;font-weight:800;line-height:1;letter-spacing:-.02em}
+.sc-icon{font-size:18px;margin-bottom:8px}
+.sc-num{font-size:44px;font-weight:800;line-height:1;letter-spacing:-.02em}
 .sc.cg .sc-num{color:var(--gold)}.sc.cy .sc-num{color:var(--yt)}.sc.ct .sc-num{color:var(--tt)}.sc.cn .sc-num{color:var(--green)}
-.sc-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.14em;margin-top:5px;font-family:'JetBrains Mono',monospace}
-.sc-sub{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-top:5px}
+.sc-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.14em;margin-top:4px;font-family:'JetBrains Mono',monospace}
+.sc-sub{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-top:4px}
 
 /* SECTION */
-.secrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.secrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
 .sectit{font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--text2);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
-.btn-gen{background:var(--gold);color:#04060C;border:none;padding:12px 28px;border-radius:10px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.05em;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
-.btn-gen:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,208,0,.3)}
-.btn-gen:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.btn-sm{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:7px 13px;border-radius:8px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .2s;white-space:nowrap}
-.btn-sm:hover{color:var(--text);border-color:var(--text3)}
-.btn-sm.danger:hover{color:var(--red);border-color:rgba(255,61,87,.4)}
+.bgen{background:var(--gold);color:#04060C;border:none;padding:11px 24px;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:.05em;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.bgen:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,208,0,.28)}
+.bgen:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.bsm{background:transparent;border:1px solid var(--bd2);color:var(--text2);padding:7px 12px;border-radius:8px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .2s;white-space:nowrap}
+.bsm:hover{color:var(--text);border-color:var(--text3)}
+.bsm.d:hover{color:var(--red);border-color:rgba(255,61,87,.4)}
 
 /* CALENDAR */
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:44px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:40px}
 @media(max-width:700px){.cal{grid-template-columns:repeat(4,1fr)}}
-.cday{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;min-height:90px;position:relative;transition:border-color .2s}
-.cday.today{border-color:var(--border2);background:var(--s2)}
-.cday.h1{border-color:rgba(0,245,212,.3);background:rgba(0,245,212,.04)}
-.cday.h2,.cday.full{border-color:rgba(255,208,0,.35);background:rgba(255,208,0,.04)}
-.cdn{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;font-family:'JetBrains Mono',monospace;margin-bottom:4px}
-.cdd{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
-.cday.today .cdd{color:var(--gold)}
-.cdc{font-size:30px;font-weight:800;color:var(--border2)}
-.cday.h1 .cdc{color:var(--tt)}.cday.h2 .cdc,.cday.full .cdc{color:var(--gold)}
-.cslt{font-size:9px;font-family:'JetBrains Mono',monospace;margin-top:4px;line-height:1.7}
-.cslt span{display:block}.cslt .used{color:var(--yt2);text-decoration:line-through}
-.cslt .free{color:var(--green)}
-.fbadge{position:absolute;top:5px;right:5px;font-size:8px;background:rgba(255,0,51,.15);color:var(--yt2);padding:2px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.05em}
+.cd{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:12px 8px;text-align:center;min-height:86px;position:relative;transition:border-color .2s}
+.cd.today{border-color:var(--bd2);background:var(--s2)}
+.cd.h1{border-color:rgba(0,245,212,.3);background:rgba(0,245,212,.04)}
+.cd.h2,.cd.full{border-color:rgba(255,208,0,.35);background:rgba(255,208,0,.04)}
+.cdn{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-family:'JetBrains Mono',monospace;margin-bottom:3px}
+.cdd{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.cd.today .cdd{color:var(--gold)}
+.cdc{font-size:28px;font-weight:800;color:var(--bd2)}
+.cd.h1 .cdc{color:var(--tt)}.cd.h2 .cdc,.cd.full .cdc{color:var(--gold)}
+.cslt{font-size:9px;font-family:'JetBrains Mono',monospace;margin-top:3px;line-height:1.6}
+.cslt span{display:block}.cslt .u{color:var(--yt2);text-decoration:line-through}.cslt .f{color:var(--green)}
+.fbadge{position:absolute;top:4px;right:4px;font-size:8px;background:rgba(255,0,51,.15);color:var(--yt2);padding:2px 4px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-weight:700}
 
-/* VIDEO CARDS */
-.vlist{display:flex;flex-direction:column;gap:12px;margin-bottom:44px}
-.vc{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;display:grid;grid-template-columns:52px 1fr auto;gap:18px;align-items:start;animation:fu .35s ease both;transition:border-color .2s}
-.vc:hover{border-color:var(--border2)}
+/* VIDEO LIST */
+.vlist{display:flex;flex-direction:column;gap:10px;margin-bottom:40px}
+.vc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:18px 22px;display:grid;grid-template-columns:48px 1fr auto;gap:16px;align-items:start;animation:fu .3s ease both;transition:border-color .2s}
+.vc:hover{border-color:var(--bd2)}
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:640px){.vc{grid-template-columns:1fr;gap:10px}}
-.vn{font-size:36px;font-weight:800;color:var(--border2);font-family:'JetBrains Mono',monospace;text-align:center;padding-top:4px}
-.vtitle{font-size:15px;font-weight:700;margin-bottom:8px;line-height:1.35}
-.vbadges{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
-.b{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;border:1px solid;letter-spacing:.04em}
+@media(max-width:640px){.vc{grid-template-columns:1fr}}
+.vn{font-size:32px;font-weight:800;color:var(--bd2);font-family:'JetBrains Mono',monospace;text-align:center;padding-top:2px}
+.vtitle{font-size:14px;font-weight:700;margin-bottom:7px;line-height:1.35}
+.vbadges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px}
+.b{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;border:1px solid;letter-spacing:.03em}
 .b.yt{background:rgba(255,0,51,.1);color:var(--yt2);border-color:rgba(255,0,51,.2)}
 .b.tt{background:rgba(0,245,212,.08);color:var(--tt);border-color:rgba(0,245,212,.2)}
-.b.live{background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.25)}
-.b.sch{background:rgba(255,208,0,.08);color:var(--gold);border-color:rgba(255,208,0,.2)}
-.b.red{background:rgba(255,100,0,.1);color:#FF7733;border-color:rgba(255,100,0,.2)}
-.b.fct{background:rgba(138,92,255,.1);color:#A78BFA;border-color:rgba(138,92,255,.2)}
-.b.src-gh{background:rgba(0,245,212,.06);color:var(--tt);border-color:rgba(0,245,212,.15)}
-.vtimes{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:2}
+.b.live{background:rgba(0,230,118,.1);color:var(--green);border-color:rgba(0,230,118,.2)}
+.b.sch{background:rgba(255,208,0,.08);color:var(--gold);border-color:rgba(255,208,0,.15)}
+.b.n-reddit{background:rgba(255,69,0,.1);color:#FF6633;border-color:rgba(255,69,0,.2)}
+.b.n-dating{background:rgba(255,80,120,.1);color:#FF80A0;border-color:rgba(255,80,120,.2)}
+.b.n-rich{background:rgba(50,220,120,.1);color:#50DD90;border-color:rgba(50,220,120,.2)}
+.b.n-lifehack{background:rgba(80,180,255,.1);color:#80C0FF;border-color:rgba(80,180,255,.2)}
+.b.n-fact{background:rgba(180,80,255,.1);color:#C080FF;border-color:rgba(180,80,255,.2)}
+.b.n-scary{background:rgba(200,30,30,.1);color:#FF6060;border-color:rgba(200,30,30,.2)}
+.b.n-motivation{background:rgba(255,165,0,.1);color:#FFB040;border-color:rgba(255,165,0,.2)}
+.b.n-conspiracy{background:rgba(0,220,180,.1);color:#00DDB0;border-color:rgba(0,220,180,.2)}
+.vtimes{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.9}
 .vtimes strong{color:var(--text2)}
-.vact{display:flex;flex-direction:column;gap:7px;align-items:flex-end}
-.vcol{font-size:10px;color:var(--yt2);font-family:'JetBrains Mono',monospace;margin-top:3px;display:none}
-.vcol.show{display:block}
+.vact{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 
 /* EMPTY */
-.empty{text-align:center;padding:70px 20px;color:var(--text3)}
-.empty-icon{font-size:56px;margin-bottom:16px;opacity:.2}
-.empty h3{font-size:22px;font-weight:800;color:var(--text2);margin-bottom:8px}
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:52px;margin-bottom:14px;opacity:.2}
+.empty h3{font-size:20px;font-weight:800;color:var(--text2);margin-bottom:6px}
 .empty p{font-size:13px;line-height:1.7;max-width:360px;margin:0 auto}
 
 /* LOG */
-.logwrap{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-.logbody{padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);max-height:180px;overflow-y:auto;line-height:2;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.logwrap{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.logbody{padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);max-height:180px;overflow-y:auto;line-height:2}
 .logbody .ok{color:var(--green)}.logbody .err{color:var(--red)}.logbody .info{color:var(--tt)}.logbody .warn{color:var(--gold)}
 
 /* OVERLAY */
-.ov{position:fixed;inset:0;background:rgba(4,6,12,.95);display:none;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:22px;backdrop-filter:blur(10px)}
+.ov{position:fixed;inset:0;background:rgba(4,6,12,.95);display:none;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:20px;backdrop-filter:blur(10px)}
 .ov.on{display:flex}
-.spin{width:64px;height:64px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite}
+.spin{width:60px;height:60px;border:3px solid var(--bd2);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.ovt{font-size:28px;font-weight:800;letter-spacing:.06em;color:var(--gold)}
+.ovt{font-size:26px;font-weight:800;letter-spacing:.06em;color:var(--gold)}
 .ovs{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace}
-.ovst{display:flex;flex-direction:column;gap:10px;margin-top:8px}
-.os{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text3);opacity:.3;transition:all .4s;font-family:'JetBrains Mono',monospace}
+.ovst{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+.os{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text3);opacity:.3;transition:all .4s;font-family:'JetBrains Mono',monospace}
 .os.on{opacity:1;color:var(--text)}.os.done{color:var(--green);opacity:1}
 .osd{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
 
-footer{text-align:center;padding:44px 0 20px;color:var(--text3);font-size:11px;font-family:'JetBrains Mono',monospace;border-top:1px solid var(--border);margin-top:60px}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+footer{text-align:center;padding:40px 0 20px;color:var(--text3);font-size:11px;font-family:'JetBrains Mono',monospace;border-top:1px solid var(--bd);margin-top:56px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
 </style>
 </head>
 <body>
-<div class="glow1"></div><div class="glow2"></div>
+<div class="g1"></div><div class="g2"></div>
 
-<!-- Loading overlay -->
 <div class="ov" id="ov">
   <div class="spin"></div>
   <div class="ovt">GENERIERE VIDEO</div>
-  <div class="ovs" id="ovs">Starte Pipeline...</div>
+  <div class="ovs" id="ovs">Starte...</div>
   <div class="ovst">
-    <div class="os" id="os1"><div class="osd"></div>Script generieren (Groq AI)</div>
+    <div class="os" id="os1"><div class="osd"></div>Nische & Script auswählen</div>
     <div class="os" id="os2"><div class="osd"></div>Freien Upload-Slot prüfen</div>
-    <div class="os" id="os3"><div class="osd"></div>Voiceover (ElevenLabs / edge-tts)</div>
+    <div class="os" id="os3"><div class="osd"></div>Voiceover generieren</div>
     <div class="os" id="os4"><div class="osd"></div>Pexels-Bilder laden</div>
-    <div class="os" id="os5"><div class="osd"></div>Video rendern</div>
+    <div class="os" id="os5"><div class="osd"></div>Video & Captions rendern</div>
     <div class="os" id="os6"><div class="osd"></div>YouTube & TikTok einplanen</div>
   </div>
 </div>
@@ -152,18 +151,18 @@ footer{text-align:center;padding:44px 0 20px;color:var(--text3);font-size:11px;f
   <header>
     <div class="brand">
       <div class="bmark">🎬</div>
-      <div><div class="bname">VAULTMIND</div><div class="bsub">AUTO VIDEO PIPELINE v5</div></div>
+      <div><div class="bname">VAULTMIND</div><div class="bsub">AUTO VIDEO PIPELINE v6</div></div>
     </div>
     <div class="hpills">
-      <div class="pill on"><div class="dot"></div>System aktiv</div>
-      <div class="pill src" id="srcPill"><div class="dot"></div><span id="srcTxt">Lade...</span></div>
+      <div class="pill green"><div class="dot"></div>System aktiv</div>
+      <div class="pill blue" id="slotPill"><div class="dot"></div><span id="slotTxt">…</span></div>
     </div>
   </header>
 
-  <div class="src-note" id="srcNote">
-    📡 Dashboard liest <span>dashboard.json</span> — wird nach jedem GitHub-Workflow-Run automatisch aktualisiert. <span id="lastUpdate"></span>
-  </div>
+  <!-- Niche chips -->
+  <div class="niches" id="nicheChips"></div>
 
+  <!-- Stats -->
   <div class="sgrid">
     <div class="sc cg"><div class="sc-icon">🎬</div><div class="sc-num" id="sT">0</div><div class="sc-lbl">Videos gesamt</div></div>
     <div class="sc cy"><div class="sc-icon">▶</div><div class="sc-num" id="sY">0</div><div class="sc-lbl">YouTube geplant</div></div>
@@ -171,132 +170,146 @@ footer{text-align:center;padding:44px 0 20px;color:var(--text3);font-size:11px;f
     <div class="sc cn"><div class="sc-icon">⏱</div><div class="sc-num" id="sN">—</div><div class="sc-lbl">Nächster Upload</div><div class="sc-sub" id="sND"></div></div>
   </div>
 
+  <!-- Calendar -->
   <div class="secrow">
-    <div class="sectit">📅 7-Tage-Zeitplan</div>
-    <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">Max 2/Tag · <span style="color:var(--green)">✓</span> frei · <span style="color:var(--yt2)">✗</span> belegt</div>
+    <div class="sectit">📅 7-Tage-Plan</div>
+    <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">Max 2/Tag · <span style="color:var(--green)">✓</span> frei · <span style="color:var(--yt2)">✗</span> belegt · Virale Zeiten</div>
   </div>
   <div class="cal" id="cal"></div>
 
+  <!-- Queue -->
   <div class="secrow">
-    <div class="sectit">📋 Video-Warteschlange</div>
+    <div class="sectit">📋 Video-Queue</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn-sm" onclick="reloadDashboard()">🔄 Aktualisieren</button>
-      <button class="btn-gen" id="genBtn" onclick="gen()">⚡ Video generieren</button>
+      <button class="bsm" onclick="loadDash()">🔄 Sync</button>
+      <button class="bgen" id="genBtn" onclick="gen()">⚡ Video generieren</button>
     </div>
   </div>
   <div class="vlist" id="vlist"></div>
 
   <div class="secrow" style="margin-top:4px">
-    <div class="sectit">📟 Pipeline-Log</div>
-    <button class="btn-sm" onclick="clrLog()">Leeren</button>
+    <div class="sectit">📟 Log</div>
+    <button class="bsm" onclick="clrLog()">Leeren</button>
   </div>
-  <div class="logwrap"><div class="logbody" id="log"><div class="info">[BOOT] Dashboard bereit.</div></div></div>
+  <div class="logwrap"><div class="logbody" id="log"><div class="info">[BOOT] VaultMind Pipeline v6 bereit.</div></div></div>
 </div>
-<footer>VaultMind Pipeline v5 · Claude AI + ElevenLabs + Pexels + Buffer</footer>
+<footer>VaultMind Pipeline v6 · Claude AI + ElevenLabs + Pexels + Buffer · 8 Niches</footer>
 
 <script>
 // ─────────────────────────────────────────────────────────────
-//  STATE — primary source: dashboard.json (from GitHub repo)
-//  Fallback: localStorage (for dashboard-generated entries)
+//  NICHE CONFIG (mirrors pipeline.py)
 // ─────────────────────────────────────────────────────────────
-let videos = [];
-let stats  = {t:0, y:0, tt:0};
-let dashboardSource = 'local';
-
-const TIMES = {
-  monday:["07:00","19:00"],tuesday:["07:00","19:00"],
-  wednesday:["07:00","21:00"],thursday:["07:00","19:00"],
-  friday:["07:00","20:00"],saturday:["09:00","20:00"],sunday:["10:00","20:00"]
+const NICHES = {
+  reddit:      {label:"📖 Reddit",      color:"#FF4500", bg:"rgba(255,69,0,.12)",   border:"rgba(255,69,0,.3)"},
+  dating:      {label:"💕 Dating",       color:"#FF80A0", bg:"rgba(255,80,120,.1)", border:"rgba(255,80,120,.3)"},
+  rich:        {label:"💰 Get Rich",     color:"#50DD90", bg:"rgba(50,220,120,.1)", border:"rgba(50,220,120,.3)"},
+  lifehack:    {label:"⚡ Life Hacks",   color:"#80C0FF", bg:"rgba(80,180,255,.1)", border:"rgba(80,180,255,.3)"},
+  fact:        {label:"🧠 Mind-Blowing", color:"#C080FF", bg:"rgba(180,80,255,.1)", border:"rgba(180,80,255,.3)"},
+  scary:       {label:"😨 Scary Facts",  color:"#FF6060", bg:"rgba(200,30,30,.1)",  border:"rgba(200,30,30,.3)"},
+  motivation:  {label:"🔥 Motivation",   color:"#FFB040", bg:"rgba(255,165,0,.1)",  border:"rgba(255,165,0,.3)"},
+  conspiracy:  {label:"👁 Conspiracy",   color:"#00DDB0", bg:"rgba(0,220,180,.1)", border:"rgba(0,220,180,.3)"},
 };
-const DAYS  = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
-const MAX   = 2;
 
-// ── Load dashboard.json first, merge with localStorage ────────
-async function reloadDashboard() {
-  log_('🔄 Dashboard neu laden...', 'info');
+// ─────────────────────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────────────────────
+let videos = JSON.parse(localStorage.getItem('vm6_v') || '[]');
+let stats  = {t:0, y:0, tt:0};
+
+// Upload times (mirrors pipeline.py)
+const TIMES = {
+  monday:["17:00","20:00"],tuesday:["13:00","19:00"],
+  wednesday:["16:00","20:00"],thursday:["07:00","19:00"],
+  friday:["17:00","20:00"],saturday:["09:00","20:00"],sunday:["09:00","20:00"]
+};
+const DAYS = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+const MAX  = 2;
+
+// ─────────────────────────────────────────────────────────────
+//  LOAD DASHBOARD.JSON (graceful — works offline too)
+// ─────────────────────────────────────────────────────────────
+async function loadDash() {
+  logL('🔄 Sync dashboard.json...','info');
   try {
-    const resp = await fetch('dashboard.json?t=' + Date.now());
-    if (resp.ok) {
-      const data = await resp.json();
-      const jsonVideos = data.videos || [];
-      // Merge: json is authoritative, add any local-only entries
-      const localRaw = JSON.parse(localStorage.getItem('vm_v') || '[]');
-      const jsonIds = new Set(jsonVideos.map(v => v.id));
-      const localOnly = localRaw.filter(v => !jsonIds.has(v.id));
-      videos = [...jsonVideos, ...localOnly].sort((a,b) =>
-        new Date(b.created_at||0) - new Date(a.created_at||0)
-      );
-      dashboardSource = 'json';
-      log_(`✅ dashboard.json geladen — ${jsonVideos.length} Videos`, 'ok');
-      document.getElementById('srcTxt').textContent = `dashboard.json (${jsonVideos.length} Videos)`;
-      document.getElementById('srcPill').className = 'pill on';
-      document.getElementById('lastUpdate').textContent =
-        `Zuletzt geladen: ${new Date().toLocaleTimeString('de-DE')}`;
-    } else {
-      throw new Error(`HTTP ${resp.status}`);
+    // Only try fetch if we're served over HTTP (not file://)
+    if (window.location.protocol === 'file:') {
+      throw new Error('file:// protocol — using localStorage only');
     }
+    const r = await fetch('dashboard.json?_=' + Date.now(), {cache:'no-store'});
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    const remote = data.videos || [];
+
+    // Merge: remote is authoritative, keep local entries not in remote
+    const remoteIds = new Set(remote.map(v => String(v.id)));
+    const localOnly = videos.filter(v => !remoteIds.has(String(v.id)));
+    videos = [...remote, ...localOnly].sort((a,b) =>
+      new Date(b.created_at||0) - new Date(a.created_at||0)
+    );
+    save();
+    logL(`✅ Synced: ${remote.length} Videos von GitHub`,'ok');
   } catch(e) {
-    log_(`⚠️ dashboard.json nicht erreichbar (${e.message}) → localStorage`, 'warn');
-    videos = JSON.parse(localStorage.getItem('vm_v') || '[]');
-    dashboardSource = 'local';
-    document.getElementById('srcTxt').textContent = 'Nur localStorage';
-    document.getElementById('srcPill').className = 'pill warn';
+    logL(`ℹ️ dashboard.json: ${e.message} — nutze localStorage`,'info');
+    // Just use what we have in localStorage
   }
-  stats = {
-    t: videos.length,
-    y: videos.filter(v => v.youtube?.scheduled).length,
-    tt: videos.filter(v => v.tiktok?.scheduled).length
-  };
-  save();
+  calcStats();
   render();
 }
 
 function save() {
-  localStorage.setItem('vm_v', JSON.stringify(videos));
+  localStorage.setItem('vm6_v', JSON.stringify(videos));
+}
+function calcStats(){
+  stats = {
+    t: videos.length,
+    y: videos.filter(v=>v.youtube?.scheduled).length,
+    tt: videos.filter(v=>v.tiktok?.scheduled).length
+  };
 }
 
 // ─────────────────────────────────────────────────────────────
-//  SLOT HELPERS
+//  SCHEDULING
 // ─────────────────────────────────────────────────────────────
-function normSlot(d){const c=new Date(d);c.setSeconds(0,0);return c.toISOString().slice(0,16);}
 function getOccupied(){
   const s=new Set();
   for(const v of videos){
-    if(v.youtube?.scheduled) s.add(normSlot(new Date(v.youtube.scheduled)));
-    if(v.tiktok?.scheduled)  s.add(normSlot(new Date(v.tiktok.scheduled)));
+    if(v.youtube?.scheduled)s.add(norm(new Date(v.youtube.scheduled)));
+    if(v.tiktok?.scheduled) s.add(norm(new Date(v.tiktok.scheduled)));
   }
   return s;
 }
-function slotBusy(slot,occ){
-  const t=slot.getTime();
-  for(const k of occ){if(Math.abs(new Date(k+":00").getTime()-t)<600000)return true;}
-  return false;
-}
+function norm(d){const c=new Date(d);c.setSeconds(0,0);return c.toISOString().slice(0,16);}
+function busy(slot,occ){const t=slot.getTime();for(const k of occ){if(Math.abs(new Date(k+":00").getTime()-t)<600000)return true;}return false;}
+function dayCount(dk){return videos.filter(v=>v.youtube?.scheduled?.slice(0,10)===dk).length;}
+
 function getNextSlots(n){
-  const res=[],occ=getOccupied(),now=new Date(),buf=new Date(now.getTime()+2700000),pd={};
+  const res=[],occ=getOccupied(),now=new Date(),buf=new Date(now.getTime()+2700000);
   for(let d=0;d<=90&&res.length<n;d++){
     const date=new Date(now);date.setDate(date.getDate()+d);
     const dk=date.toISOString().slice(0,10),dn=DAYS[date.getDay()];
-    for(const t of(TIMES[dn]||["12:00","20:00"])){
+    // Skip if day already full
+    if(dayCount(dk)>=MAX)continue;
+    for(const t of(TIMES[dn]||["17:00","20:00"])){
       if(res.length>=n)break;
       const[h,m]=t.split(':').map(Number);
       const slot=new Date(date);slot.setHours(h,m,0,0);
-      if(slot<=buf||slotBusy(slot,occ)||(pd[dk]||0)>=MAX)continue;
-      res.push(slot);occ.add(normSlot(slot));pd[dk]=(pd[dk]||0)+1;
+      if(slot<=buf||busy(slot,occ)||dayCount(dk)>=MAX)continue;
+      res.push(slot);occ.add(norm(slot));
     }
   }
   return res;
 }
-function freeSlots(days){
+function freeSlotsNext7(){
   const occ=getOccupied(),now=new Date(),buf=new Date(now.getTime()+2700000);
-  let c=0;const pd={};
-  for(let d=0;d<=days;d++){
+  let c=0;
+  for(let d=0;d<=7;d++){
     const date=new Date(now);date.setDate(date.getDate()+d);
     const dk=date.toISOString().slice(0,10),dn=DAYS[date.getDay()];
-    for(const t of(TIMES[dn]||["12:00","20:00"])){
+    if(dayCount(dk)>=MAX)continue;
+    for(const t of(TIMES[dn]||["17:00","20:00"])){
       const[h,m]=t.split(':').map(Number);const slot=new Date(date);slot.setHours(h,m,0,0);
-      if(slot<=buf||(pd[dk]||0)>=MAX)continue;
-      if(!slotBusy(slot,occ)){c++;occ.add(normSlot(slot));pd[dk]=(pd[dk]||0)+1;}
+      if(slot<=buf||busy(slot,occ))continue;
+      c++;occ.add(norm(slot));
     }
   }
   return c;
@@ -308,15 +321,15 @@ function freeSlots(days){
 function fmt(iso){const d=new Date(iso);return d.toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'})+' '+d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
 function until(iso){
   const diff=new Date(iso)-new Date();
-  if(diff<0)return'LIVE 🔴';
+  if(diff<0)return'🔴 LIVE';
   const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000);
-  if(h>48)return`in ${Math.floor(h/24)}T`;if(h>0)return`in ${h}h ${m}m`;return`in ${m}m`;
+  if(h>48)return`in ${Math.floor(h/24)}T ${h%24}h`;
+  if(h>0)return`in ${h}h ${m}m`;return`in ${m}m`;
 }
-function log_(msg,tp='info'){
+function logL(msg,tp='info'){
   const b=document.getElementById('log'),l=document.createElement('div');
-  l.className=tp;const ts=new Date().toLocaleTimeString('de-DE',{hour12:false});
-  l.textContent=`[${ts}] ${msg}`;b.prepend(l);
-  while(b.children.length>80)b.removeChild(b.lastChild);
+  l.className=tp;l.textContent=`[${new Date().toLocaleTimeString('de-DE',{hour12:false})}] ${msg}`;
+  b.prepend(l);while(b.children.length>80)b.removeChild(b.lastChild);
 }
 function clrLog(){document.getElementById('log').innerHTML='<div class="info">[SYS] Log geleert.</div>';}
 
@@ -324,10 +337,11 @@ function clrLog(){document.getElementById('log').innerHTML='<div class="info">[S
 //  RENDER
 // ─────────────────────────────────────────────────────────────
 function render(){
+  calcStats();
   // Stats
-  document.getElementById('sT').textContent  = stats.t;
-  document.getElementById('sY').textContent  = stats.y;
-  document.getElementById('sTT').textContent = stats.tt;
+  document.getElementById('sT').textContent=stats.t;
+  document.getElementById('sY').textContent=stats.y;
+  document.getElementById('sTT').textContent=stats.tt;
   const up=videos.filter(v=>v.youtube?.scheduled&&new Date(v.youtube.scheduled)>new Date())
     .sort((a,b)=>new Date(a.youtube.scheduled)-new Date(b.youtube.scheduled));
   if(up.length){
@@ -338,32 +352,38 @@ function render(){
     document.getElementById('sN').textContent='—';
     document.getElementById('sND').textContent='Keine geplant';
   }
+  // Slot pill
+  const fs=freeSlotsNext7();
+  document.getElementById('slotTxt').textContent=`${fs} Slots frei (7T)`;
+  document.getElementById('slotPill').className='pill '+(fs<=2?'yellow':'blue');
 
-  // Free slots pill
-  const fs=freeSlots(7);
-  document.getElementById('srcTxt').textContent=
-    dashboardSource==='json'
-      ? `dashboard.json · ${fs} Slots frei`
-      : `localStorage · ${fs} Slots frei`;
+  // Niche chips
+  const nc=document.getElementById('nicheChips');
+  if(!nc.children.length){
+    nc.innerHTML=Object.entries(NICHES).map(([k,n])=>{
+      const cnt=videos.filter(v=>v.niche===k||v.type===k).length;
+      return`<div class="nchip" style="background:${n.bg};border-color:${n.border};color:${n.color}">${n.label} <span style="opacity:.6;font-size:10px">${cnt}</span></div>`;
+    }).join('');
+  }
 
   // Calendar
   const calEl=document.getElementById('cal');
   const now=new Date(),occ=getOccupied();
+  const dayDE=['So','Mo','Di','Mi','Do','Fr','Sa'];
   calEl.innerHTML=Array.from({length:7},(_,d)=>{
     const date=new Date(now);date.setDate(date.getDate()+d);
     const dk=date.toISOString().slice(0,10),dn=DAYS[date.getDay()];
-    const cnt=videos.filter(v=>v.youtube?.scheduled?.slice(0,10)===dk).length;
+    const cnt=dayCount(dk);
     const full=cnt>=MAX,cls=full?'full':cnt===2?'h2':cnt===1?'h1':'';
     const times=TIMES[dn]||[];
     const shtml=times.map(t=>{
       const[h,m]=t.split(':').map(Number);const s=new Date(date);s.setHours(h,m,0,0);
-      const u=slotBusy(s,occ);
-      return`<span class="${u?'used':'free'}">${t}${u?' ✗':' ✓'}</span>`;
+      const u=busy(s,occ);
+      return`<span class="${u?'u':'f'}">${t}${u?' ✗':' ✓'}</span>`;
     }).join('');
-    const dn2=['So','Mo','Di','Mi','Do','Fr','Sa'][date.getDay()];
-    return`<div class="cday ${cls} ${d===0?'today':''}">
+    return`<div class="cd ${cls} ${d===0?'today':''}">
       ${full?'<div class="fbadge">VOLL</div>':''}
-      <div class="cdn">${dn2}</div>
+      <div class="cdn">${dayDE[date.getDay()]}</div>
       <div class="cdd">${date.getDate()}.${date.getMonth()+1}.</div>
       <div class="cdc">${cnt}/${MAX}</div>
       <div class="cslt">${shtml}</div>
@@ -373,37 +393,36 @@ function render(){
   // Video list
   const vl=document.getElementById('vlist');
   if(!videos.length){
-    vl.innerHTML=`<div class="empty"><div class="empty-icon">🎬</div><h3>Noch keine Videos</h3><p>Entweder Workflow in GitHub starten oder "Video generieren" klicken. Videos erscheinen hier automatisch wenn dashboard.json aktualisiert wird.</p></div>`;
+    vl.innerHTML=`<div class="empty"><div class="empty-icon">🎬</div>
+      <h3>Noch keine Videos</h3>
+      <p>GitHub Workflow startet täglich automatisch.<br>Hier "Video generieren" für einen lokalen Preview-Eintrag, oder warte auf den nächsten automatischen Run.</p>
+    </div>`;
     return;
   }
   vl.innerHTML=videos.map((v,i)=>{
     const live=v.youtube?.scheduled&&new Date(v.youtube.scheduled)<new Date();
-    const tc=v.type==='reddit'?'red':'fct',tl=v.type==='reddit'?'📖 Reddit':'💡 Fakt';
-    const coll=videos.filter((ov,oi)=>oi!==i&&ov.youtube?.scheduled&&
-      Math.abs(new Date(ov.youtube.scheduled)-new Date(v.youtube.scheduled))<600000);
-    const ytSch=v.youtube?.scheduled;
-    const ttSch=v.tiktok?.scheduled;
-    return`<div class="vc" style="animation-delay:${Math.min(i,.15)*0.05}s">
+    const nk=v.niche||v.type||'fact';
+    const ni=NICHES[nk]||NICHES.fact;
+    const ytSch=v.youtube?.scheduled,ttSch=v.tiktok?.scheduled;
+    return`<div class="vc" style="animation-delay:${Math.min(i,.2)*.04}s">
       <div class="vn">${String(videos.length-i).padStart(2,'0')}</div>
       <div>
         <div class="vtitle">${v.title||'Kein Titel'}</div>
         <div class="vbadges">
-          <span class="b yt">▶ YouTube</span>
-          <span class="b tt">♪ TikTok</span>
-          <span class="b ${tc}">${tl}</span>
+          <span class="b yt">▶ YT</span>
+          <span class="b tt">♪ TT</span>
+          <span class="b n-${nk}" style="background:${ni.bg};border-color:${ni.border};color:${ni.color}">${ni.label}</span>
           <span class="b ${live?'live':'sch'}">${live?'🔴 Live':'⏰ Geplant'}</span>
-          ${dashboardSource==='json'?'<span class="b src-gh">📡 GitHub</span>':''}
         </div>
         <div class="vtimes">
-          📺 YT: <strong>${ytSch?fmt(ytSch):'—'}</strong>${ytSch?' — '+until(ytSch):''}<br>
-          📱 TT: <strong>${ttSch?fmt(ttSch):'—'}</strong>${ttSch?' — '+until(ttSch):''}
+          📺 <strong>${ytSch?fmt(ytSch):'—'}</strong>${ytSch?' — '+until(ytSch):''}<br>
+          📱 <strong>${ttSch?fmt(ttSch):'—'}</strong>${ttSch?' — '+until(ttSch):''}
         </div>
-        <div class="vcol ${coll.length?'show':''}">⚠ Zeitüberschneidung erkannt</div>
       </div>
       <div class="vact">
-        ${v.youtube?.url?`<button class="btn-sm" onclick="window.open('${v.youtube.url}')">▶ YT</button>`:''}
-        <button class="btn-sm" onclick="cpCap(${i})">📋 Caption</button>
-        <button class="btn-sm danger" onclick="delV(${i})">🗑</button>
+        ${v.youtube?.url?`<button class="bsm" onclick="window.open('${v.youtube.url}')">▶ YT</button>`:''}
+        <button class="bsm" onclick="cpCap(${i})">📋</button>
+        <button class="bsm d" onclick="delV(${i})">🗑</button>
       </div>
     </div>`;
   }).join('');
@@ -414,71 +433,78 @@ function render(){
 // ─────────────────────────────────────────────────────────────
 function cpCap(i){
   const v=videos[i];
-  navigator.clipboard.writeText(`${v.title}\n\n${v.hashtags||''}`).then(()=>log_('Caption kopiert!','ok'));
+  navigator.clipboard.writeText(`${v.title}\n\n${v.hashtags||''}`).then(()=>logL('Caption kopiert!','ok'));
 }
 function delV(i){
-  if(!confirm('Video wirklich aus dem lokalen Dashboard löschen?'))return;
-  videos.splice(i,1);stats.t=Math.max(0,stats.t-1);stats.y=Math.max(0,stats.y-1);stats.tt=Math.max(0,stats.tt-1);
-  save();log_('Video entfernt.','warn');render();
+  if(!confirm('Wirklich löschen?'))return;
+  videos.splice(i,1);save();logL('Gelöscht.','warn');render();
 }
 
 // ─────────────────────────────────────────────────────────────
-//  GENERATE (preview / script only — real video runs via GitHub)
+//  GENERATE (script preview + local slot booking)
 // ─────────────────────────────────────────────────────────────
 const OST=['os1','os2','os3','os4','os5','os6'];
-const OSM=['Script generieren...','Freien Slot suchen...','Voiceover simulieren...','Pexels-Bilder laden...','Video rendern...','Einplanen...'];
+const OSM=['Nische & Script...','Slot prüfen...','Voiceover...','Pexels laden...','Rendern...','Einplanen...'];
 let ostep=0;
-function advOS(){
+function adv(){
   if(ostep>0)document.getElementById(OST[ostep-1]).classList.replace('on','done');
   if(ostep<OST.length){document.getElementById(OST[ostep]).classList.add('on');document.getElementById('ovs').textContent=OSM[ostep];ostep++;}
 }
-function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
 
 async function gen(){
   const btn=document.getElementById('genBtn');btn.disabled=true;
   document.getElementById('ov').classList.add('on');
   ostep=0;OST.forEach(s=>document.getElementById(s).className='os');
-  advOS();
+  adv();
   try{
-    log_('Script-Generierung gestartet...','info');
+    logL('Video-Generierung gestartet...','info');
     const slots=getNextSlots(2);
     if(!slots.length)throw new Error('Keine freien Slots in 90 Tagen!');
-    const ytSlot=slots[0],ttSlot=slots[1]||new Date(ytSlot.getTime()+1800000);
-    log_(`Nächster Slot: ${fmt(ytSlot.toISOString())}`,'info');
-    advOS();
+    adv();
+    const ytSlot=slots[0],ttSlot=new Date(ytSlot.getTime()+1800000);
+    logL(`Slot: ${fmt(ytSlot.toISOString())}`,'info');
+
+    // Claude API for script
     const resp=await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",max_tokens:1200,
-        messages:[{role:"user",content:`Viral TikTok/Shorts script writer. Niche: Interesting Facts.
-Pick shocking topic. Return ONLY valid JSON (no markdown):
-{"type":"fact","title":"viral title max 60 chars","description":"2 sentence description",
-"scenes":[{"text":"screen text max 6 words","voiceover":"spoken naturally, punchy, with pauses like ... and emphasis","duration":4.0,"image_query":"2-3 word pexels search"}],
-"hashtags":"#facts #mindblowing #shorts #fyp #viral"}
-Rules: 6-8 scenes, shocking hook first, CTA last, real facts only, voiceover must sound human not robotic.`}]
+        model:"claude-sonnet-4-20250514",max_tokens:1400,
+        messages:[{role:"user",content:`You write scripts for viral TikTok/YouTube Shorts.
+Pick ONE random niche from: reddit, dating, rich, lifehack, fact, scary, motivation, conspiracy.
+Return ONLY valid JSON (no markdown, no extra text):
+{
+  "type":"fact",
+  "niche":"fact",
+  "title":"shocking viral title max 60 chars",
+  "description":"2-sentence description",
+  "hashtags":"#relevant #hashtags #fyp #shorts #viral",
+  "scenes":[{"text":"max 5 words on screen","voiceover":"spoken naturally, punchy, pauses with ..., emphasis","duration":4.5,"image_query":"specific visual pexels search"}]
+}
+Rules: 6-8 scenes, shocking hook first, CTA last, natural speech NOT robotic, real facts only.`}]
       })
     });
     const data=await resp.json();
     if(data.error)throw new Error(data.error.message);
     const raw=data.content[0].text.replace(/```json|```/g,'').trim();
     const sc=JSON.parse(raw.slice(raw.indexOf('{'),raw.lastIndexOf('}')+1));
-    log_(`✅ Script: "${sc.title}"`,'ok');
-    advOS();await delay(1500);advOS();await delay(1200);advOS();await delay(1000);advOS();await delay(800);
+    logL(`✅ Script: "${sc.title}" (${sc.niche||sc.type})`,'ok');
+    adv();await delay(1200);adv();await delay(900);adv();await delay(700);adv();await delay(600);
 
     const v={
       id:Date.now(),title:sc.title,description:sc.description||'',
-      hashtags:sc.hashtags,type:sc.type||'fact',scenes:sc.scenes,
-      created_at:new Date().toISOString(),
+      hashtags:sc.hashtags,type:sc.type||'fact',niche:sc.niche||sc.type||'fact',
+      scenes:sc.scenes,created_at:new Date().toISOString(),
       youtube:{scheduled:ytSlot.toISOString(),url:null,status:'scheduled'},
       tiktok:{scheduled:ttSlot.toISOString(),status:'scheduled'}
     };
-    videos.unshift(v);stats.t++;stats.y++;stats.tt++;save();
-    log_(`📅 YouTube: ${fmt(ytSlot.toISOString())}`,'ok');
-    log_(`📅 TikTok: ${fmt(ttSlot.toISOString())}`,'ok');
-    log_(`🎉 Fertig: "${sc.title}"`,'ok');
-    log_('ℹ️ Für echtes Video: GitHub Actions Workflow starten','info');
-  }catch(err){log_(`❌ ${err.message}`,'err');}
-  await delay(600);
+    videos.unshift(v);save();
+    logL(`📅 YT: ${fmt(ytSlot.toISOString())}`,'ok');
+    logL(`📅 TT: ${fmt(ttSlot.toISOString())}`,'ok');
+    logL(`🎉 "${sc.title}" eingeplant`,'ok');
+    logL(`ℹ️ Für echtes Video → GitHub Actions Workflow starten`,'info');
+  }catch(err){logL(`❌ ${err.message}`,'err');}
+  await delay(500);
   document.getElementById('ov').classList.remove('on');
   OST.forEach(s=>document.getElementById(s).className='os');
   btn.disabled=false;render();
@@ -487,9 +513,9 @@ Rules: 6-8 scenes, shocking hook first, CTA last, real facts only, voiceover mus
 // ─────────────────────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────────────────────
-reloadDashboard();                   // Load from dashboard.json on page open
-setInterval(reloadDashboard, 300000); // Auto-refresh every 5 minutes
-setInterval(render, 60000);           // Update countdowns every minute
+loadDash();            // Try to sync with dashboard.json (works over HTTP, graceful offline)
+setInterval(render,60000);   // Update countdowns
+setInterval(loadDash, 300000); // Re-sync every 5 min
 </script>
 </body>
 </html>
