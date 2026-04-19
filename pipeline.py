@@ -653,217 +653,352 @@ def make_sfx(sfx_type, work_dir, idx):
         return None
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  STEP 5 — CARTOON CHARACTER (flat vector, proper 2D look)
+#  STEP 5 — CARTOON CHARACTER
+#  Pure SVG-based character rasterized via cairosvg → PIL
+#  Falls back to high-quality PIL drawing if cairosvg unavailable
 # ─────────────────────────────────────────────────────────────────────────────
-def draw_character(img, frame, talking, accent_color):
+_cairo_ok = None
+
+def _check_cairo():
+    global _cairo_ok
+    if _cairo_ok is None:
+        try:
+            import cairosvg
+            _cairo_ok = True
+        except Exception:
+            _cairo_ok = False
+    return _cairo_ok
+
+def _svg_to_pil(svg_str, w, h):
+    """Convert SVG string to PIL RGBA image."""
+    import cairosvg, io
+    png = cairosvg.svg2png(bytestring=svg_str.encode(), output_width=w, output_height=h)
+    return Image.open(io.BytesIO(png)).convert("RGBA")
+
+def _make_character_svg(frame, talking, accent_hex, size=220):
     """
-    Flat-vector 2D cartoon character.
-    Bold outlines, solid fills, expressive face = genuine cartoon aesthetic.
-    Positioned bottom-right, doesn't cover captions.
+    Generate a clean 2D cartoon character as SVG.
+    Designed to look like a real cartoon — thick outlines, flat fills,
+    oversized head, expressive face. No gradients, no 3D — pure flat vector.
     """
-    d    = ImageDraw.Draw(img, 'RGBA')
-    cx   = W - 98
-    cy   = H - 200
-    bob  = int(math.sin(frame * 0.22) * 6)
-    cy  += bob
+    bob   = math.sin(frame * 0.22) * 5
+    swing = math.sin(frame * 0.22) * 16
+    ls    = math.sin(frame * 0.18) * 8
+    blink = (frame % 70) < 3
 
-    # Colors
-    OUTLINE  = (10, 10, 10, 255)
-    SKIN     = (255, 204, 153, 255)
-    HAIR     = (50,  35,  18,  255)
-    SHIRT    = (*accent_color[:3], 255)
-    SHIRT_D  = (max(0, accent_color[0]-60), max(0, accent_color[1]-60),
-                max(0, accent_color[2]-60), 255)
-    PANTS    = (40,  60, 160, 255)
-    SHOE     = (25,  25,  25, 255)
-    EYE_W    = (255, 255, 255, 255)
-    EYE_C    = (70,  130, 220, 255)
-    PUPIL    = (10,  10,  10, 255)
-    CHEEK    = (255, 160, 140, 100)
-    MOUTH_IN = (150,  30,  30, 255)
-    TEETH    = (245, 240, 230, 255)
-    OW       = 4   # outline width
+    cx, cy = size // 2, size // 2 + 20
+    # Derive darker shade of accent for details
+    r_a = int(accent_hex[1:3], 16)
+    g_a = int(accent_hex[3:5], 16)
+    b_a = int(accent_hex[5:7], 16)
+    accent_dark = f"#{max(0,r_a-60):02x}{max(0,g_a-60):02x}{max(0,b_a-60):02x}"
 
-    def R(x1,y1,x2,y2, fill, r=10):
-        d.rounded_rectangle([x1,y1,x2,y2], radius=r, fill=fill, outline=OUTLINE, width=OW)
-    def E(x,y,rx,ry, fill, ow=OW):
-        d.ellipse([x-rx,y-ry,x+rx,y+ry], fill=fill, outline=OUTLINE, width=ow)
-    def L(x1,y1,x2,y2, fill, w=16):
-        d.line([x1,y1,x2,y2], fill=fill, width=w+OW)
-        d.line([x1,y1,x2,y2], fill=OUTLINE, width=w+OW)
-        d.line([x1,y1,x2,y2], fill=fill, width=w)
+    OW = 3.5   # outline stroke width
 
-    # ── Shadow ──
-    d.ellipse([cx-48,cy+112,cx+48,cy+126], fill=(0,0,0,45))
-
-    # ── Legs (walk bounce) ──
-    ls = int(math.sin(frame * 0.20) * 9)
-    R(cx-34+ls, cy+76, cx-10+ls, cy+118, PANTS, r=8)
-    R(cx+10-ls, cy+76, cx+34-ls, cy+118, PANTS, r=8)
-    # Shoes
-    R(cx-38+ls, cy+108, cx-6+ls,  cy+125, SHOE, r=7)
-    R(cx+6-ls,  cy+108, cx+38-ls, cy+125, SHOE, r=7)
-
-    # ── Body ──
-    R(cx-36, cy+26, cx+36, cy+82, SHIRT, r=12)
-    # Chest stripe (niche accent detail)
-    R(cx-6,  cy+26, cx+6,  cy+82, SHIRT_D, r=4)
-
-    # ── Arms (swing) ──
-    sw = int(math.sin(frame * 0.22) * 18)
-    # Left arm
-    d.line([cx-36, cy+38, cx-62, cy+72+sw], fill=OUTLINE, width=18+OW)
-    d.line([cx-36, cy+38, cx-62, cy+72+sw], fill=SHIRT, width=18)
-    E(cx-66, cy+74+sw, 10, 10, SKIN)
-    # Right arm
-    d.line([cx+36, cy+38, cx+62, cy+72-sw], fill=OUTLINE, width=18+OW)
-    d.line([cx+36, cy+38, cx+62, cy+72-sw], fill=SHIRT, width=18)
-    E(cx+66, cy+74-sw, 10, 10, SKIN)
-
-    # ── Neck ──
-    R(cx-9, cy+14, cx+9, cy+30, SKIN, r=4)
-
-    # ── Head (big = cartoony) ──
-    E(cx, cy-38, 40, 44, SKIN)  # big round head
-
-    # ── Hair (flat block) ──
-    d.pieslice([cx-40, cy-84, cx+40, cy-6], start=195, end=345,
-               fill=HAIR, outline=OUTLINE, width=OW)
-    E(cx-34, cy-72, 13, 13, HAIR)
-    E(cx+34, cy-72, 13, 13, HAIR)
-    # Top tuft
-    d.polygon([(cx-8, cy-80), (cx, cy-98), (cx+8, cy-80)],
-              fill=HAIR, outline=OUTLINE)
-
-    # ── Ears ──
-    E(cx-40, cy-46, 9,  11, SKIN)
-    E(cx+40, cy-46, 9,  11, SKIN)
-
-    # ── Eyebrows ──
-    brow_y = cy - 68
-    blink  = (frame % 65) < 3
-    if not blink:
-        d.line([cx-28, brow_y, cx-8,  brow_y+6],  fill=HAIR, width=5)
-        d.line([cx+8,  brow_y+6, cx+28, brow_y],  fill=HAIR, width=5)
-
-    # ── Eyes ──
-    ey = cy - 52
+    eye_svg = ""
     if blink:
-        d.line([cx-24, ey+5, cx-8,  ey+5], fill=HAIR, width=4)
-        d.line([cx+8,  ey+5, cx+24, ey+5], fill=HAIR, width=4)
+        eye_svg = f"""
+  <line x1="{cx-22}" y1="{cy-56}" x2="{cx-8}" y2="{cy-56}" stroke="#222" stroke-width="5" stroke-linecap="round"/>
+  <line x1="{cx+8}" y1="{cy-56}" x2="{cx+22}" y2="{cy-56}" stroke="#222" stroke-width="5" stroke-linecap="round"/>"""
     else:
-        E(cx-17, ey, 13, 13, EYE_W)
-        E(cx+17, ey, 13, 13, EYE_W)
-        E(cx-17, ey+1, 8, 8, EYE_C, ow=0)
-        E(cx+17, ey+1, 8, 8, EYE_C, ow=0)
-        E(cx-17, ey+1, 4, 4, PUPIL, ow=0)
-        E(cx+17, ey+1, 4, 4, PUPIL, ow=0)
-        # Shine
-        d.ellipse([cx-20, ey-4, cx-15, ey],   fill=EYE_W)
-        d.ellipse([cx+14,  ey-4, cx+19,  ey],  fill=EYE_W)
+        eye_svg = f"""
+  <circle cx="{cx-15}" cy="{cy-56}" r="13" fill="white" stroke="#111" stroke-width="{OW}"/>
+  <circle cx="{cx+15}" cy="{cy-56}" r="13" fill="white" stroke="#111" stroke-width="{OW}"/>
+  <circle cx="{cx-15}" cy="{cy-55}" r="8" fill="#3A7AC8"/>
+  <circle cx="{cx+15}" cy="{cy-55}" r="8" fill="#3A7AC8"/>
+  <circle cx="{cx-15}" cy="{cy-55}" r="4" fill="#111"/>
+  <circle cx="{cx+15}" cy="{cy-55}" r="4" fill="#111"/>
+  <circle cx="{cx-19}" cy="{cy-60}" r="2.5" fill="white"/>
+  <circle cx="{cx+11}" cy="{cy-60}" r="2.5" fill="white"/>
+  <line x1="{cx-27}" y1="{cy-72}" x2="{cx-7}" y2="{cy-67}" stroke="#3B2510" stroke-width="5" stroke-linecap="round"/>
+  <line x1="{cx+7}" y1="{cy-67}" x2="{cx+27}" y2="{cy-72}" stroke="#3B2510" stroke-width="5" stroke-linecap="round"/>"""
 
-    # ── Cheeks ──
-    d.ellipse([cx-32, ey+10, cx-18, ey+20], fill=CHEEK)
-    d.ellipse([cx+18, ey+10, cx+32, ey+20], fill=CHEEK)
-
-    # ── Mouth ──
-    my = cy - 32
+    mouth_svg = ""
     if talking:
-        # Open oval mouth
-        d.ellipse([cx-13, my-6, cx+13, my+11],
-                  fill=MOUTH_IN, outline=OUTLINE, width=3)
-        d.rectangle([cx-10, my-5, cx+10, my+1], fill=TEETH)
+        mouth_svg = f"""
+  <ellipse cx="{cx}" cy="{cy-35}" rx="13" ry="10" fill="#8B1A1A" stroke="#111" stroke-width="{OW}"/>
+  <rect x="{cx-10}" y="{cy-42}" width="20" height="9" fill="#F5F0E0" rx="3"/>"""
     else:
-        d.arc([cx-13, my-2, cx+13, my+12], start=15, end=165,
-              fill=OUTLINE, width=4)
+        mouth_svg = f"""
+  <path d="M {cx-13} {cy-38} Q {cx} {cy-26} {cx+13} {cy-38}" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/>"""
 
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">
+
+  <!-- Shadow -->
+  <ellipse cx="{cx}" cy="{cy+105+bob:.1f}" rx="44" ry="9" fill="rgba(0,0,0,0.35)"/>
+
+  <!-- Left leg -->
+  <rect x="{cx-33+ls:.1f}" y="{cy+72}" width="22" height="42" rx="9"
+        fill="#2840A8" stroke="#111" stroke-width="{OW}"/>
+  <!-- Right leg -->
+  <rect x="{cx+11-ls:.1f}" y="{cy+72}" width="22" height="42" rx="9"
+        fill="#2840A8" stroke="#111" stroke-width="{OW}"/>
+  <!-- Left shoe -->
+  <rect x="{cx-37+ls:.1f}" y="{cy+104}" width="28" height="14" rx="7"
+        fill="#1A1A1A" stroke="#111" stroke-width="{OW-1}"/>
+  <!-- Right shoe -->
+  <rect x="{cx+9-ls:.1f}" y="{cy+104}" width="28" height="14" rx="7"
+        fill="#1A1A1A" stroke="#111" stroke-width="{OW-1}"/>
+
+  <!-- Body -->
+  <rect x="{cx-36}" y="{cy+22}" width="72" height="56" rx="14"
+        fill="{accent_hex}" stroke="#111" stroke-width="{OW}"/>
+  <!-- Collar detail -->
+  <polygon points="{cx-9},{cy+22} {cx+9},{cy+22} {cx},{cy+38}"
+           fill="{accent_dark}" stroke="#111" stroke-width="1.5"/>
+
+  <!-- Left arm -->
+  <line x1="{cx-36}" y1="{cy+38}" x2="{cx-58}" y2="{cy+68+swing:.1f}"
+        stroke="#111" stroke-width="{18+OW}" stroke-linecap="round"/>
+  <line x1="{cx-36}" y1="{cy+38}" x2="{cx-58}" y2="{cy+68+swing:.1f}"
+        stroke="{accent_hex}" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="{cx-61:.1f}" cy="{cy+70+swing:.1f}" r="10"
+          fill="#FFCC99" stroke="#111" stroke-width="{OW}"/>
+
+  <!-- Right arm -->
+  <line x1="{cx+36}" y1="{cy+38}" x2="{cx+58}" y2="{cy+68-swing:.1f}"
+        stroke="#111" stroke-width="{18+OW}" stroke-linecap="round"/>
+  <line x1="{cx+36}" y1="{cy+38}" x2="{cx+58}" y2="{cy+68-swing:.1f}"
+        stroke="{accent_hex}" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="{cx+61:.1f}" cy="{cy+70-swing:.1f}" r="10"
+          fill="#FFCC99" stroke="#111" stroke-width="{OW}"/>
+
+  <!-- Neck -->
+  <rect x="{cx-9}" y="{cy+10}" width="18" height="17" rx="5"
+        fill="#FFCC99" stroke="#111" stroke-width="{OW-1}"/>
+
+  <!-- Head -->
+  <ellipse cx="{cx}" cy="{cy-46}" rx="42" ry="46"
+           fill="#FFCC99" stroke="#111" stroke-width="{OW}"/>
+
+  <!-- Hair cap -->
+  <path d="M {cx-42} {cy-52} Q {cx-44} {cy-100} {cx} {cy-96} Q {cx+44} {cy-100} {cx+42} {cy-52} Z"
+        fill="#3B2510" stroke="#111" stroke-width="{OW}"/>
+  <!-- Hair sides -->
+  <ellipse cx="{cx-36}" cy="{cy-72}" rx="14" ry="14" fill="#3B2510"/>
+  <ellipse cx="{cx+36}" cy="{cy-72}" rx="14" ry="14" fill="#3B2510"/>
+  <!-- Hair tuft -->
+  <ellipse cx="{cx}" cy="{cy-98}" rx="10" ry="8" fill="#3B2510"/>
+
+  <!-- Ears -->
+  <ellipse cx="{cx-42}" cy="{cy-48}" rx="9" ry="11"
+           fill="#FFCC99" stroke="#111" stroke-width="{OW-1}"/>
+  <ellipse cx="{cx+42}" cy="{cy-48}" rx="9" ry="11"
+           fill="#FFCC99" stroke="#111" stroke-width="{OW-1}"/>
+
+  <!-- Cheeks -->
+  <ellipse cx="{cx-30}" cy="{cy-38}" rx="10" ry="7" fill="rgba(255,140,120,0.45)"/>
+  <ellipse cx="{cx+30}" cy="{cy-38}" rx="10" ry="7" fill="rgba(255,140,120,0.45)"/>
+
+  {eye_svg}
+  {mouth_svg}
+
+</svg>"""
+    return svg
+
+def draw_character(img, frame, talking, accent_color):
+    """Render cartoon character onto image. Uses SVG→PNG via cairosvg if available,
+    else falls back to direct PIL drawing."""
+    CHAR_SIZE = 200
+    cx_pos    = W - CHAR_SIZE // 2 - 10
+    cy_pos    = H - CHAR_SIZE // 2 - 30
+    bob_px    = int(math.sin(frame * 0.22) * 5)
+
+    accent_hex = "#{:02x}{:02x}{:02x}".format(*accent_color[:3])
+
+    if _check_cairo():
+        try:
+            svg = _make_character_svg(frame, talking, accent_hex, size=CHAR_SIZE)
+            char_img = _svg_to_pil(svg, CHAR_SIZE, CHAR_SIZE)
+            result   = img.convert("RGBA")
+            px = cx_pos - CHAR_SIZE // 2
+            py = cy_pos - CHAR_SIZE // 2 + bob_px
+            result.paste(char_img, (px, py), mask=char_img)
+            return result.convert("RGB")
+        except Exception as ex:
+            log.warning(f"SVG char failed: {ex}, falling back to PIL")
+
+    # ── PIL fallback (clean flat-vector look) ─────────────────────────────────
+    d    = ImageDraw.Draw(img, 'RGBA')
+    cx   = W - 102
+    cy   = H - 195 + bob_px
+    OW   = 4
+    BLK  = (12, 12, 12, 255)
+    SKIN = (255, 204, 153, 255)
+    HAIR = (55, 37, 16, 255)
+    SHRT = (*accent_color[:3], 255)
+    SHRD = (max(0,accent_color[0]-55), max(0,accent_color[1]-55), max(0,accent_color[2]-55), 255)
+    PANT = (42, 62, 168, 255)
+    SHOE = (22, 22, 22, 255)
+    EWHT = (255, 255, 255, 255)
+    EIRIS= (58, 122, 200, 255)
+    EPUP = (12, 12, 12, 255)
+    CHEK = (255, 140, 120, 90)
+    MOUT = (140, 26, 26, 255)
+    TEET = (245, 238, 220, 255)
+
+    def rr(x1,y1,x2,y2,fill,r=10):
+        d.rounded_rectangle([x1,y1,x2,y2],radius=r,fill=fill,outline=BLK,width=OW)
+    def el(x,y,rx,ry,fill,ow=OW):
+        d.ellipse([x-rx,y-ry,x+rx,y+ry],fill=fill,outline=BLK,width=ow)
+
+    ls = int(math.sin(frame*0.18)*9)
+    sw = int(math.sin(frame*0.22)*16)
+
+    d.ellipse([cx-46,cy+105,cx+46,cy+118],fill=(0,0,0,40))
+    rr(cx-33+ls,cy+72,cx-11+ls,cy+114,PANT,r=8)
+    rr(cx+11-ls,cy+72,cx+33-ls,cy+114,PANT,r=8)
+    rr(cx-38+ls,cy+104,cx-7+ls,cy+120,SHOE,r=7)
+    rr(cx+7-ls, cy+104,cx+38-ls,cy+120,SHOE,r=7)
+    rr(cx-35,cy+22,cx+35,cy+78,SHRT,r=13)
+    d.polygon([(cx-9,cy+22),(cx+9,cy+22),(cx,cy+38)],fill=SHRD,outline=BLK)
+    d.line([cx-35,cy+36,cx-58,cy+68+sw],fill=BLK,width=20)
+    d.line([cx-35,cy+36,cx-58,cy+68+sw],fill=SHRT,width=16)
+    el(cx-61,cy+70+sw,10,10,SKIN)
+    d.line([cx+35,cy+36,cx+58,cy+68-sw],fill=BLK,width=20)
+    d.line([cx+35,cy+36,cx+58,cy+68-sw],fill=SHRT,width=16)
+    el(cx+61,cy+70-sw,10,10,SKIN)
+    rr(cx-9,cy+8,cx+9,cy+26,SKIN,r=5)
+    el(cx,cy-44,42,46,SKIN)
+    d.pieslice([cx-42,cy-92,cx+42,cy-12],start=195,end=345,fill=HAIR,outline=BLK,width=OW)
+    el(cx-36,cy-72,14,14,HAIR,ow=0)
+    el(cx+36,cy-72,14,14,HAIR,ow=0)
+    d.ellipse([cx-10,cy-106,cx+10,cy-88],fill=HAIR)
+    el(cx-41,cy-48,9,11,SKIN)
+    el(cx+41,cy-48,9,11,SKIN)
+    d.ellipse([cx-31,cy-40,cx-17,cy-30],fill=CHEK)
+    d.ellipse([cx+17,cy-40,cx+31,cy-30],fill=CHEK)
+    blink=(frame%70)<3
+    ey=cy-56
+    if blink:
+        d.line([cx-23,ey+5,cx-8,ey+5],fill=HAIR,width=4)
+        d.line([cx+8,ey+5,cx+23,ey+5],fill=HAIR,width=4)
+    else:
+        el(cx-15,ey,13,13,EWHT)
+        el(cx+15,ey,13,13,EWHT)
+        el(cx-15,ey+1,8,8,EIRIS,ow=0)
+        el(cx+15,ey+1,8,8,EIRIS,ow=0)
+        el(cx-15,ey+1,4,4,EPUP,ow=0)
+        el(cx+15,ey+1,4,4,EPUP,ow=0)
+        d.ellipse([cx-19,ey-4,cx-14,ey],fill=EWHT)
+        d.ellipse([cx+11,ey-4,cx+16,ey],fill=EWHT)
+        d.line([cx-27,ey-16,cx-7,ey-11],fill=HAIR,width=5)
+        d.line([cx+7,ey-11,cx+27,ey-16],fill=HAIR,width=5)
+    my=cy-35
+    if talking:
+        d.ellipse([cx-13,my-7,cx+13,my+10],fill=MOUT,outline=BLK,width=3)
+        d.rectangle([cx-10,my-6,cx+10,my+1],fill=TEET)
+    else:
+        d.arc([cx-13,my-2,cx+13,my+12],start=15,end=165,fill=BLK,width=4)
     return img
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  STEP 6 — VIRAL CAPTIONS (precise word-by-word, TikTok style)
+#  STEP 6 — VIRAL CAPTIONS
+#  Style: CapCut / OpusClip standard
+#  • ONE word at a time (uppercase)
+#  • Current word: LARGE, YELLOW, slight scale-bounce on first frame
+#  • Previous word: smaller, white, fades slightly above
+#  • Thick black stroke, bottom-third positioning
+#  • Font auto-shrinks so nothing clips
 # ─────────────────────────────────────────────────────────────────────────────
 def draw_captions(img, voiceover, t_in_scene, scene_dur, caption_color, highlight_color):
-    """
-    Precise word-synced captions:
-    - Estimate each word's timing proportional to word length / total chars
-    - Show current word LARGE + HIGHLIGHTED
-    - Show previous word smaller + white above it
-    - Scale font to always fit within safe zone
-    - TikTok safe zone: avoid bottom 20% (TikTok UI) and top 10%
-    """
-    words = voiceover.split()
+    words = voiceover.upper().split()   # UPPERCASE always
     if not words:
         return img
 
-    # Proportional word timing (by character count)
-    char_counts = [max(len(w), 1) for w in words]
-    total_chars = sum(char_counts)
-    cumulative  = [0.0]
-    for c in char_counts:
-        cumulative.append(cumulative[-1] + c / total_chars)
+    # ── Proportional timing by syllable estimate (chars + vowels) ──
+    def word_weight(w):
+        vowels = sum(1 for c in w.lower() if c in 'aeiou')
+        return max(len(w) * 0.6 + vowels * 0.8, 1.5)
 
-    # Find current word index based on time position
-    progress   = min(t_in_scene / max(scene_dur, 0.1), 0.999)
-    curr_idx   = 0
+    weights   = [word_weight(w) for w in words]
+    total_w   = sum(weights)
+    cumulative = [0.0]
+    for ww in weights:
+        cumulative.append(cumulative[-1] + ww / total_w)
+
+    progress = min(t_in_scene / max(scene_dur * 0.95, 0.01), 0.999)
+    curr_idx = 0
     for i in range(len(cumulative) - 1):
-        if cumulative[i] <= progress < cumulative[i+1]:
+        if cumulative[i] <= progress < cumulative[i + 1]:
             curr_idx = i
             break
     else:
         curr_idx = len(words) - 1
 
+    # How far into this word's time window (0→1), for bounce
+    if curr_idx < len(cumulative) - 1:
+        span     = cumulative[curr_idx + 1] - cumulative[curr_idx]
+        word_t   = (progress - cumulative[curr_idx]) / max(span, 0.001)
+    else:
+        word_t   = 1.0
+
+    # Bounce: scale-in on first ~20% of word duration
+    bounce = 1.0 + max(0.0, 0.12 * math.sin(math.pi * min(word_t * 5, 1.0)))
+
     draw  = ImageDraw.Draw(img, 'RGBA')
-    MARG  = 48
+    MARG  = 52
     MAX_W = W - MARG * 2
 
-    def stroke(x, y, txt, font, fill, sw=9):
-        for dx in range(-sw, sw+1, 3):
-            for dy in range(-sw, sw+1, 3):
-                if abs(dx) + abs(dy) < 2:
+    # ── Position: lower-middle third, TikTok-safe ──
+    # Avoid bottom 22% (TikTok UI) and top 12%
+    Y_CURR = int(H * 0.70)   # current word anchor
+    Y_PREV = int(H * 0.70) - 10  # prev word sits just above (drawn smaller)
+
+    def stroke_text(x, y, txt, font, fill, sw=10):
+        # Draw thick black outline first
+        for dx in range(-sw, sw + 1, 3):
+            for dy in range(-sw, sw + 1, 3):
+                if abs(dx) + abs(dy) < 3:
                     continue
-                draw.text((x+dx, y+dy), txt, font=font, fill=(0, 0, 0, 255))
+                draw.text((x + dx, y + dy), txt, font=font, fill=(0, 0, 0, 255))
         draw.text((x, y), txt, font=font, fill=fill)
 
     def tsz(txt, font):
         bb = draw.textbbox((0, 0), txt, font=font)
-        return bb[2]-bb[0], bb[3]-bb[1]
+        return bb[2] - bb[0], bb[3] - bb[1]
 
     curr_word = words[curr_idx]
-    prev_word = words[curr_idx-1] if curr_idx > 0 else ""
+    prev_word = words[curr_idx - 1] if curr_idx > 0 else ""
 
-    # Font sizes: auto-shrink to fit
-    fs_curr = 92
-    font_c  = get_font(fs_curr)
-    while tsz(curr_word, font_c)[0] > MAX_W and fs_curr > 38:
-        fs_curr -= 6
-        font_c   = get_font(fs_curr)
+    # ── Current word: big, bouncy, yellow ──
+    fs = int(96 * bounce)
+    font_curr = get_font(min(fs, 106))
+    while tsz(curr_word, font_curr)[0] > MAX_W and fs > 40:
+        fs -= 6
+        font_curr = get_font(int(fs * bounce))
 
-    fs_prev = int(fs_curr * 0.72)
-    font_p  = get_font(fs_prev)
+    cw, ch = tsz(curr_word, font_curr)
+    cx_     = (W - cw) // 2
+    cy_     = Y_CURR - ch // 2
+
+    # Yellow pill background (like CapCut style) — semi-transparent
+    pad = 14
+    pill_alpha = 180
+    pill_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    pd = ImageDraw.Draw(pill_layer)
+    pd.rounded_rectangle(
+        [cx_ - pad, cy_ - pad // 2, cx_ + cw + pad, cy_ + ch + pad // 2],
+        radius=12, fill=(0, 0, 0, pill_alpha)
+    )
+    img = Image.alpha_composite(img.convert("RGBA"), pill_layer).convert("RGB")
+    draw = ImageDraw.Draw(img, 'RGBA')
+
+    stroke_text(cx_, cy_, curr_word, font_curr,
+                (*highlight_color[:3], 255), sw=10)
+
+    # ── Previous word: smaller, white, above ──
     if prev_word:
-        while tsz(prev_word, font_p)[0] > MAX_W and fs_prev > 28:
-            fs_prev -= 5
-            font_p   = get_font(fs_prev)
-
-    cw, ch = tsz(curr_word, font_c)
-    pw, ph = tsz(prev_word, font_p) if prev_word else (0, 0)
-
-    # TikTok safe center zone (avoid bottom UI and top)
-    safe_top    = int(H * 0.12)
-    safe_bottom = int(H * 0.78)
-    center_y    = (safe_top + safe_bottom) // 2 + 30
-
-    # Draw previous word (above, smaller, white, semi-transparent)
-    if prev_word:
-        py = center_y - ch - 16
-        if py >= safe_top:
-            stroke((W - pw) // 2, py, prev_word, font_p,
-                   (220, 220, 220, 190), sw=7)
-
-    # Draw current word (highlighted color, big)
-    cy_ = center_y
-    stroke((W - cw) // 2, cy_, curr_word, font_c,
-           (*highlight_color[:3], 255), sw=10)
+        fs_p     = max(int(fs * 0.65), 28)
+        font_prev = get_font(fs_p)
+        while tsz(prev_word, font_prev)[0] > MAX_W and fs_p > 24:
+            fs_p -= 4
+            font_prev = get_font(fs_p)
+        pw, ph = tsz(prev_word, font_prev)
+        py_ = cy_ - ph - 18
+        if py_ > int(H * 0.12):
+            stroke_text((W - pw) // 2, py_, prev_word, font_prev,
+                        (230, 230, 230, 175), sw=7)
 
     return img
 
@@ -902,67 +1037,89 @@ def draw_reddit_card(img, script, alpha_frac):
     return img
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  STEP 8 — PEXELS SLIDE ANIMATION (slides in from right, holds, slides out)
+#  STEP 8 — PEXELS IMAGE CARD OVERLAY
+#  A rounded card slides UP from the bottom — like a TikTok sticker/popup.
+#  Does NOT cover captions or character. Neat, minimal, non-distracting.
+#  Card is top-left area, ~40% width, ~30% height — thumbnail style.
 # ─────────────────────────────────────────────────────────────────────────────
 def overlay_pexels_slide(bg, pexels_img, t, scene_dur, is_first_frame):
-    """
-    Slide a Pexels image panel in from the right edge:
-    - 0.0-0.15: slide IN from right
-    - 0.15-0.80: hold (visible)
-    - 0.80-1.0:  slide OUT to right
-    Panel covers right 55% of screen, left part still shows gameplay.
-    """
     if pexels_img is None:
         return bg
 
-    PANEL_W = int(W * 0.58)
-    PANEL_H = H
+    # Card dimensions and position
+    CARD_W  = int(W * 0.42)
+    CARD_H  = int(CARD_W * 0.72)   # 4:3ish proportion
+    CARD_X  = 18                    # left margin
+    CARD_Y0 = int(H * 0.14)        # resting position (below reddit card area)
+    RADIUS  = 16
 
-    # Crop pexels to panel size
-    px_img  = pexels_img.resize((PANEL_W, PANEL_H), Image.LANCZOS)
-
-    # Easing function
-    def ease_out(x):
-        return 1 - (1-x)**3
+    # Animation: slide up from below, hold, slide back down
+    def ease_out_back(x):
+        c1, c3 = 1.70158, 2.70158
+        return 1 + c3 * (x - 1)**3 + c1 * (x - 1)**2
 
     def ease_in(x):
-        return x**3
+        return x ** 2.5
 
-    if t < 0.15:
-        # Sliding in
-        frac   = ease_out(t / 0.15)
-        x_off  = int(PANEL_W * (1 - frac))
-    elif t < 0.80:
-        # Holding
-        x_off  = 0
-        frac   = 1.0
+    SLIDE_IN  = 0.18
+    HOLD_END  = 0.82
+    SLIDE_OUT = 1.0
+
+    if t < SLIDE_IN:
+        p      = ease_out_back(t / SLIDE_IN)
+        y_off  = int((1 - p) * (CARD_H + 40))
+    elif t < HOLD_END:
+        y_off  = 0
     else:
-        # Sliding out
-        frac   = ease_in((t - 0.80) / 0.20)
-        x_off  = int(PANEL_W * frac)
+        p      = ease_in((t - HOLD_END) / (SLIDE_OUT - HOLD_END))
+        y_off  = int(p * (CARD_H + 40))
 
-    if x_off >= PANEL_W:
-        return bg  # fully off screen
+    # Clip pexels to card size (crop to fill, no stretch)
+    iw, ih = pexels_img.size
+    target_ratio = CARD_W / CARD_H
+    current_ratio = iw / ih
+    if current_ratio > target_ratio:
+        # wider → crop sides
+        new_w = int(ih * target_ratio)
+        x_off = (iw - new_w) // 2
+        cropped = pexels_img.crop((x_off, 0, x_off + new_w, ih))
+    else:
+        # taller → crop top/bottom
+        new_h = int(iw / target_ratio)
+        y_c   = int(ih * 0.2)  # crop slightly from top (faces usually center-up)
+        y_c   = max(0, min(y_c, ih - new_h))
+        cropped = pexels_img.crop((0, y_c, iw, y_c + new_h))
+    card_img = cropped.resize((CARD_W, CARD_H), Image.LANCZOS)
 
-    # Draw panel shadow on left edge
-    result  = bg.copy()
-    paste_x = W - PANEL_W + x_off
+    # Build rounded mask
+    mask    = Image.new("L", (CARD_W, CARD_H), 0)
+    md      = ImageDraw.Draw(mask)
+    md.rounded_rectangle([0, 0, CARD_W, CARD_H], radius=RADIUS, fill=255)
 
-    # Shadow strip
-    shadow  = Image.new("RGBA", (12, PANEL_H), (0, 0, 0, 0))
-    sd      = ImageDraw.Draw(shadow)
-    for i in range(12):
-        sd.line([i, 0, i, PANEL_H], fill=(0, 0, 0, int(80 * (1 - i/12))))
-    result_rgba = result.convert("RGBA")
-    result_rgba.paste(px_img.convert("RGBA"), (paste_x, 0))
-    if paste_x > 0:
-        result_rgba.paste(shadow, (paste_x - 12, 0), mask=shadow)
+    # Composite into main image
+    result  = bg.convert("RGBA")
+    py      = CARD_Y0 - y_off
+    if py + CARD_H < 0 or py > H:
+        return bg  # fully off-screen
 
-    # Subtle white border on left edge of panel
-    dr = ImageDraw.Draw(result_rgba)
-    dr.line([paste_x, 0, paste_x, PANEL_H], fill=(255, 255, 255, 90), width=2)
+    # Drop shadow layer
+    shadow  = Image.new("RGBA", (CARD_W + 20, CARD_H + 20), (0, 0, 0, 0))
+    sd_mask = Image.new("L", (CARD_W + 20, CARD_H + 20), 0)
+    sdd     = ImageDraw.Draw(sd_mask)
+    sdd.rounded_rectangle([10, 10, CARD_W + 10, CARD_H + 10], radius=RADIUS, fill=80)
+    sd_mask = sd_mask.filter(ImageFilter.GaussianBlur(8))
+    shadow.putalpha(sd_mask)
+    result.paste(shadow, (CARD_X - 8, py - 6), mask=shadow)
 
-    return result_rgba.convert("RGB")
+    # Paste card
+    result.paste(card_img.convert("RGBA"), (CARD_X, py), mask=mask)
+
+    # White border
+    bd = ImageDraw.Draw(result)
+    bd.rounded_rectangle([CARD_X, py, CARD_X + CARD_W, py + CARD_H],
+                         radius=RADIUS, outline=(255, 255, 255, 200), width=3)
+
+    return result.convert("RGB")
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  STEP 9 — RENDER VIDEO
