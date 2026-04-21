@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": 1776790175,
+      "title": "You Won't Sleep Tonight",
+      "type": "scary",
+      "niche": "scary",
+      "created_at": "2026-04-21T17:02:14.743859",
+      "youtube": {
+        "scheduled": "2026-04-23T07:00:00",
+        "url": "https://youtube.com/shorts/InH-XfxK7xM",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-04-23T07:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#scary #creepy #horror #fyp #shorts #viral #truecrime #darkfacts",
+      "status": "scheduled"
+    },
+    {
       "id": 1776711116,
       "title": "You're Being Watched",
       "type": "fact",
@@ -90,6 +108,6 @@
     }
   ],
   "stats": {
-    "generated": 5
+    "generated": 6
   }
 }
