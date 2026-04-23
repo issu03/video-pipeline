@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": 1776964262,
+      "title": "Habits Uncovered",
+      "type": "learn",
+      "niche": "learn",
+      "created_at": "2026-04-23T17:24:40.498414",
+      "youtube": {
+        "scheduled": "2026-04-24T17:00:00",
+        "url": "https://youtube.com/shorts/A7QgA1M7fPo",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-04-24T17:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#learn #education #howto #fyp #shorts #viral #explained",
+      "status": "scheduled"
+    },
+    {
       "id": 1776790175,
       "title": "You Won't Sleep Tonight",
       "type": "scary",
@@ -108,6 +126,6 @@
     }
   ],
   "stats": {
-    "generated": 6
+    "generated": 7
   }
 }
