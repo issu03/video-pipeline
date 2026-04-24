@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": 1777055770,
+      "title": "Read Minds?",
+      "type": "learn",
+      "niche": "learn",
+      "created_at": "2026-04-24T18:49:58.302449",
+      "youtube": {
+        "scheduled": "2026-04-25T09:00:00",
+        "url": "https://youtube.com/shorts/5Q2GJQL4aTI",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-04-25T09:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#learn #education #howto #fyp #shorts #viral #explained",
+      "status": "scheduled"
+    },
+    {
       "id": 1776964262,
       "title": "Habits Uncovered",
       "type": "learn",
@@ -126,6 +144,6 @@
     }
   ],
   "stats": {
-    "generated": 7
+    "generated": 8
   }
 }
