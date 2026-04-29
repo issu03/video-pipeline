@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": 1777489663,
+      "title": "I Ignored THIS",
+      "type": "dating",
+      "niche": "dating",
+      "created_at": "2026-04-29T19:18:19.911589",
+      "youtube": {
+        "scheduled": "2026-04-29T20:00:00",
+        "url": "https://youtube.com/shorts/vP2GzLS2k8g",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-04-29T20:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#dating #relationship #redflag #fyp #shorts #viral",
+      "status": "scheduled"
+    },
+    {
       "id": 1777316615,
       "title": "Your Pillow Is Disgusting",
       "type": "fact",
@@ -162,6 +180,6 @@
     }
   ],
   "stats": {
-    "generated": 9
+    "generated": 10
   }
 }
