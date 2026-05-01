@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": 1777661762,
+      "title": "SILENT SAVINGS KILLER",
+      "type": "rich",
+      "niche": "rich",
+      "created_at": "2026-05-01T19:09:34.122435",
+      "youtube": {
+        "scheduled": "2026-05-01T20:00:00",
+        "url": "https://youtube.com/shorts/DpLTFz_wkOw",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-05-01T20:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#money #wealth #sidehustle #fyp #shorts #viral #finance",
+      "status": "scheduled"
+    },
+    {
       "id": 1777489663,
       "title": "I Ignored THIS",
       "type": "dating",
@@ -180,6 +198,6 @@
     }
   ],
   "stats": {
-    "generated": 10
+    "generated": 11
   }
 }
