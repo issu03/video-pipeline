@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": 1777921973,
+      "title": "Harsh Truth",
+      "type": "motivation",
+      "niche": "motivation",
+      "created_at": "2026-05-04T19:24:42.239276",
+      "youtube": {
+        "scheduled": "2026-05-04T20:00:00",
+        "url": "https://youtube.com/shorts/ugGvAwGwt80",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-05-04T20:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#motivation #mindset #success #fyp #shorts #viral",
+      "status": "scheduled"
+    },
+    {
       "id": 1777799604,
       "title": "Toxic Aunt EXPOSED",
       "type": "reddit",
@@ -216,6 +234,6 @@
     }
   ],
   "stats": {
-    "generated": 12
+    "generated": 13
   }
 }
