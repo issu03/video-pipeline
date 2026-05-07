@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": 1778175713,
+      "title": "UNLOCK Success",
+      "type": "motivation",
+      "niche": "motivation",
+      "created_at": "2026-05-07T17:51:18.901241",
+      "youtube": {
+        "scheduled": "2026-05-07T19:00:00",
+        "url": "https://youtube.com/shorts/3tqednFkTfg",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-05-07T19:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#motivation #mindset #success #fyp #shorts #viral",
+      "status": "scheduled"
+    },
+    {
       "id": 1778001930,
       "title": "Green Flag Alert!",
       "type": "dating",
@@ -252,6 +270,6 @@
     }
   ],
   "stats": {
-    "generated": 14
+    "generated": 15
   }
 }
