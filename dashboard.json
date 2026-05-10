@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": 1778404934,
+      "title": "Harsh Truth",
+      "type": "motivation",
+      "niche": "motivation",
+      "created_at": "2026-05-10T09:33:39.401682",
+      "youtube": {
+        "scheduled": "2026-05-10T20:00:00",
+        "url": "https://youtube.com/shorts/fAB3zdjQgAk",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-05-10T20:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#motivation #mindset #success #fyp #shorts #viral",
+      "status": "scheduled"
+    },
+    {
       "id": 1778317703,
       "title": "Savings Destroyed",
       "type": "rich",
@@ -288,6 +306,6 @@
     }
   ],
   "stats": {
-    "generated": 16
+    "generated": 17
   }
 }
