@@ -1,6 +1,24 @@
 {
   "videos": [
     {
+      "id": 1778527570,
+      "title": "I Caught My BEST Friend",
+      "type": "reddit",
+      "niche": "reddit",
+      "created_at": "2026-05-11T19:39:48.055521",
+      "youtube": {
+        "scheduled": "2026-05-12T13:00:00",
+        "url": "https://youtube.com/shorts/A2jm3Hrg1jg",
+        "status": "scheduled"
+      },
+      "tiktok": {
+        "scheduled": "2026-05-12T13:30:00",
+        "status": "scheduled"
+      },
+      "hashtags": "#reddit #storytime #aita #fyp #shorts #viral",
+      "status": "scheduled"
+    },
+    {
       "id": 1778404934,
       "title": "Harsh Truth",
       "type": "motivation",
@@ -306,6 +324,6 @@
     }
   ],
   "stats": {
-    "generated": 17
+    "generated": 18
   }
 }
