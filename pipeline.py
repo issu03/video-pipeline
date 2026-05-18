@@ -185,10 +185,9 @@ def transcribe_with_assemblyai(audio_path: str) -> dict:
     aai.settings.api_key = os.environ["ASSEMBLYAI_API_KEY"]
 
     config = aai.TranscriptionConfig(
+        speech_model=aai.SpeechModel.best,   # required in SDK >= 0.30
         punctuate=True,
         format_text=True,
-        # Utterance splitting helps find sentence boundaries
-        # disfluencies=False keeps output clean
         disfluencies=False,
     )
     transcriber = aai.Transcriber()
