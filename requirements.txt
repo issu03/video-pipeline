@@ -1,6 +1,30 @@
-requests
-pillow
-google-auth>=2.0.0
+# ── Core ──────────────────────────────────────────────────────────────
+groq>=0.4.0
+requests>=2.31.0
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# ── TTS ───────────────────────────────────────────────────────────────
+edge-tts>=6.1.9
+elevenlabs>=1.0.0          # optional, falls back to edge-tts
+
+# ── Audio ─────────────────────────────────────────────────────────────
+pydub>=0.25.1              # silence detection + audio manipulation
+# pydub requires ffmpeg on PATH (see notes below)
+
+# ── Transcription (NEW) ───────────────────────────────────────────────
+assemblyai>=0.24.0         # AssemblyAI word-level timestamps
+
+# ── Video editing (NEW) ───────────────────────────────────────────────
+moviepy>=1.0.3             # clip assembly, transitions, Ken Burns
+# moviepy requires ffmpeg on PATH
+
+# ── YouTube upload ────────────────────────────────────────────────────
+google-auth>=2.22.0
 google-auth-oauthlib>=1.0.0
-google-api-python-client>=2.0.0
-edge-tts
+google-auth-httplib2>=0.1.1
+google-api-python-client>=2.100.0
+
+# ── Optional: Shotstack ───────────────────────────────────────────────
+# No Python SDK needed — uses requests directly.
+# Add SHOTSTACK_API_KEY to GitHub Secrets to enable.
