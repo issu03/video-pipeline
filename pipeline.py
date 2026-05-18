@@ -32,16 +32,18 @@ from pydub.silence import detect_silence, detect_nonsilent
 # ── AssemblyAI ─────────────────────────────────────────────────────────
 import assemblyai as aai
 
-# ── MoviePy ────────────────────────────────────────────────────────────
-from moviepy.editor import (
+# ── MoviePy 2.x ────────────────────────────────────────────────────────
+from moviepy import (
     VideoFileClip,
     ImageClip,
     AudioFileClip,
     CompositeVideoClip,
     concatenate_videoclips,
     ColorClip,
+    concatenate_audioclips,
 )
-from moviepy.video.fx.all import fadein, fadeout
+from moviepy.video.fx import FadeIn, FadeOut, CrossFadeIn
+from moviepy.audio.fx import AudioFadeIn, AudioFadeOut
 
 # ── Script generation ──────────────────────────────────────────────────
 from groq import Groq
@@ -461,31 +463,26 @@ def _scene_image_to_clip(
     Optionally apply a slow Ken Burns zoom (scale 1.0 → 1.08 over duration).
     """
     arr  = np.array(img)
-    clip = ImageClip(arr).set_duration(duration)
+    clip = ImageClip(arr).with_duration(duration)
 
     if ken_burns and duration > 1.5:
-        # Gradual zoom via make_frame lambda
         def make_zoomed_frame(t):
-            scale = 1.0 + 0.08 * (t / duration)
-            h, w  = arr.shape[:2]
-            new_w = int(w * scale)
-            new_h = int(h * scale)
+            scale   = 1.0 + 0.08 * (t / duration)
+            h, w    = arr.shape[:2]
+            new_w   = int(w * scale)
+            new_h   = int(h * scale)
             resized = np.array(
                 Image.fromarray(arr).resize((new_w, new_h), Image.LANCZOS)
             )
-            # Center crop back to original size
             x0 = (new_w - w) // 2
             y0 = (new_h - h) // 2
             return resized[y0:y0 + h, x0:x0 + w]
 
-        clip = clip.fl(lambda gf, t: make_zoomed_frame(t), apply_to="mask")
-        # Use VideoClip with custom make_frame for true Ken Burns
         from moviepy.video.VideoClip import VideoClip
         ken_clip = VideoClip(make_zoomed_frame, duration=duration)
-        ken_clip = ken_clip.set_fps(FPS)
-        return ken_clip
+        return ken_clip.with_fps(FPS)
 
-    return clip.set_fps(FPS)
+    return clip.with_fps(FPS)
 
 
 def build_video_moviepy(
@@ -532,72 +529,60 @@ def build_video_moviepy(
         log.info("  Scene %d/%d rendered (%.1fs)", idx + 1, len(scenes), dur)
 
     # ── Apply crossfade transitions between clips ──────────────────────
-    #   MoviePy crossfadein: clip fades in over the tail of the previous clip.
-    #   We trim TRANSITION_DUR from the end of each clip and overlap.
+    #   MoviePy 2.x: use .with_effects([CrossFadeIn(dur)]) + negative padding
     transitioned = [scene_clips[0]]
     for clip in scene_clips[1:]:
-        # fadein on incoming clip
-        clip_with_fade = clip.crossfadein(TRANSITION_DUR)
+        clip_with_fade = clip.with_effects([CrossFadeIn(TRANSITION_DUR)])
         transitioned.append(clip_with_fade)
 
-    # Concatenate with overlap = TRANSITION_DUR so fades blend
     final_video = concatenate_videoclips(
         transitioned,
         method="compose",
-        padding=-TRANSITION_DUR,   # negative padding = overlap
+        padding=-TRANSITION_DUR,
     )
 
     # ── Global fade in / out ───────────────────────────────────────────
-    final_video = final_video.fadein(FADE_IN_DUR).fadeout(FADE_OUT_DUR)
+    final_video = final_video.with_effects([FadeIn(FADE_IN_DUR), FadeOut(FADE_OUT_DUR)])
 
     # ── Gameplay background composite ─────────────────────────────────
     if use_gameplay_bg and Path(GAMEPLAY_PATH).exists():
         log.info("Compositing gameplay background…")
-        bg = VideoFileClip(GAMEPLAY_PATH, audio=False)
-        # Loop gameplay to cover full video duration
+        bg          = VideoFileClip(GAMEPLAY_PATH, audio=False)
         bg_duration = final_video.duration
         loops_needed = int(np.ceil(bg_duration / bg.duration))
-        from moviepy.editor import concatenate_videoclips as ccv
-        bg_looped = ccv([bg] * loops_needed).subclip(0, bg_duration)
-        bg_looped = bg_looped.resize((VIDEO_W, VIDEO_H))
-        # Darken background 60% so scene content pops
-        bg_dark = bg_looped.fl_image(
+        bg_looped = concatenate_videoclips([bg] * loops_needed).subclipped(0, bg_duration)
+        bg_looped = bg_looped.resized((VIDEO_W, VIDEO_H))
+        bg_dark   = bg_looped.image_transform(
             lambda frame: (frame * 0.4).astype(np.uint8)
         )
-        # Composite: bg behind scene clips (scene clips are opaque so bg
-        # only shows where scene has transparent areas — for visual depth
-        # on niche overlays you can set opacity here)
         final_video = CompositeVideoClip(
             [bg_dark, final_video],
             size=(VIDEO_W, VIDEO_H),
-        ).set_duration(bg_duration)
+        ).with_duration(bg_duration)
     else:
         log.warning("Gameplay background not found, skipping composite")
 
     # ── Mix audio ──────────────────────────────────────────────────────
     log.info("Mixing audio…")
-    voice_clip = AudioFileClip(audio_path).subclip(0, final_video.duration)
+    voice_clip = AudioFileClip(audio_path).subclipped(0, final_video.duration)
 
     if Path(MUSIC_PATH).exists():
-        music_raw   = AudioSegment.from_file(MUSIC_PATH)
-        # Duck music to MUSIC_DUCK_DB relative to voice
+        music_raw    = AudioSegment.from_file(MUSIC_PATH)
         music_ducked = music_raw + MUSIC_DUCK_DB
         with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
             music_out = f.name
         music_ducked.export(music_out, format="mp3")
-        music_clip  = AudioFileClip(music_out)
-        # Loop music if needed
+        music_clip = AudioFileClip(music_out)
         if music_clip.duration < final_video.duration:
-            repeats = int(np.ceil(final_video.duration / music_clip.duration))
-            from moviepy.audio.AudioClip import concatenate_audioclips
+            repeats    = int(np.ceil(final_video.duration / music_clip.duration))
             music_clip = concatenate_audioclips([music_clip] * repeats)
-        music_clip  = music_clip.subclip(0, final_video.duration)
-        from moviepy.audio.AudioClip import CompositeAudioClip
+        music_clip  = music_clip.subclipped(0, final_video.duration)
+        from moviepy import CompositeAudioClip
         mixed_audio = CompositeAudioClip([voice_clip, music_clip])
     else:
         mixed_audio = voice_clip
 
-    final_video = final_video.set_audio(mixed_audio)
+    final_video = final_video.with_audio(mixed_audio)
 
     # ── Export ─────────────────────────────────────────────────────────
     log.info("Exporting video → %s", output_path)
