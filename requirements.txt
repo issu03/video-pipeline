@@ -13,7 +13,7 @@ pydub>=0.25.1              # silence detection + audio manipulation
 # pydub requires ffmpeg on PATH (see notes below)
 
 # ── Transcription (NEW) ───────────────────────────────────────────────
-assemblyai>=0.24.0         # AssemblyAI word-level timestamps
+# assemblyai SDK absichtlich entfernt — Pipeline nutzt direkte HTTP-Calls
 
 # ── Video editing (NEW) ───────────────────────────────────────────────
 moviepy>=1.0.3             # clip assembly, transitions, Ken Burns

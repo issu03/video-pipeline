@@ -29,8 +29,7 @@ from PIL import Image, ImageDraw, ImageFont
 from pydub import AudioSegment
 from pydub.silence import detect_silence, detect_nonsilent
 
-# ── AssemblyAI ─────────────────────────────────────────────────────────
-import assemblyai as aai
+# AssemblyAI — raw HTTP (no SDK, avoids speech_model versioning issues)
 
 # ── MoviePy 2.x ────────────────────────────────────────────────────────
 from moviepy import (
@@ -175,77 +174,108 @@ def generate_voiceover(full_text: str, out_path: str) -> None:
 
 def transcribe_with_assemblyai(audio_path: str) -> dict:
     """
-    Upload audio to AssemblyAI and retrieve:
-      - words:      list of {text, start_ms, end_ms, confidence}
-      - utterances: list of {text, start_ms, end_ms}   ← sentence-level
-      - pauses:     list of gap start/end in ms between utterances
+    Upload audio to AssemblyAI via raw HTTP (no SDK).
+    Avoids all SDK versioning issues with speech_model vs speech_models.
 
-    Returns a structured dict ready for caption + cut-point generation.
+    Returns:
+      words:      [{text, start_ms, end_ms, confidence}]
+      utterances: [{text, start_ms, end_ms}]
+      pauses:     [{start_ms, end_ms}]
+      total_ms:   int
     """
-    aai.settings.api_key = os.environ["ASSEMBLYAI_API_KEY"]
+    api_key = os.environ["ASSEMBLYAI_API_KEY"]
+    headers = {"authorization": api_key}
 
-    config = aai.TranscriptionConfig(
-        speech_model=aai.SpeechModel.best,   # required in SDK >= 0.30
-        punctuate=True,
-        format_text=True,
-        disfluencies=False,
-    )
-    transcriber = aai.Transcriber()
+    # ── 1. Upload audio file ───────────────────────────────────────────
     log.info("Uploading audio to AssemblyAI…")
-    transcript = transcriber.transcribe(audio_path, config=config)
+    with open(audio_path, "rb") as f:
+        upload_r = requests.post(
+            "https://api.assemblyai.com/v2/upload",
+            headers=headers,
+            data=f,
+            timeout=60,
+        )
+    upload_r.raise_for_status()
+    audio_url = upload_r.json()["upload_url"]
+    log.info("Audio uploaded: %s", audio_url)
 
-    if transcript.status == aai.TranscriptStatus.error:
-        raise RuntimeError(f"AssemblyAI error: {transcript.error}")
+    # ── 2. Submit transcription job ────────────────────────────────────
+    json_headers = {**headers, "content-type": "application/json"}
+    submit_r = requests.post(
+        "https://api.assemblyai.com/v2/transcript",
+        headers=json_headers,
+        json={
+            "audio_url":    audio_url,
+            "speech_models": ["universal-2"],   # new API field (plural)
+            "punctuate":    True,
+            "format_text":  True,
+            "disfluencies": False,
+        },
+        timeout=30,
+    )
+    submit_r.raise_for_status()
+    transcript_id = submit_r.json()["id"]
+    log.info("AssemblyAI job submitted: %s", transcript_id)
 
+    # ── 3. Poll until complete ─────────────────────────────────────────
+    poll_url = f"https://api.assemblyai.com/v2/transcript/{transcript_id}"
+    for attempt in range(120):          # max 6 minutes
+        time.sleep(3)
+        poll_r  = requests.get(poll_url, headers=headers, timeout=10)
+        poll_r.raise_for_status()
+        result  = poll_r.json()
+        status  = result["status"]
+        if attempt % 10 == 0:
+            log.info("AssemblyAI status: %s (%ds elapsed)", status, attempt * 3)
+        if status == "completed":
+            break
+        if status == "error":
+            raise RuntimeError(f"AssemblyAI transcription error: {result.get('error')}")
+    else:
+        raise RuntimeError("AssemblyAI polling timed out after 6 minutes")
+
+    # ── 4. Parse words ─────────────────────────────────────────────────
+    raw_words = result.get("words") or []
     words = [
         {
-            "text":       w.text,
-            "start_ms":   w.start,
-            "end_ms":     w.end,
-            "confidence": w.confidence,
+            "text":       w["text"],
+            "start_ms":   w["start"],
+            "end_ms":     w["end"],
+            "confidence": w.get("confidence", 1.0),
         }
-        for w in (transcript.words or [])
+        for w in raw_words
     ]
 
-    # Build utterance list (sentence-level segments)
+    # ── 5. Build utterances (split on sentence-ending punctuation) ─────
     utterances = []
-    if transcript.utterances:
-        for u in transcript.utterances:
-            utterances.append({
-                "text":     u.text,
-                "start_ms": u.start,
-                "end_ms":   u.end,
-            })
-    else:
-        # Fallback: split words by punctuation into pseudo-utterances
-        current = []
-        for w in words:
-            current.append(w)
-            if w["text"].endswith((".", "!", "?")):
-                utterances.append({
-                    "text":     " ".join(x["text"] for x in current),
-                    "start_ms": current[0]["start_ms"],
-                    "end_ms":   current[-1]["end_ms"],
-                })
-                current = []
-        if current:
+    current    = []
+    for w in words:
+        current.append(w)
+        if w["text"].rstrip().endswith((".", "!", "?")):
             utterances.append({
                 "text":     " ".join(x["text"] for x in current),
                 "start_ms": current[0]["start_ms"],
                 "end_ms":   current[-1]["end_ms"],
             })
+            current = []
+    if current:
+        utterances.append({
+            "text":     " ".join(x["text"] for x in current),
+            "start_ms": current[0]["start_ms"],
+            "end_ms":   current[-1]["end_ms"],
+        })
 
-    # Compute pauses between utterances
+    # ── 6. Detect pauses between utterances ───────────────────────────
     pauses = []
     for i in range(len(utterances) - 1):
         gap_start = utterances[i]["end_ms"]
         gap_end   = utterances[i + 1]["start_ms"]
-        if gap_end - gap_start >= 200:   # ≥ 200 ms pause
+        if gap_end - gap_start >= 200:
             pauses.append({"start_ms": gap_start, "end_ms": gap_end})
 
     total_ms = words[-1]["end_ms"] if words else 0
     log.info(
-        "AssemblyAI: %d words, %d utterances, %d pauses detected (total %.1fs)",
+        "AssemblyAI: %d words, %d utterances, %d pauses (total %.1fs)",
         len(words), len(utterances), len(pauses), total_ms / 1000,
     )
     return {
