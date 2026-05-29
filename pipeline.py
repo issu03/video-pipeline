@@ -833,21 +833,24 @@ def upload_youtube(
     video_url = f"https://youtu.be/{video_id}"
     log.info("YouTube upload complete: %s", video_url)
 
-    # Upload SRT captions if provided
+    # Upload SRT captions if provided (best-effort — skip if scope missing)
     if srt_path and Path(srt_path).exists():
-        youtube.captions().insert(
-            part="snippet",
-            body={
-                "snippet": {
-                    "videoId":      video_id,
-                    "language":     "en",
-                    "name":         "Auto",
-                    "isDraft":      False,
-                }
-            },
-            media_body=MediaFileUpload(srt_path, mimetype="text/plain"),
-        ).execute()
-        log.info("Captions uploaded")
+        try:
+            youtube.captions().insert(
+                part="snippet",
+                body={
+                    "snippet": {
+                        "videoId":  video_id,
+                        "language": "en",
+                        "name":     "Auto",
+                        "isDraft":  False,
+                    }
+                },
+                media_body=MediaFileUpload(srt_path, mimetype="text/plain"),
+            ).execute()
+            log.info("Captions uploaded")
+        except Exception as e:
+            log.warning("Caption upload skipped (%s)", e)
 
     return video_url
 
