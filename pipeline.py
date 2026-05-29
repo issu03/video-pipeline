@@ -796,9 +796,12 @@ def upload_youtube(
         return None
 
     creds_data = pickle.loads(base64.b64decode(token_b64))
-    creds      = Credentials.from_authorized_user_info(
-        json.loads(creds_data) if isinstance(creds_data, str) else creds_data
-    )
+    if isinstance(creds_data, Credentials):
+        creds = creds_data                                      # already unpickled
+    elif isinstance(creds_data, str):
+        creds = Credentials.from_authorized_user_info(json.loads(creds_data))
+    else:
+        creds = Credentials.from_authorized_user_info(creds_data)
     youtube = build("youtube", "v3", credentials=creds, cache_discovery=False)
 
     # Schedule publish +1 day
