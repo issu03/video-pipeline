@@ -16,7 +16,9 @@ pydub>=0.25.1              # silence detection + audio manipulation
 # assemblyai SDK absichtlich entfernt — Pipeline nutzt direkte HTTP-Calls
 
 # ── Video editing (NEW) ───────────────────────────────────────────────
-moviepy>=1.0.3             # clip assembly, transitions, Ken Burns
+moviepy>=2.0.0             # clip assembly, transitions, Ken Burns (v2+ API)
+scipy>=1.11.0              # SFX synthesis (butter filter, lfilter)
+openai>=1.0.0              # OpenAI TTS (onyx) — optional, set OPENAI_API_KEY
 # moviepy requires ffmpeg on PATH
 
 # ── YouTube upload ────────────────────────────────────────────────────
