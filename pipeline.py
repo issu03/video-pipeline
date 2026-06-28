@@ -236,16 +236,21 @@ def _elevenlabs_tts(text: str, path: str) -> bool:
             if r.status_code != 200:
                 log.warning("ElevenLabs: voice list failed (%d) — %s",
                            r.status_code, r.text[:150])
-                return False
-            voices = r.json().get("voices", [])
-            if not voices:
-                log.warning("ElevenLabs: account has zero voices available")
-                return False
-            voice_id = voices[0]["voice_id"]
-            log.info("ElevenLabs: auto-selected voice '%s'", voices[0].get("name"))
+                # Many keys lack 'voices_read' but CAN still do TTS itself.
+                # Try a well-known public voice ID (Rachel) before giving up.
+                voice_id = "21m00Tcm4TlvDq8ikWAm"
+                log.info("ElevenLabs: falling back to default public voice (Rachel)")
+            else:
+                voices = r.json().get("voices", [])
+                if not voices:
+                    log.warning("ElevenLabs: account has zero voices — trying default")
+                    voice_id = "21m00Tcm4TlvDq8ikWAm"
+                else:
+                    voice_id = voices[0]["voice_id"]
+                    log.info("ElevenLabs: auto-selected voice '%s'", voices[0].get("name"))
         except Exception as e:
-            log.warning("ElevenLabs: voice discovery error: %s", e)
-            return False
+            log.warning("ElevenLabs: voice discovery error (%s) — trying default voice", e)
+            voice_id = "21m00Tcm4TlvDq8ikWAm"
 
     try:
         r = requests.post(
@@ -428,36 +433,81 @@ def transcribe_with_assemblyai(audio_path: str) -> dict:
 def detect_cut_points(audio_path: str, aai_data: dict, n_scenes: int,
                       silence_thresh_db: int = -40,
                       min_silence_ms: int = 300) -> list[float]:
+    """
+    Returns n_scenes-1 cut points (seconds), prioritizing real silence/
+    pauses but FILLING IN additional cuts snapped to word-end boundaries
+    when natural pauses aren't enough to support the target scene count.
+
+    Without this fallback, a script with e.g. 22 scenes but only 5 real
+    pauses would collapse down to 6 giant scenes — defeating the entire
+    point of fast viral-style cut pacing.
+    """
     audio    = AudioSegment.from_file(audio_path)
     total_ms = len(audio)
+    words    = aai_data.get("words", [])
 
+    # ── 1. "Hard" cuts — real silence/pauses (highest quality) ────────
     pydub_mids = [(s+e)//2 for s,e in
                   detect_silence(audio, min_silence_len=min_silence_ms,
                                  silence_thresh=silence_thresh_db)]
     aai_mids   = [(p["start_ms"]+p["end_ms"])//2
                   for p in aai_data.get("pauses", [])]
 
-    merged, last = [], -9999
+    hard, last = [], -9999
     for t in sorted(set(pydub_mids + aai_mids)):
         if t - last > 500 and 3000 < t < total_ms - 3000:
-            merged.append(t)
+            hard.append(t)
             last = t
 
     n_cuts = n_scenes - 1
-    if len(merged) <= n_cuts:
-        chosen = merged
-    else:
-        ideal  = total_ms / n_scenes
-        chosen = []
-        pool   = merged.copy()
+    log.info("Natural pause candidates: %d (need %d cuts)", len(hard), n_cuts)
+
+    if len(hard) >= n_cuts:
+        # Plenty of real pauses — pick the ones closest to even spacing
+        ideal = total_ms / n_scenes
+        pool, chosen = hard.copy(), []
         for i in range(1, n_scenes):
             target  = i * ideal
             closest = min(pool, key=lambda t: abs(t-target))
             chosen.append(closest)
             pool.remove(closest)
+        result = sorted(t/1000.0 for t in chosen)
+        log.info("Cut points (%d, all natural): %s",
+                 len(result), [f"{c:.1f}s" for c in result])
+        return result
 
-    result = sorted(t/1000.0 for t in chosen)
-    log.info("Cut points (%d): %s", len(result), [f"{c:.1f}s" for c in result])
+    # ── 2. Not enough natural pauses — fill gaps with word-boundary cuts ─
+    # Build a sorted list of every word-end timestamp as a fallback
+    # candidate. These are never mid-word (they're exactly where one
+    # word finishes), so audio never gets cut inside a syllable.
+    word_ends = sorted(w["end_ms"] for w in words
+                       if 3000 < w["end_ms"] < total_ms - 3000)
+
+    ideal    = total_ms / n_scenes
+    targets  = [i * ideal for i in range(1, n_scenes)]
+    chosen   = []
+    used_hard, used_words = set(), set()
+
+    for target in targets:
+        # Prefer a natural pause near this target position
+        nearby_hard = [t for t in hard if t not in used_hard
+                      and abs(t - target) < ideal * 0.5]
+        if nearby_hard:
+            pick = min(nearby_hard, key=lambda t: abs(t-target))
+            used_hard.add(pick)
+            chosen.append(pick)
+            continue
+        # Otherwise snap to the nearest unused word-end boundary
+        candidates = [w for w in word_ends if w not in used_words]
+        if candidates:
+            pick = min(candidates, key=lambda t: abs(t-target))
+            used_words.add(pick)
+            chosen.append(pick)
+
+    result = sorted(set(t/1000.0 for t in chosen))
+    log.info("Cut points (%d, %d natural + %d word-snapped): %s",
+             len(result), len(used_hard), len(used_words),
+             [f"{c:.1f}s" for c in result])
     return result
 
 
