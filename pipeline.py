@@ -175,64 +175,136 @@ def generate_script(niche: str) -> dict:
 def _elevenlabs_tts(text: str, path: str) -> bool:
     key = os.getenv("ELEVENLABS_KEY")
     if not key:
+        log.info("ElevenLabs: no key set, skipping")
         return False
     voice_id = os.getenv("ELEVEN_VOICE_ID", "")
     if not voice_id:
-        r = requests.get("https://api.elevenlabs.io/v1/voices",
-                         headers={"xi-api-key": key}, timeout=10)
-        if r.status_code == 200:
+        try:
+            r = requests.get("https://api.elevenlabs.io/v1/voices",
+                             headers={"xi-api-key": key}, timeout=10)
+            if r.status_code != 200:
+                log.warning("ElevenLabs: voice list failed (%d) — %s",
+                           r.status_code, r.text[:150])
+                return False
             voices = r.json().get("voices", [])
-            if voices:
-                voice_id = voices[0]["voice_id"]
-    if not voice_id:
+            if not voices:
+                log.warning("ElevenLabs: account has zero voices available")
+                return False
+            voice_id = voices[0]["voice_id"]
+            log.info("ElevenLabs: auto-selected voice '%s'", voices[0].get("name"))
+        except Exception as e:
+            log.warning("ElevenLabs: voice discovery error: %s", e)
+            return False
+
+    try:
+        r = requests.post(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+            headers={"xi-api-key": key, "Content-Type": "application/json"},
+            json={"text": text, "model_id": "eleven_turbo_v2_5",
+                  "voice_settings": {"stability": 0.30, "similarity_boost": 0.82,
+                                     "style": 0.55, "use_speaker_boost": True}},
+            timeout=90,
+        )
+    except Exception as e:
+        log.warning("ElevenLabs: request error: %s", e)
         return False
-    r = requests.post(
-        f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
-        headers={"xi-api-key": key, "Content-Type": "application/json"},
-        json={"text": text, "model_id": "eleven_turbo_v2_5",
-              "voice_settings": {"stability": 0.30, "similarity_boost": 0.82,
-                                 "style": 0.55, "use_speaker_boost": True}},
-        timeout=90,
-    )
+
     if r.status_code == 200:
         Path(path).write_bytes(r.content)
-        log.info("ElevenLabs TTS OK")
+        log.info("ElevenLabs TTS OK (%d bytes)", len(r.content))
         return True
-    log.warning("ElevenLabs failed (%d)", r.status_code)
+    # Surface the actual reason — quota, invalid key, etc.
+    log.warning("ElevenLabs failed (%d): %s", r.status_code, r.text[:200])
     return False
 
 
 def _openai_tts(text: str, path: str) -> bool:
     key = os.getenv("OPENAI_API_KEY")
     if not key:
+        log.info("OpenAI TTS: no key set, skipping")
         return False
-    r = requests.post(
-        "https://api.openai.com/v1/audio/speech",
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-        json={"model": "tts-1-hd", "voice": "onyx", "input": text, "speed": 1.08},
-        timeout=90,
-    )
+    try:
+        r = requests.post(
+            "https://api.openai.com/v1/audio/speech",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            json={"model": "tts-1-hd", "voice": "onyx", "input": text, "speed": 1.08},
+            timeout=90,
+        )
+    except Exception as e:
+        log.warning("OpenAI TTS: request error: %s", e)
+        return False
+
     if r.status_code == 200:
         Path(path).write_bytes(r.content)
-        log.info("OpenAI TTS OK")
+        log.info("OpenAI TTS OK (%d bytes)", len(r.content))
         return True
-    log.warning("OpenAI TTS failed (%d)", r.status_code)
+    log.warning("OpenAI TTS failed (%d): %s", r.status_code, r.text[:200])
     return False
 
 
-def _edgetts_tts(text: str, path: str) -> None:
-    async def _run():
-        comm = edge_tts.Communicate(text, "en-US-RyanMultilingualNeural",
-                                    rate="+10%", volume="+12%")
-        await comm.save(path)
-    asyncio.run(_run())
-    log.info("edge-tts OK")
+def _edgetts_tts(text: str, path: str) -> bool:
+    """
+    edge-tts fallback. Uses a standard (non-multilingual) voice, since
+    multilingual variants are more prone to 'NoAudioReceived' errors in
+    CI environments. Retries up to 3 times with backoff — Microsoft's
+    endpoint occasionally rate-limits/blocks datacenter IPs (GitHub Actions).
+    """
+    voices_to_try = ["en-US-GuyNeural", "en-US-ChristopherNeural", "en-US-EricNeural"]
+
+    for voice in voices_to_try:
+        for attempt in range(3):
+            try:
+                async def _run():
+                    comm = edge_tts.Communicate(text, voice, rate="+8%", volume="+10%")
+                    await comm.save(path)
+                asyncio.run(_run())
+                if Path(path).exists() and Path(path).stat().st_size > 1000:
+                    log.info("edge-tts OK (voice=%s, attempt=%d)", voice, attempt + 1)
+                    return True
+            except Exception as e:
+                log.warning("edge-tts failed (voice=%s, attempt=%d): %s",
+                           voice, attempt + 1, e)
+                time.sleep(2 * (attempt + 1))
+    log.warning("edge-tts: all voices/retries exhausted")
+    return False
+
+
+def _gtts_fallback(text: str, path: str) -> bool:
+    """
+    Absolute last resort: Google Translate TTS (gTTS).
+    Free, no API key, but lower quality and has a ~100-char chunk limit
+    internally (gTTS handles chunking automatically). Robotic but reliable.
+    """
+    try:
+        from gtts import gTTS
+        tts = gTTS(text=text, lang="en", slow=False)
+        tts.save(path)
+        if Path(path).exists() and Path(path).stat().st_size > 1000:
+            log.info("gTTS OK (final fallback)")
+            return True
+    except Exception as e:
+        log.error("gTTS fallback also failed: %s", e)
+    return False
 
 
 def generate_voiceover(text: str, path: str) -> None:
-    if _elevenlabs_tts(text, path): return
-    if _openai_tts(text, path):     return
-    _edgetts_tts(text, path)
+    """
+    Voice fallback chain (first success wins):
+    ElevenLabs → OpenAI TTS → edge-tts (3 voices × 3 retries) → gTTS
+    Raises RuntimeError only if every single option fails.
+    """
+    if _elevenlabs_tts(text, path):
+        return
+    if _openai_tts(text, path):
+        return
+    if _edgetts_tts(text, path):
+        return
+    if _gtts_fallback(text, path):
+        return
+    raise RuntimeError(
+        "All TTS providers failed (ElevenLabs, OpenAI, edge-tts, gTTS). "
+        "Check API keys and network/firewall settings."
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════

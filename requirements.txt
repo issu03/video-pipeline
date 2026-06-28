@@ -6,27 +6,19 @@ numpy>=1.24.0
 
 # ── TTS ───────────────────────────────────────────────────────────────
 edge-tts>=6.1.9
-elevenlabs>=1.0.0          # optional, falls back to edge-tts
+gTTS>=2.5.0                 # absolute last-resort TTS fallback (no key needed)
+openai>=1.0.0              # OpenAI TTS (onyx) — set OPENAI_API_KEY
 
 # ── Audio ─────────────────────────────────────────────────────────────
-pydub>=0.25.1              # silence detection + audio manipulation
-# pydub requires ffmpeg on PATH (see notes below)
+pydub>=0.25.1
+scipy>=1.11.0              # SFX synthesis
 
-# ── Transcription (NEW) ───────────────────────────────────────────────
-# assemblyai SDK absichtlich entfernt — Pipeline nutzt direkte HTTP-Calls
+# ── Video ─────────────────────────────────────────────────────────────
+moviepy>=2.0.0
+beautiful-captions>=0.1.71  # Bounce-animated TikTok-style captions
 
-# ── Video editing (NEW) ───────────────────────────────────────────────
-moviepy>=2.0.0             # clip assembly, transitions, Ken Burns (v2+ API)
-scipy>=1.11.0              # SFX synthesis (butter filter, lfilter)
-openai>=1.0.0              # OpenAI TTS (onyx) — optional, set OPENAI_API_KEY
-# moviepy requires ffmpeg on PATH
-
-# ── YouTube upload ────────────────────────────────────────────────────
+# ── YouTube ───────────────────────────────────────────────────────────
 google-auth>=2.22.0
 google-auth-oauthlib>=1.0.0
 google-auth-httplib2>=0.1.1
 google-api-python-client>=2.100.0
-
-# ── Optional: Shotstack ───────────────────────────────────────────────
-# No Python SDK needed — uses requests directly.
-# Add SHOTSTACK_API_KEY to GitHub Secrets to enable.
