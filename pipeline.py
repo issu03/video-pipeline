@@ -53,9 +53,9 @@ log = logging.getLogger("vaultmind")
 # ══════════════════════════════════════════════════════════════════════
 VIDEO_W, VIDEO_H   = 1080, 1920
 FPS                = 30
-MIN_SCENES         = 16
-TARGET_DUR         = 80
-TRANSITION_DUR     = 0.35
+MIN_SCENES         = 20        # more scenes = faster cuts even at 80s+ (viral pacing)
+TARGET_DUR         = 85        # >60s required for Shorts monetization eligibility
+TRANSITION_DUR     = 0.22      # snappier cuts — matches faster viral edit rhythm
 FADE_IN_DUR        = 0.3
 FADE_OUT_DUR       = 0.5
 MUSIC_DUCK_DB      = -16
@@ -129,42 +129,93 @@ def load_font(size: int) -> ImageFont.FreeTypeFont:
 # ══════════════════════════════════════════════════════════════════════
 
 def generate_script(niche: str) -> dict:
+    """
+    Script generation tuned to 2026 viral-format research:
+    - Outcome/result-first hooks (or Question/Why-How — both top performers)
+    - Third-person narration (narrate, don't star)
+    - FAST CUT PACING: many short scenes (2.5-4.5s each) even though total
+      runtime stays 80-95s for monetization — this mimics the rapid scene-
+      change rhythm of actually-viral Shorts instead of slow 5-6s scenes
+    - 8-12 hashtags generated as part of the script (5-8 niche + 2-4 generic)
+    - Mid-video "re-hooks" every ~15-20s to fight drop-off on longer videos
+    """
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
+
+    hook_styles = [
+        "OUTCOME-FIRST: open by showing/stating the shocking result or fact "
+        "immediately — viewer must know the payoff within 2 seconds",
+        "QUESTION/WHY-HOW: open with a sharp specific question the viewer "
+        "needs answered ('Why does X happen?', 'How is X even possible?')",
+        "CONTRARIAN: open by contradicting a widely-held belief ('Everyone "
+        "thinks X. They're wrong.')",
+    ]
+    chosen_hook = random.choice(hook_styles)
+
     system = (
-        "You are a viral YouTube Shorts / TikTok scriptwriter with 10M+ view experience. "
-        "Return ONLY valid JSON, no markdown, no preamble. "
-        "Format: {title, hook, scenes: [{text, duration, pexels_query}]} "
-        "Rules: "
-        "- hook: MAX 6 words, creates immediate shock/curiosity (e.g. 'This will destroy your worldview') "
-        "- scenes: minimum 16, each 3-6 seconds, punchy 1-2 sentences MAX "
-        "- pexels_query: 3-word visual search term for scene background video "
-        "- total duration ~80 seconds "
-        "- Start with a SHOCKING fact/statement, build tension, satisfying ending "
-        "- Write like the audience is about to scroll away — every word must fight for attention"
+        "You are a viral YouTube Shorts / TikTok scriptwriter optimized for "
+        "2026 platform research data. Return ONLY valid JSON, no markdown, "
+        "no preamble. "
+        "Format: {title, hook, hashtags: [string], scenes: [{text, duration, pexels_query}]} "
+        ""
+        "HOOK RULE — use this exact style for the opening line: "
+        f"{chosen_hook} "
+        ""
+        "PACING RULE (critical — this is what separates viral from flat): "
+        "- Generate 20-26 scenes minimum "
+        "- EACH scene is 2.5-4.5 seconds, ONE short punchy sentence or fragment "
+        "- Never let two consecutive scenes run long — vary rhythm like a "
+        "real edit: short-short-medium-short "
+        "- Total spoken duration must sum to 80-95 seconds "
+        "- Every 4-5 scenes, insert a mini cliffhanger or re-hook line "
+        "('But here's the part nobody talks about...', 'And it gets weirder...') "
+        "to fight viewer drop-off across the longer runtime "
+        ""
+        "NARRATION RULE: third-person narrator voice — describe the fact/story, "
+        "never 'I' or personal anecdotes, like a documentary voiceover "
+        ""
+        "HASHTAG RULE: generate exactly 8-12 hashtags — 5-8 specific to the "
+        "niche/topic content, 2-4 generic high-traffic tags (#shorts #fyp "
+        "#viral #trending) "
+        ""
+        "pexels_query: 3-word visual search term per scene for stock footage"
     )
     prompt = (
-        f"Write a viral {niche} YouTube Shorts script that hooks within 1 second. "
-        "Make it controversial, surprising or emotional. Use cliffhangers between scenes."
+        f"Write a viral {niche} YouTube Shorts script. "
+        "Make it genuinely surprising, controversial or emotionally charged — "
+        "something people will want to comment on or share. "
+        "Fast pacing, short scenes, frequent re-hooks. "
+        "This must feel like a tightly-edited 80+ second video, not a slow one."
     )
+
     for attempt in range(5):
         try:
             resp = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[{"role": "system", "content": system},
                           {"role": "user",   "content": prompt}],
-                temperature=0.95, max_tokens=2500,
+                temperature=0.95, max_tokens=3000,
             )
             raw  = resp.choices[0].message.content.strip()
-            # Strip possible markdown fences
             raw  = raw.strip("```json").strip("```").strip()
             data = json.loads(raw)
-            if len(data.get("scenes", [])) >= MIN_SCENES:
-                log.info("Script OK: %d scenes — \"%s\"", len(data["scenes"]), data.get("title",""))
+
+            n_scenes  = len(data.get("scenes", []))
+            total_dur = sum(float(s.get("duration", 0)) for s in data.get("scenes", []))
+            hashtags  = data.get("hashtags", [])
+
+            if n_scenes >= MIN_SCENES and total_dur >= 60:
+                log.info(
+                    "Script OK: %d scenes, %.0fs, %d hashtags — \"%s\"",
+                    n_scenes, total_dur, len(hashtags), data.get("title", "")
+                )
                 return data
-            log.warning("Too few scenes (%d), retrying…", len(data.get("scenes",[])))
+            log.warning(
+                "Script rejected (scenes=%d, dur=%.0fs) — retrying…",
+                n_scenes, total_dur
+            )
         except Exception as e:
-            log.warning("Script attempt %d: %s", attempt+1, e)
-        time.sleep(2**attempt)
+            log.warning("Script attempt %d: %s", attempt + 1, e)
+        time.sleep(2 ** attempt)
     raise RuntimeError("Script generation failed after 5 attempts")
 
 
@@ -1434,7 +1485,8 @@ def export_srt(aai_data: dict, out_path: str) -> None:
 # ══════════════════════════════════════════════════════════════════════
 
 def upload_youtube(video_path: str, title: str, description: str,
-                   srt_path: Optional[str] = None) -> Optional[str]:
+                   srt_path: Optional[str] = None,
+                   tags: Optional[list[str]] = None) -> Optional[str]:
     token_b64 = os.getenv("YOUTUBE_TOKEN_B64")
     if not token_b64:
         log.warning("YOUTUBE_TOKEN_B64 not set")
@@ -1447,10 +1499,11 @@ def upload_youtube(video_path: str, title: str, description: str,
     else:
         creds = Credentials.from_authorized_user_info(creds_data)
 
-    yt      = build("youtube","v3",credentials=creds,cache_discovery=False)
-    pub_at  = (datetime.utcnow()+timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    body    = {"snippet":  {"title": title[:100], "description": description,
-                             "tags": ["shorts","viral"], "categoryId": "22"},
+    yt        = build("youtube","v3",credentials=creds,cache_discovery=False)
+    pub_at    = (datetime.utcnow()+timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    tag_list  = [t.lstrip("#") for t in (tags or ["shorts", "viral"])][:15]
+    body      = {"snippet":  {"title": title[:100], "description": description,
+                             "tags": tag_list, "categoryId": "22"},
                "status":   {"privacyStatus": "private", "publishAt": pub_at,
                              "selfDeclaredMadeForKids": False}}
     media   = MediaFileUpload(video_path, mimetype="video/mp4", resumable=True)
@@ -1793,8 +1846,11 @@ def run_pipeline(niche: Optional[str] = None) -> None:
         final_video = apply_color_grade(captioned_video, final_video)
 
         # 9. Upload
-        desc      = f"{title}\n\n#shorts #{niche} #viral #vaultmind"
-        video_url = upload_youtube(final_video, title, desc, srt_path)
+        hashtags  = script.get("hashtags", [])
+        tag_line  = " ".join(h if h.startswith("#") else f"#{h}" for h in hashtags) \
+                    or f"#shorts #{niche} #viral #fyp"
+        desc      = f"{title}\n\n{tag_line}"
+        video_url = upload_youtube(final_video, title, desc, srt_path, tags=hashtags)
 
         # 10. Google Drive backup
         backup_to_drive(final_video, srt_path, title)
