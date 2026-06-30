@@ -234,23 +234,23 @@ def _elevenlabs_tts(text: str, path: str) -> bool:
             r = requests.get("https://api.elevenlabs.io/v1/voices",
                              headers={"xi-api-key": key}, timeout=10)
             if r.status_code != 200:
-                log.warning("ElevenLabs: voice list failed (%d) — %s",
-                           r.status_code, r.text[:150])
-                # Many keys lack 'voices_read' but CAN still do TTS itself.
-                # Try a well-known public voice ID (Rachel) before giving up.
-                voice_id = "21m00Tcm4TlvDq8ikWAm"
-                log.info("ElevenLabs: falling back to default public voice (Rachel)")
-            else:
-                voices = r.json().get("voices", [])
-                if not voices:
-                    log.warning("ElevenLabs: account has zero voices — trying default")
-                    voice_id = "21m00Tcm4TlvDq8ikWAm"
-                else:
-                    voice_id = voices[0]["voice_id"]
-                    log.info("ElevenLabs: auto-selected voice '%s'", voices[0].get("name"))
+                log.warning(
+                    "ElevenLabs: voice list failed (%d) — %s. "
+                    "FIX: enable 'voices_read' permission for this API key "
+                    "at elevenlabs.io → Settings → API Keys, or set "
+                    "ELEVEN_VOICE_ID secret to a specific voice ID manually.",
+                    r.status_code, r.text[:150]
+                )
+                return False
+            voices = r.json().get("voices", [])
+            if not voices:
+                log.warning("ElevenLabs: account has zero voices available")
+                return False
+            voice_id = voices[0]["voice_id"]
+            log.info("ElevenLabs: auto-selected voice '%s'", voices[0].get("name"))
         except Exception as e:
-            log.warning("ElevenLabs: voice discovery error (%s) — trying default voice", e)
-            voice_id = "21m00Tcm4TlvDq8ikWAm"
+            log.warning("ElevenLabs: voice discovery error: %s", e)
+            return False
 
     try:
         r = requests.post(
