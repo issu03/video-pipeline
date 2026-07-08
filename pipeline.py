@@ -70,15 +70,139 @@ PIXABAY_KEY   = os.getenv("PIXABAY_KEY", "")
 FONT_PATH     = "font_bold.ttf"
 
 NICHES = {
-    "reddit":     {"color": "#FF4500", "glow": "#FF6633", "bg": "#1A1A2E", "query": "dramatic story dark room"},
-    "dating":     {"color": "#FF69B4", "glow": "#FF90C8", "bg": "#1A1A2E", "query": "couple romantic bokeh"},
-    "rich":       {"color": "#FFD700", "glow": "#FFEC80", "bg": "#0D0D0D", "query": "luxury money wealth"},
-    "lifehack":   {"color": "#00FF88", "glow": "#66FFBB", "bg": "#111111", "query": "clever smart productivity"},
-    "fact":       {"color": "#00BFFF", "glow": "#66D9FF", "bg": "#0A0A1A", "query": "science space universe"},
-    "scary":      {"color": "#FF2222", "glow": "#FF6666", "bg": "#050505", "query": "dark horror forest night"},
-    "motivation": {"color": "#FF8C00", "glow": "#FFAA44", "bg": "#0D0D0D", "query": "athlete running winner"},
-    "conspiracy": {"color": "#9B59B6", "glow": "#C285E0", "bg": "#070713", "query": "mystery shadow secret"},
-    "learn":      {"color": "#1ABC9C", "glow": "#4DDFC4", "bg": "#0D1B2A", "query": "education books learning"},
+    # Each niche has:
+    #  color/glow/bg — visual identity
+    #  color_grade   — ffmpeg curves filter for cinematic look
+    #  video_queries — pool of Pexels search terms rotated randomly
+    #                  (avoids same footage appearing every video)
+    "reddit": {
+        "color": "#FF4500", "glow": "#FF6633", "bg": "#1A1A2E",
+        "color_grade": (
+            "curves=r='0/0 0.5/0.55 1/0.95':g='0/0 0.5/0.48 1/0.88':b='0/0 0.5/0.44 1/0.80',"
+            "unsharp=luma_msize_x=5:luma_msize_y=5:luma_amount=0.6"
+        ),
+        "video_queries": [
+            "person alone dark room", "dramatic phone screen night",
+            "crowded subway strangers", "rainy window city night",
+            "person walking alone", "shadow dramatic lighting",
+            "empty hallway dark", "late night city",
+        ],
+    },
+    "dating": {
+        "color": "#FF69B4", "glow": "#FF90C8", "bg": "#1A1A2E",
+        "color_grade": (
+            "curves=r='0/0.02 0.5/0.58 1/0.98':g='0/0 0.5/0.46 1/0.88':b='0/0 0.5/0.50 1/0.90',"
+            "unsharp=luma_msize_x=3:luma_msize_y=3:luma_amount=0.4"
+        ),
+        "video_queries": [
+            "romantic couple bokeh", "love hands holding",
+            "couple coffee date", "sunset romantic silhouette",
+            "first date restaurant", "flowers bokeh soft",
+            "couple walking city", "heartbreak alone rain",
+        ],
+    },
+    "rich": {
+        "color": "#FFD700", "glow": "#FFEC80", "bg": "#0D0D0D",
+        "color_grade": (
+            "curves=r='0/0 0.3/0.32 0.7/0.78 1/1.0':g='0/0 0.3/0.30 0.7/0.72 1/0.96':"
+            "b='0/0 0.3/0.22 0.7/0.58 1/0.78',"  # warm golden tone, pull blue
+            "unsharp=luma_msize_x=5:luma_msize_y=5:luma_amount=0.7"
+        ),
+        "video_queries": [
+            "luxury mansion interior", "private jet interior",
+            "sports car driving", "rolex watch close",
+            "penthouse city view", "yacht ocean luxury",
+            "cash money briefcase", "monaco luxury lifestyle",
+        ],
+    },
+    "lifehack": {
+        "color": "#00FF88", "glow": "#66FFBB", "bg": "#111111",
+        "color_grade": (
+            "curves=r='0/0 0.5/0.50 1/0.95':g='0/0 0.5/0.55 1/1.0':b='0/0 0.5/0.48 1/0.88',"
+            "unsharp=luma_msize_x=3:luma_msize_y=3:luma_amount=0.5"
+        ),
+        "video_queries": [
+            "person working laptop coffee", "productivity desk setup",
+            "person writing notes", "organized workspace minimal",
+            "hands typing keyboard", "brainstorm whiteboard",
+            "morning routine person", "phone productivity app",
+        ],
+    },
+    "fact": {
+        "color": "#00BFFF", "glow": "#66D9FF", "bg": "#0A0A1A",
+        "color_grade": (
+            "curves=r='0/0 0.3/0.27 0.7/0.72 1/0.92':"
+            "g='0/0 0.3/0.30 0.7/0.74 1/0.95':"
+            "b='0/0.05 0.3/0.38 0.7/0.78 1/1.0',"  # cool blue science feel
+            "unsharp=luma_msize_x=5:luma_msize_y=5:luma_amount=0.8"
+        ),
+        "video_queries": [
+            "galaxy stars universe timelapse", "ocean deep underwater",
+            "earth from space", "human brain neurons",
+            "microscope cells biology", "lightning storm dramatic",
+            "volcano eruption lava", "coral reef ocean life",
+        ],
+    },
+    "scary": {
+        "color": "#FF2222", "glow": "#FF6666", "bg": "#050505",
+        "color_grade": (
+            "curves=r='0/0 0.3/0.35 0.7/0.75 1/0.95':"
+            "g='0/0 0.3/0.22 0.7/0.55 1/0.78':"
+            "b='0/0 0.3/0.22 0.7/0.55 1/0.78',"  # desaturated red horror
+            "unsharp=luma_msize_x=7:luma_msize_y=7:luma_amount=1.0"
+        ),
+        "video_queries": [
+            "dark forest fog night", "abandoned building corridor",
+            "horror shadows flickering", "empty road night fog",
+            "old door creaking dark", "basement dark stairs",
+            "person alone dark house", "storm lightning night",
+        ],
+    },
+    "motivation": {
+        "color": "#FF8C00", "glow": "#FFAA44", "bg": "#0D0D0D",
+        "color_grade": (
+            "curves=r='0/0 0.3/0.35 0.7/0.80 1/1.0':"
+            "g='0/0 0.3/0.30 0.7/0.72 1/0.92':"
+            "b='0/0 0.3/0.20 0.7/0.55 1/0.78',"  # warm orange energy
+            "unsharp=luma_msize_x=5:luma_msize_y=5:luma_amount=0.7"
+        ),
+        "video_queries": [
+            "athlete training gym intense", "runner marathon sunrise",
+            "person climbing mountain", "winner podium celebration",
+            "bodybuilder workout sweat", "sunrise horizon epic",
+            "boxing training fight", "marathon finish line",
+        ],
+    },
+    "conspiracy": {
+        "color": "#9B59B6", "glow": "#C285E0", "bg": "#070713",
+        "color_grade": (
+            "curves=r='0/0 0.3/0.25 0.7/0.65 1/0.85':"
+            "g='0/0 0.3/0.22 0.7/0.58 1/0.80':"
+            "b='0/0.04 0.3/0.35 0.7/0.70 1/0.95',"  # dark purple mystery
+            "unsharp=luma_msize_x=5:luma_msize_y=5:luma_amount=0.9"
+        ),
+        "video_queries": [
+            "government building shadows", "cctv surveillance camera",
+            "secret document papers", "person shadows mystery",
+            "eye surveillance dramatic", "underground tunnel dark",
+            "newspaper headlines dramatic", "shadow figure silhouette",
+        ],
+    },
+    "learn": {
+        "color": "#1ABC9C", "glow": "#4DDFC4", "bg": "#0D1B2A",
+        "color_grade": (
+            "curves=r='0/0 0.3/0.28 0.7/0.72 1/0.93':"
+            "g='0/0 0.3/0.32 0.7/0.75 1/0.97':"
+            "b='0/0.02 0.3/0.33 0.7/0.70 1/0.92',"  # clean teal academic
+            "unsharp=luma_msize_x=3:luma_msize_y=3:luma_amount=0.5"
+        ),
+        "video_queries": [
+            "student studying library", "books open knowledge",
+            "science experiment lab", "technology innovation future",
+            "whiteboard teaching class", "person reading focus",
+            "coding computer screen", "universe stars learning",
+        ],
+    },
 }
 
 
@@ -517,6 +641,69 @@ def detect_cut_points(audio_path: str, aai_data: dict, n_scenes: int,
 
 _pexels_video_cache: dict = {}
 
+# ══════════════════════════════════════════════════════════════════════
+# GROQ-POWERED SMART PEXELS QUERY (free — Groq has no cost)
+#
+#  Instead of using the generic 3-word pexels_query from the script,
+#  this function uses Groq to analyze the scene text + niche and
+#  generate the most visually specific search term possible.
+#  Falls back to the niche's rotating video_queries pool instantly
+#  if Groq is unavailable, so zero extra latency risk.
+# ══════════════════════════════════════════════════════════════════════
+
+_groq_query_cache: dict = {}
+
+def smart_pexels_query(scene_text: str, niche: str,
+                       fallback_query: str = "") -> str:
+    """
+    Use Groq to generate the most visually relevant Pexels search query
+    for a given scene. Caches results to avoid duplicate API calls.
+    Falls back to niche rotation pool if Groq fails.
+    """
+    cache_key = scene_text[:60]
+    if cache_key in _groq_query_cache:
+        return _groq_query_cache[cache_key]
+
+    # Niche fallback pool — always available instantly
+    pool = NICHES[niche].get("video_queries", ["cinematic nature landscape"])
+    niche_fallback = random.choice(pool)
+
+    groq_key = os.getenv("GROQ_API_KEY")
+    if not groq_key:
+        return niche_fallback
+
+    try:
+        client = Groq(api_key=groq_key)
+        resp = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{
+                "role": "system",
+                "content": (
+                    "You are a video director. Given a short script line and a niche, "
+                    "output ONLY a 3-5 word Pexels video search query that would find "
+                    "the most visually striking, emotionally relevant portrait-oriented "
+                    "footage to play behind this voiceover. "
+                    "No explanation. No punctuation. Just the search query."
+                )
+            }, {
+                "role": "user",
+                "content": f"Niche: {niche}\nLine: {scene_text}\nQuery:"
+            }],
+            temperature=0.7,
+            max_tokens=20,
+        )
+        query = resp.choices[0].message.content.strip().strip('"').strip("'")
+        if 2 <= len(query.split()) <= 6:
+            _groq_query_cache[cache_key] = query
+            log.info("Smart query: '%s' → '%s'", scene_text[:40], query)
+            return query
+    except Exception as e:
+        log.debug("Smart query failed: %s — using pool fallback", e)
+
+    _groq_query_cache[cache_key] = niche_fallback
+    return niche_fallback
+
+
 def fetch_pexels_video(query: str, min_dur: float = 4.0,
                        download: bool = False) -> Optional[str]:
     """
@@ -808,6 +995,7 @@ def creatomate_render(
         text = scene.get("text", "")
         q    = scene.get("pexels_query", text[:40])
 
+        q = smart_pexels_query(scene.get("text",""), niche, fallback_query=q)
         vid_url = fetch_pexels_video(q, min_dur=dur, download=False)
         if vid_url:
             anims = [{
@@ -1073,6 +1261,7 @@ def json2video_render(
         elements = []
 
         # Background video from Pexels
+        q = smart_pexels_query(scene.get("text",""), niche, fallback_query=q)
         vid_url = fetch_pexels_video(q, min_dur=dur, download=False)
         if vid_url:
             elements.append({
@@ -1246,6 +1435,7 @@ def shotstack_render(
         text = scene.get("text", "")
         q    = scene.get("pexels_query", text[:40])
 
+        q = smart_pexels_query(scene.get("text",""), niche, fallback_query=q)
         vid_url = fetch_pexels_video(q, min_dur=dur, download=False)
         if vid_url:
             video_clips.append({
@@ -1410,6 +1600,8 @@ def build_video_moviepy(
     for idx, (scene, dur) in enumerate(zip(scenes, durations)):
         dur = max(dur, 0.5)
         q   = scene.get("pexels_query", scene["text"][:40])
+        # Groq generates a more visually specific search query per scene
+        q   = smart_pexels_query(scene.get("text",""), niche, fallback_query=q)
 
         # Background: Pexels video → solid color fallback
         vid_path = fetch_pexels_video(q, min_dur=dur)
@@ -1733,19 +1925,19 @@ Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
 #  ~2–3% retention increase based on A/B tests in similar channels.
 # ══════════════════════════════════════════════════════════════════════
 
-def apply_color_grade(video_path: str, output_path: str) -> str:
+def apply_color_grade(video_path: str, output_path: str,
+                      niche: str = "fact") -> str:
     """
-    Apply cinematic teal-orange color grade + sharpening via ffmpeg.
-    Returns output_path, or video_path if ffmpeg fails.
+    Apply niche-specific cinematic color grade via ffmpeg.
+    Each niche has its own curated color curve (defined in NICHES dict).
+    Falls back to teal-orange universal grade if niche grade missing.
     """
-    # Teal shadows (boost blue, pull red in darks)
-    # Orange highlights (pull blue in brights, boost red/green)
-    # Then unsharp for crispness
-    vf = (
+    # Get niche-specific grade, fall back to universal teal-orange
+    vf = NICHES.get(niche, {}).get("color_grade") or (
         "curves="
-        "r='0/0 0.3/0.27 0.7/0.74 1/0.95':"   # warm highlights
-        "g='0/0 0.3/0.30 0.7/0.72 1/0.96':"   # neutral
-        "b='0/0.04 0.3/0.33 0.7/0.68 1/0.85',"  # teal shadows
+        "r='0/0 0.3/0.27 0.7/0.74 1/0.95':"
+        "g='0/0 0.3/0.30 0.7/0.72 1/0.96':"
+        "b='0/0.04 0.3/0.33 0.7/0.68 1/0.85',"
         "unsharp=luma_msize_x=5:luma_msize_y=5:luma_amount=0.7"
     )
     cmd = [
@@ -1758,7 +1950,7 @@ def apply_color_grade(video_path: str, output_path: str) -> str:
     ]
     try:
         subprocess.run(cmd, check=True, capture_output=True)
-        log.info("Color grade applied → %s", output_path)
+        log.info("Color grade applied [%s] → %s", niche, output_path)
         return output_path
     except subprocess.CalledProcessError as e:
         log.warning("Color grade failed: %s", e.stderr.decode()[:200])
@@ -1893,7 +2085,7 @@ def run_pipeline(niche: Optional[str] = None) -> None:
 
         # 8. Cinematic color grade (teal-orange + unsharp)
         final_video = str(tmp/"final.mp4")
-        final_video = apply_color_grade(captioned_video, final_video)
+        final_video = apply_color_grade(captioned_video, final_video, niche=niche)
 
         # 9. Upload
         hashtags  = script.get("hashtags", [])
