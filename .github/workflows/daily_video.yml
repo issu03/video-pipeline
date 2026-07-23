@@ -38,6 +38,9 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Install yt-dlp for viral video analysis
+        run: pip install yt-dlp --break-system-packages -q
+
       - name: Fix beautiful-captions import bug
         run: |
           python3 -c "
