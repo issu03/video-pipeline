@@ -1,5 +1,13 @@
 name: VaultMind Video Pipeline v4
 
+# FIX: ohne diesen Block hat das Standard-GITHUB_TOKEN nur Lesezugriff.
+# Das führte zum Fehler "Write access to repository not granted" /
+# "fatal: ... returned error: 403" beim finalen `git push` (Exit Code 128) —
+# der Job lief zwar durch und das Video wurde hochgeladen, aber der Run
+# wurde trotzdem als "failed" markiert und dashboard.json nie committet.
+permissions:
+  contents: write
+
 on:
   schedule:
     - cron: '0 16 * * 2,4'
@@ -12,35 +20,35 @@ on:
         required: false
         default: ""
 
+# Verhindert überlappende Runs (z.B. manueller Trigger während eines
+# geplanten Runs), die zu doppeltem/kollidierendem git push führen könnten.
+concurrency:
+  group: vaultmind-pipeline
+  cancel-in-progress: false
+
 jobs:
   generate-video:
     runs-on: ubuntu-latest
     timeout-minutes: 35
-
     steps:
       - uses: actions/checkout@v4
-
       - name: System deps (ffmpeg + fonts)
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
             ffmpeg fonts-dejavu-core fonts-liberation fonts-open-sans
           echo "ffmpeg: $(ffmpeg -version | head -1)"
-
       - name: Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-
       - name: Install yt-dlp for viral video analysis
         run: pip install yt-dlp --break-system-packages -q
-
       - name: Fix beautiful-captions import bug
         run: |
           python3 -c "
@@ -53,7 +61,6 @@ jobs:
                       f.write_text(t.replace('from src.beautiful_captions.core.', 'from .'))
                       print('Patched:', f)
           "
-
       - name: Run pipeline
         env:
           GROQ_API_KEY:        ${{ secrets.GROQ_API_KEY }}
@@ -70,7 +77,6 @@ jobs:
           MUSIC_PATH:          bg_music.mp3
           IMAGEIO_FFMPEG_EXE:  ffmpeg
         run: python pipeline.py ${{ github.event.inputs.niche }}
-
       - name: Commit dashboard
         run: |
           git config user.name  "vaultmind-bot"
