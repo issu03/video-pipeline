@@ -318,12 +318,26 @@ def generate_script(niche: str) -> dict:
 
     for attempt in range(5):
         try:
-            resp = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[{"role": "system", "content": system},
-                          {"role": "user",   "content": prompt}],
-                temperature=0.95, max_tokens=3000,
-            )
+            try:
+                # Groq JSON mode — forces syntactically valid JSON output,
+                # eliminates the "Expecting ',' delimiter" parse failures
+                # that used to cost 1-2 wasted retries on most runs.
+                resp = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "system", "content": system},
+                              {"role": "user",   "content": prompt}],
+                    temperature=0.95, max_tokens=3000,
+                    response_format={"type": "json_object"},
+                )
+            except Exception:
+                # Some Groq models/versions may reject response_format —
+                # fall back to the plain call so this never hard-fails.
+                resp = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "system", "content": system},
+                              {"role": "user",   "content": prompt}],
+                    temperature=0.95, max_tokens=3000,
+                )
             raw  = resp.choices[0].message.content.strip()
             raw  = raw.strip("```json").strip("```").strip()
             data = json.loads(raw)
@@ -559,6 +573,22 @@ def transcribe_with_assemblyai(audio_path: str) -> dict:
 # STEP 4 — SMART CUT POINTS (pydub + AAI)
 # ══════════════════════════════════════════════════════════════════════
 
+# Below this, a cut reads as a flash/glitch rather than a deliberate quick
+# cut — e.g. a natural pause at 3.6s and an unrelated word-boundary snap at
+# 4.0s used to slip through and create a 0.4s "scene".
+MIN_SCENE_GAP_MS = 900
+
+def _enforce_min_gap(cuts_ms: list[int], min_gap_ms: int = MIN_SCENE_GAP_MS) -> list[int]:
+    """Drop any cut point that would create a sub-min_gap_ms scene. Keeps the
+    earlier cut of any too-close pair so downstream ordering stays stable."""
+    cuts_ms = sorted(cuts_ms)
+    filtered: list[int] = []
+    for t in cuts_ms:
+        if not filtered or t - filtered[-1] >= min_gap_ms:
+            filtered.append(t)
+    return filtered
+
+
 def detect_cut_points(audio_path: str, aai_data: dict, n_scenes: int,
                       silence_thresh_db: int = -40,
                       min_silence_ms: int = 300) -> list[float]:
@@ -600,6 +630,7 @@ def detect_cut_points(audio_path: str, aai_data: dict, n_scenes: int,
             closest = min(pool, key=lambda t: abs(t-target))
             chosen.append(closest)
             pool.remove(closest)
+        chosen = _enforce_min_gap(chosen)
         result = sorted(t/1000.0 for t in chosen)
         log.info("Cut points (%d, all natural): %s",
                  len(result), [f"{c:.1f}s" for c in result])
@@ -633,6 +664,7 @@ def detect_cut_points(audio_path: str, aai_data: dict, n_scenes: int,
             used_words.add(pick)
             chosen.append(pick)
 
+    chosen = _enforce_min_gap(chosen)
     result = sorted(set(t/1000.0 for t in chosen))
     log.info("Cut points (%d, %d natural + %d word-snapped): %s",
              len(result), len(used_hard), len(used_words),
@@ -905,25 +937,57 @@ def _synth_ambient(path: str, dur_s: float = 120) -> None:
     seg.fade_in(2000).fade_out(2000).export(path,format="mp3")
     log.info("Ambient pad synthesised (%.0fs)",dur_s)
 
-def ensure_music(duration_s: float = 120) -> str:
-    if Path(MUSIC_PATH).exists():
+# One Pixabay query per niche so "scary" and "rich" don't end up with the
+# same generic track — and so the fallback synth pad (if PIXABAY_KEY is
+# unset) at least sounds different across niches.
+NICHE_MUSIC_QUERIES = {
+    "reddit":     "dramatic tension ambient",
+    "dating":     "romantic soft piano",
+    "rich":       "luxury lounge cinematic",
+    "lifehack":   "upbeat corporate clean",
+    "fact":       "curious ambient documentary",
+    "scary":      "horror ambient tension",
+    "motivation": "epic cinematic uplifting",
+    "conspiracy": "dark mysterious ambient",
+    "learn":      "clean documentary ambient",
+}
+
+def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
+    """
+    Cached PER NICHE (bg_music_<niche>.mp3) instead of one global bg_music.mp3
+    that — once committed/downloaded once — silently got reused forever for
+    every niche and every video. Falls back to a synthesised ambient pad only
+    if PIXABAY_KEY is unset or the API call fails.
+    """
+    niche_music_path = f"bg_music_{niche}.mp3"
+    if Path(niche_music_path).exists():
+        return niche_music_path
+
+    # Back-compat: if an old global bg_music.mp3 is committed and this is
+    # the first "fact"-niche run, reuse it once instead of re-downloading.
+    if niche == "fact" and Path(MUSIC_PATH).exists():
         return MUSIC_PATH
+
     if PIXABAY_KEY:
-        for q in ("cinematic background","lofi ambient","dark dramatic"):
-            try:
-                r = requests.get("https://pixabay.com/api/videos/music/",
-                                 params={"key":PIXABAY_KEY,"q":q,"per_page":5},timeout=10)
-                hits = r.json().get("hits",[])
-                if hits:
-                    url  = random.choice(hits)["audio"]["url"]
-                    data = requests.get(url,timeout=30).content
-                    Path(MUSIC_PATH).write_bytes(data)
-                    log.info("Pixabay music: '%s'",q)
-                    return MUSIC_PATH
-            except Exception as e:
-                log.warning("Pixabay: %s",e)
-    _synth_ambient(MUSIC_PATH, duration_s+10)
-    return MUSIC_PATH
+        query = NICHE_MUSIC_QUERIES.get(niche, "cinematic background")
+        try:
+            r = requests.get("https://pixabay.com/api/videos/music/",
+                             params={"key": PIXABAY_KEY, "q": query, "per_page": 5}, timeout=10)
+            hits = r.json().get("hits", [])
+            if hits:
+                url  = random.choice(hits)["audio"]["url"]
+                data = requests.get(url, timeout=30).content
+                Path(niche_music_path).write_bytes(data)
+                log.info("Pixabay music: '%s' (niche=%s)", query, niche)
+                return niche_music_path
+        except Exception as e:
+            log.warning("Pixabay: %s", e)
+    else:
+        log.warning("PIXABAY_KEY not set — using synthesised ambient pad "
+                     "instead of real music. Add the free PIXABAY_KEY secret "
+                     "for real niche-matched tracks.")
+    _synth_ambient(niche_music_path, duration_s + 10)
+    return niche_music_path
 
 def ensure_sfx() -> tuple[str,str]:
     if not Path(SFX_WHOOSH).exists(): _synth_whoosh(SFX_WHOOSH)
@@ -1800,11 +1864,37 @@ def update_dashboard(niche, title, url, ok):
 #  Falls back gracefully to static ffmpeg subtitles if unavailable.
 # ══════════════════════════════════════════════════════════════════════
 
+# Niches whose learned viral_patterns.json caption_style explicitly calls
+# for NO accent color (e.g. horror doesn't use accent colors) — captions
+# stay plain white/black for these regardless of the niche's brand color.
+NO_ACCENT_NICHES = {"scary"}
+
+def get_caption_style(niche: str) -> dict:
+    """
+    Derive caption color + animation type for a niche instead of hard-coding
+    yellow/bounce for every niche. Prefers the learned viral_patterns.json
+    (text_animation field from real analyzed videos), falls back to the
+    niche's brand color from NICHES and a safe default animation.
+    """
+    color = "#FFFFFF" if niche in NO_ACCENT_NICHES else NICHES.get(niche, {}).get("color", "#FFD700")
+    animation = "bounce"
+    try:
+        patterns  = load_viral_patterns()
+        niche_pat = patterns.get(niche, [])
+        if niche_pat:
+            animation = niche_pat[0].get("text_animation", animation)
+    except Exception:
+        pass
+    if animation not in ("bounce", "pop", "fade"):
+        animation = "bounce"
+    return {"color": color, "animation": animation}
+
+
 def apply_beautiful_captions(
     video_path:  str,
     srt_path:    str,
     output_path: str,
-    accent:      str = "#FFD700",
+    niche:       str = "fact",
     words_per_line: int = 2,
 ) -> str:
     """
@@ -1815,15 +1905,18 @@ def apply_beautiful_captions(
         log.warning("SRT missing — skipping caption burn")
         return video_path
 
-    # ── Method 1: beautiful-captions (bounce animation) ───────────────
+    style = get_caption_style(niche)
+    accent, anim_type = style["color"], style["animation"]
+
+    # ── Method 1: beautiful-captions (niche-matched animation/color) ──
     if BEAUTIFUL_CAPTIONS_OK:
         try:
             cfg = CaptionConfig(
-                animation={"enabled": True, "type": "bounce", "keyframes": 12},
+                animation={"enabled": True, "type": anim_type, "keyframes": 12},
                 style={
                     "font":              "Montserrat",
                     "font_size":         140,
-                    "color":             "yellow",
+                    "color":             accent,
                     "outline_color":     "black",
                     "outline_thickness": 12,
                     "verticle_position": 0.50,   # center-screen (note: their typo)
@@ -1839,7 +1932,8 @@ def apply_beautiful_captions(
                 add_styling=True,
                 cuda=False,
             )
-            log.info("beautiful-captions: bounce captions applied → %s", output_path)
+            log.info("beautiful-captions: %s captions applied (%s) → %s",
+                     anim_type, accent, output_path)
             return output_path
         except Exception as e:
             log.warning("beautiful-captions failed (%s) — falling back to ASS", e)
@@ -2297,7 +2391,7 @@ def run_pipeline(niche: Optional[str] = None) -> None:
     log.info("═══ VaultMind v4 — niche: %s ═══", niche)
 
     ensure_font()
-    music_path             = ensure_music(duration_s=120)
+    music_path             = ensure_music(niche=niche, duration_s=120)
     sfx_whoosh, sfx_impact = ensure_sfx()
 
     # Analyze curated viral videos (free, skips if <3 days old)
@@ -2364,7 +2458,7 @@ def run_pipeline(niche: Optional[str] = None) -> None:
                 video_path     = raw_video,
                 srt_path       = srt_path,
                 output_path    = captioned_video,
-                accent         = NICHES[niche]["color"],
+                niche          = niche,
                 words_per_line = 2,
             )
 
