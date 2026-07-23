@@ -303,12 +303,17 @@ def generate_script(niche: str) -> dict:
         ""
         "pexels_query: 3-word visual search term per scene for stock footage"
     )
+    # Load patterns from previous viral video analysis (free Groq Vision)
+    patterns     = load_viral_patterns()
+    pattern_hint = patterns_to_prompt_hints(patterns, niche)
+
     prompt = (
         f"Write a viral {niche} YouTube Shorts script. "
         "Make it genuinely surprising, controversial or emotionally charged — "
         "something people will want to comment on or share. "
         "Fast pacing, short scenes, frequent re-hooks. "
         "This must feel like a tightly-edited 80+ second video, not a slow one."
+        + (f"\n\n{pattern_hint}" if pattern_hint else "")
     )
 
     for attempt in range(5):
@@ -2010,13 +2015,293 @@ def backup_to_drive(video_path: str, srt_path: str, title: str) -> Optional[str]
         return None
 
 
+
+# ══════════════════════════════════════════════════════════════════════
+# SELF-LEARNING: VIRAL VIDEO ANALYZER
+#
+#  Runs BEFORE script generation on each pipeline run.
+#  Uses only FREE tools:
+#    • yt-dlp   → download captions (no Whisper needed for YouTube)
+#    • ffmpeg   → extract keyframes
+#    • Groq Vision (llama-4-scout) → analyze frames (free tier, 1000 RPD)
+#
+#  Result: viral_patterns.json committed to repo.
+#  Script generator reads it and adapts prompts automatically.
+#
+#  Curated viral Shorts per niche — all public YouTube URLs.
+#  Update this list by adding YouTube Shorts links you like.
+# ══════════════════════════════════════════════════════════════════════
+
+VIRAL_REFERENCE_VIDEOS = {
+    "fact":       ["https://www.youtube.com/shorts/2gpg7W7ht6A"],
+    "scary":      ["https://youtube.com/shorts/JCEEvR-1b2A"],
+    "motivation": ["https://youtube.com/shorts/5f7E4DQG6kk"],
+    "reddit":     ["https://youtube.com/shorts/P0xBYEwcl-4"],
+    "rich":       ["https://youtube.com/shorts/g1jmkEjykLk"],
+    "conspiracy": ["https://youtube.com/shorts/VUyBmwGpzkE"],
+    "dating":     ["https://youtube.com/shorts/2W4SDn_6WEw"],
+    "lifehack":   ["https://youtube.com/shorts/klMk4UkYQ0o"],
+    "learn":      [
+        "https://youtube.com/shorts/kxOFEpLKNpk",
+        "https://youtube.com/shorts/qHf2RSKLbsw",
+    ],
+}
+
+
+def _extract_youtube_captions(url: str, out_path: str) -> Optional[str]:
+    """Download auto-captions from YouTube via yt-dlp (free, no Whisper)."""
+    try:
+        import yt_dlp
+        opts = {
+            "skip_download":    True,
+            "writeautomaticsub": True,
+            "writesubtitles":   True,
+            "subtitleslangs":   ["en"],
+            "subtitlesformat":  "vtt",
+            "outtmpl":          out_path.replace(".vtt",""),
+            "quiet":            True,
+            "nocheckcertificate": True,
+        }
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            ydl.download([url])
+        # yt-dlp appends .en.vtt
+        vtt = out_path.replace(".vtt","") + ".en.vtt"
+        if Path(vtt).exists():
+            # Strip VTT timing tags → plain text
+            text = Path(vtt).read_text(errors="ignore")
+            lines = []
+            for line in text.splitlines():
+                line = line.strip()
+                if line and "-->" not in line and not line.startswith("WEBVTT")                         and not line.startswith("NOTE") and not line.isdigit():
+                    import re
+                    clean = re.sub(r"<[^>]+>", "", line)
+                    if clean and clean not in lines[-3:]:
+                        lines.append(clean)
+            return " ".join(lines)[:3000]
+    except Exception as e:
+        log.debug("Caption extraction failed: %s", e)
+    return None
+
+
+def _extract_frames(url: str, out_dir: str, n_frames: int = 8) -> list[str]:
+    """
+    Download video and extract n_frames keyframes as JPEGs.
+    Uses yt-dlp + ffmpeg — both already in the GitHub Actions environment.
+    """
+    try:
+        import yt_dlp
+        video_path = os.path.join(out_dir, "clip.mp4")
+        opts = {
+            "format":    "bestvideo[height<=720][ext=mp4]/best[height<=720]",
+            "outtmpl":   video_path,
+            "quiet":     True,
+            "nocheckcertificate": True,
+        }
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            ydl.download([url])
+
+        if not Path(video_path).exists():
+            return []
+
+        # Get duration
+        probe = subprocess.run(
+            ["ffprobe","-v","quiet","-show_entries","format=duration",
+             "-of","default=noprint_wrappers=1:nokey=1", video_path],
+            capture_output=True, text=True
+        )
+        duration = float(probe.stdout.strip() or "60")
+
+        # Extract evenly-spaced frames
+        frame_paths = []
+        for i in range(n_frames):
+            t        = duration * (i + 0.5) / n_frames
+            out_jpg  = os.path.join(out_dir, f"frame_{i:02d}.jpg")
+            subprocess.run(
+                ["ffmpeg","-y","-ss",str(t),"-i",video_path,
+                 "-frames:v","1","-q:v","3","-vf","scale=512:-1",
+                 out_jpg],
+                capture_output=True
+            )
+            if Path(out_jpg).exists():
+                frame_paths.append(out_jpg)
+        return frame_paths
+    except Exception as e:
+        log.debug("Frame extraction failed: %s", e)
+        return []
+
+
+def _analyze_frames_groq(frames: list[str], transcript: str,
+                          niche: str) -> Optional[dict]:
+    """
+    Send frames + transcript to Groq Vision (llama-4-scout, free).
+    Returns structured analysis dict or None on failure.
+    """
+    key = os.getenv("GROQ_API_KEY")
+    if not key:
+        return None
+    try:
+        import base64
+        client = Groq(api_key=key)
+
+        # Build image content blocks (max 6 to save tokens)
+        image_blocks = []
+        for fp in frames[:6]:
+            with open(fp, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode()
+            image_blocks.append({
+                "type": "image_url",
+                "image_url": {"url": f"data:image/jpeg;base64,{b64}"}
+            })
+
+        prompt = (
+            f'You are a viral short-form video analyst. Niche: {niche}.\n'
+            f'Transcript snippet: "{transcript[:600]}"\n\n'
+            'Analyze these video frames and return a JSON object with:\n'
+            '- hook_style: how does the first 2 seconds grab attention?\n'
+            '- caption_style: font size (small/medium/large), position (top/center/bottom), '
+            'highlighted words yes/no, color\n'
+            '- cut_speed: average scene length estimate in seconds (e.g. 2, 3, 4)\n'
+            '- visual_style: dark/bright/colorful/minimal, any overlays or effects\n'
+            '- text_animation: bounce/fade/none/pop\n'
+            '- background_type: stock_footage/solid_color/gameplay/animation\n'
+            '- emotional_trigger: curiosity/fear/inspiration/humor/shock\n'
+            '- what_makes_it_viral: 1-2 sentences\n'
+            'Return ONLY valid JSON, no explanation.'
+        )
+
+        resp = client.chat.completions.create(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            messages=[{
+                "role": "user",
+                "content": image_blocks + [{"type": "text", "text": prompt}]
+            }],
+            response_format={"type": "json_object"},
+            max_tokens=500,
+            temperature=0.3,
+        )
+        return json.loads(resp.choices[0].message.content)
+    except Exception as e:
+        log.warning("Groq Vision analysis failed: %s", e)
+        return None
+
+
+def analyze_viral_videos(force: bool = False) -> dict:
+    """
+    Analyze curated viral reference videos and update viral_patterns.json.
+
+    Skips if viral_patterns.json was updated in the last 3 days (to avoid
+    hitting Groq rate limits on every run). Set force=True to override.
+
+    Returns the loaded patterns dict.
+    """
+    patterns_path = Path("viral_patterns.json")
+
+    # Load existing patterns
+    if patterns_path.exists():
+        try:
+            existing = json.loads(patterns_path.read_text())
+        except Exception:
+            existing = {}
+    else:
+        existing = {}
+
+    # Skip if recently updated
+    last_run = existing.get("_last_analyzed", "")
+    if not force and last_run:
+        try:
+            age_days = (datetime.utcnow() -
+                        datetime.fromisoformat(last_run)).days
+            if age_days < 3:
+                log.info("viral_patterns.json is %d days old — skipping analysis", age_days)
+                return existing
+        except Exception:
+            pass
+
+    log.info("Starting viral video analysis…")
+    patterns = dict(existing)
+
+    for niche, urls in VIRAL_REFERENCE_VIDEOS.items():
+        if not urls:
+            continue
+        niche_results = []
+        for url in urls[:2]:   # max 2 per niche per run (rate limit friendly)
+            log.info("Analyzing [%s]: %s", niche, url)
+            with tempfile.TemporaryDirectory() as td:
+                transcript = _extract_youtube_captions(url, os.path.join(td,"caps.vtt"))
+                transcript = transcript or ""
+                frames     = _extract_frames(url, td, n_frames=8)
+                if not frames:
+                    log.warning("No frames extracted for %s", url)
+                    continue
+                analysis = _analyze_frames_groq(frames, transcript, niche)
+                if analysis:
+                    analysis["url"]       = url
+                    analysis["analyzed_at"] = datetime.utcnow().isoformat()
+                    niche_results.append(analysis)
+                    log.info("[%s] Analysis: %s", niche,
+                             json.dumps(analysis, indent=2)[:300])
+                time.sleep(2)   # be gentle on rate limits
+
+        if niche_results:
+            patterns[niche] = niche_results
+
+    patterns["_last_analyzed"] = datetime.utcnow().isoformat()
+    patterns_path.write_text(json.dumps(patterns, indent=2))
+    log.info("viral_patterns.json updated (%d niches)", len(patterns)-1)
+    return patterns
+
+
+def load_viral_patterns() -> dict:
+    """Load existing viral patterns, return empty dict if unavailable."""
+    try:
+        p = Path("viral_patterns.json")
+        if p.exists():
+            return json.loads(p.read_text())
+    except Exception:
+        pass
+    return {}
+
+
+def patterns_to_prompt_hints(patterns: dict, niche: str) -> str:
+    """
+    Convert analyzed viral patterns for a niche into concrete script hints.
+    These get injected into the Groq script generation prompt.
+    """
+    niche_data = patterns.get(niche, [])
+    if not niche_data:
+        return ""
+
+    # Aggregate across multiple analyzed videos
+    cut_speeds  = [d.get("cut_speed", 3) for d in niche_data if "cut_speed" in d]
+    hook_styles = [d.get("hook_style","") for d in niche_data if d.get("hook_style")]
+    triggers    = [d.get("emotional_trigger","") for d in niche_data if d.get("emotional_trigger")]
+    viral_tips  = [d.get("what_makes_it_viral","") for d in niche_data if d.get("what_makes_it_viral")]
+
+    avg_cut = round(sum(cut_speeds)/len(cut_speeds), 1) if cut_speeds else 3.5
+    hints = [
+        f"VIRAL DATA for {niche} (learned from real viral videos in this niche):",
+        f"- Ideal scene length: ~{avg_cut}s per scene",
+    ]
+    if hook_styles:
+        hints.append(f"- Hook style that works: {hook_styles[0]}")
+    if triggers:
+        unique_triggers = list(dict.fromkeys(triggers))
+        hints.append(f"- Emotional triggers that drive retention: {', '.join(unique_triggers[:3])}")
+    if viral_tips:
+        hints.append(f"- What makes {niche} videos go viral: {viral_tips[0]}")
+    return '\n'.join(hints)
+
+
 def run_pipeline(niche: Optional[str] = None) -> None:
     niche = niche or random.choice(list(NICHES.keys()))
     log.info("═══ VaultMind v4 — niche: %s ═══", niche)
 
     ensure_font()
-    music_path         = ensure_music(duration_s=120)
+    music_path             = ensure_music(duration_s=120)
     sfx_whoosh, sfx_impact = ensure_sfx()
+
+    # Analyze curated viral videos (free, skips if <3 days old)
+    analyze_viral_videos()
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)

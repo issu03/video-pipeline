@@ -1,0 +1,123 @@
+{
+  "_last_analyzed": "2026-07-23T00:00:00",
+  "_note": "Baseline patterns handcrafted from niche research. Will be auto-updated by Groq Vision on next pipeline run.",
+  "scary": [{
+    "url": "https://youtube.com/shorts/JCEEvR-1b2A",
+    "hook_style": "Opens mid-action or with a shocking image/sound — no buildup, zero context, forces the viewer to stay to understand what just happened",
+    "caption_style": "Large white text, black stroke, center-bottom, NO highlight color — horror doesn't use accent colors",
+    "cut_speed": 2.5,
+    "visual_style": "Dark desaturated footage, heavy grain/noise overlay, red vignette on edges, flicker effect on cuts",
+    "text_animation": "pop",
+    "background_type": "dark_stock_footage",
+    "emotional_trigger": "fear, dread, curiosity",
+    "pacing_notes": "Very fast cuts 2-3s, slow down during the 'reveal', then fast again. Silence then sudden loud audio hit.",
+    "what_makes_it_viral": "Triggers fear response which locks attention. Ambiguous opening forces viewer to stay for context."
+  }],
+  "motivation": [{
+    "url": "https://youtube.com/shorts/5f7E4DQG6kk",
+    "hook_style": "Opens with the end result or transformation — shows success/achievement FIRST, then explains the journey backward",
+    "caption_style": "Large bold white text, orange or gold accent on key words, center-screen, slight bounce animation",
+    "cut_speed": 3.0,
+    "visual_style": "High contrast, warm color grade, intense athlete or city footage, slow-mo on key moments",
+    "text_animation": "bounce",
+    "background_type": "high_energy_stock_footage",
+    "emotional_trigger": "inspiration, aspiration, urgency",
+    "pacing_notes": "Builds momentum with each scene — starts at medium pace, accelerates toward climax, ends on a punchy one-liner",
+    "what_makes_it_viral": "Triggers dopamine via aspirational imagery. Ending line must be shareable/quotable."
+  }],
+  "reddit": [{
+    "url": "https://youtube.com/shorts/P0xBYEwcl-4",
+    "hook_style": "Opens with the most shocking/outrageous sentence from the story — middle or end of the story used as the hook",
+    "caption_style": "Medium-large text, Reddit orange accent on names/quotes, white body text, pill background behind text",
+    "cut_speed": 4.0,
+    "visual_style": "Reddit card overlay or dark background, minimal visual distraction to focus on the story text",
+    "text_animation": "fade",
+    "background_type": "gameplay_or_minecraft",
+    "emotional_trigger": "outrage, curiosity, relatability",
+    "pacing_notes": "Slower than other niches (3-5s/scene) because viewers are reading. Re-hooks every 20s with 'wait for it' or 'but here's the twist'.",
+    "what_makes_it_viral": "Comment bait — story must trigger strong opinion (agree/disagree). Viewer imagines themselves in the situation."
+  }],
+  "rich": [{
+    "url": "https://youtube.com/shorts/g1jmkEjykLk",
+    "hook_style": "Opens with a specific shocking number or comparison — '$X per day doing nothing' or 'most people will never know this'",
+    "caption_style": "Large gold/yellow accent on numbers and key terms, white body, slight glow effect, center-screen",
+    "cut_speed": 3.5,
+    "visual_style": "Gold color grade, luxury B-roll (watches, cars, mansions), split-screens showing contrast poor vs rich",
+    "text_animation": "pop",
+    "background_type": "luxury_stock_footage",
+    "emotional_trigger": "envy, aspiration, FOMO, secret knowledge",
+    "pacing_notes": "Hook must contain a number. Every 3-4 scenes reveal one 'secret'. Final scene = call to action.",
+    "what_makes_it_viral": "Taps into financial anxiety and desire for shortcuts. Numbers in hooks get 2x more retention."
+  }],
+  "conspiracy": [{
+    "url": "https://youtube.com/shorts/VUyBmwGpzkE",
+    "hook_style": "Opens with a forbidden/hidden fact framed as 'they don't want you to know' — creates in-group identity",
+    "caption_style": "White text, purple accent on key revelations, slightly smaller font to feel more 'documentary', red for warnings",
+    "cut_speed": 3.0,
+    "visual_style": "Dark desaturated footage, glitch effects on cuts, green matrix-style overlays, shaky cam feel",
+    "text_animation": "fade",
+    "background_type": "documentary_dark_footage",
+    "emotional_trigger": "distrust, curiosity, validation, secret knowledge",
+    "pacing_notes": "Build a 3-part structure: 1) shocking claim, 2) 'evidence', 3) implication. Each part gets a mini re-hook.",
+    "what_makes_it_viral": "Triggers identity — sharing the video signals to others 'I know things others don't'."
+  }],
+  "dating": [{
+    "url": "https://youtube.com/shorts/2W4SDn_6WEw",
+    "hook_style": "Opens with a bold controversial dating opinion or a relatable cringe situation everyone has experienced",
+    "caption_style": "Pink/red accent on emotional words, white body, center-bottom, clean minimal font",
+    "cut_speed": 3.5,
+    "visual_style": "Warm bokeh footage, soft color grade, split-screen comparisons, couple silhouettes",
+    "text_animation": "bounce",
+    "background_type": "romantic_stock_footage",
+    "emotional_trigger": "relatability, validation, curiosity, slight jealousy",
+    "pacing_notes": "Hook = controversial opinion. Middle = 3 supporting points. End = surprising twist or reversal of the hook.",
+    "what_makes_it_viral": "Comment bait — strong opinions trigger 'you're wrong' comments which boost algorithm. Relatability = saves."
+  }],
+  "lifehack": [{
+    "url": "https://youtube.com/shorts/klMk4UkYQ0o",
+    "hook_style": "Opens with the result/output of the hack — show what it looks like done FIRST, then explain how",
+    "caption_style": "Green accent on the hack/tip, white explanatory text, numbered list format, clean minimal",
+    "cut_speed": 2.5,
+    "visual_style": "Clean bright footage, minimal color grade, close-up shots of hands/objects, split before/after",
+    "text_animation": "pop",
+    "background_type": "clean_product_footage",
+    "emotional_trigger": "usefulness, 'why didn't I know this', time-saving satisfaction",
+    "pacing_notes": "Very fast (2-3s/scene). Each scene = one step. Number the steps on screen. End with 'save this for later'.",
+    "what_makes_it_viral": "Immediate practical value = high save rate. Saves directly boost algorithm ranking."
+  }],
+  "learn": [{
+    "url": "https://youtube.com/shorts/kxOFEpLKNpk",
+    "hook_style": "Opens with a counterintuitive or mind-blowing fact stated as absolute truth — no hedging",
+    "caption_style": "Teal/blue accent on key facts and numbers, white body, large clear font, minimal decoration",
+    "cut_speed": 3.5,
+    "visual_style": "Clean infographic-style overlays, educational B-roll (science, history, nature), clean color grade",
+    "text_animation": "fade",
+    "background_type": "educational_stock_footage",
+    "emotional_trigger": "curiosity, amazement, desire to share knowledge",
+    "pacing_notes": "Each scene = one fact. Build from surprising to more surprising. End fact must be the most mind-blowing.",
+    "what_makes_it_viral": "Share trigger — 'I have to send this to someone'. Counterintuitive facts get 3x shares vs obvious ones."
+  }, {
+    "url": "https://youtube.com/shorts/qHf2RSKLbsw",
+    "hook_style": "Question hook: 'Did you know...' or 'Why does X happen?' — creates knowledge gap that brain needs to fill",
+    "caption_style": "Teal accent on question words and key terms, large font, center-screen",
+    "cut_speed": 3.0,
+    "visual_style": "Science/nature B-roll, clean bright grade, text animations timed to speech",
+    "text_animation": "bounce",
+    "background_type": "nature_science_footage",
+    "emotional_trigger": "curiosity, wonder, intellectual satisfaction",
+    "pacing_notes": "Open with question, spend 70% building suspense, final 30% = answer + follow-up hook for next video",
+    "what_makes_it_viral": "Question hooks trigger psychological need for closure. Viewer cannot scroll until they have the answer."
+  }],
+  "fact": [{
+    "url": "https://www.youtube.com/shorts/2gpg7W7ht6A",
+    "hook_style": "Outcome-first: state the most shocking fact immediately, no buildup",
+    "caption_style": "Blue accent on numbers/superlatives, white body, large font center-bottom",
+    "cut_speed": 3.0,
+    "visual_style": "Space/science footage, cool blue grade",
+    "text_animation": "pop",
+    "background_type": "science_stock_footage",
+    "emotional_trigger": "curiosity, amazement",
+    "pacing_notes": "Fast 3s cuts, each fact more surprising than last",
+    "what_makes_it_viral": "Chain of escalating surprises keeps viewer watching for the next one"
+  }]
+}
