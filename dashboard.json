@@ -1,6 +1,13 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "You Won't Believe What Scientists Just Discovered About Human Intelligence",
+      "url": "https://youtu.be/2e3oSKqg7uk",
+      "ok": true,
+      "ts": "2026-07-25T09:48:55.915268"
+    },
+    {
       "niche": "fact",
       "title": "You Won't Believe What Happens When You Die",
       "url": "https://youtu.be/xklb1XY4uIM",
