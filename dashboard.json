@@ -1,6 +1,13 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Mysterious Disappearance of Blackwood House",
+      "url": "https://youtu.be/Gv4fsXeHQBI",
+      "ok": true,
+      "ts": "2026-07-26T10:04:24.453975"
+    },
+    {
       "niche": "learn",
       "title": "You Won't Believe What Scientists Just Discovered About Human Intelligence",
       "url": "https://youtu.be/2e3oSKqg7uk",
