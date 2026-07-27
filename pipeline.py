@@ -67,6 +67,15 @@ MUSIC_PATH    = os.getenv("MUSIC_PATH",    "bg_music.mp3")
 SFX_WHOOSH    = "sfx_whoosh.mp3"
 SFX_IMPACT    = "sfx_impact.mp3"
 PIXABAY_KEY   = os.getenv("PIXABAY_KEY", "")
+
+# CORRECTION: Pixabay has no public API for its music library at all — only
+# images and videos (https://pixabay.com/api/docs/ covers exactly those two).
+# The "https://pixabay.com/api/videos/music/" endpoint used previously
+# doesn't exist and always returned an empty/HTML response, which is why
+# music always fell back to the synthesised ambient pad regardless of
+# PIXABAY_KEY. Jamendo has a real, free, verified public API for CC-licensed
+# music (client_id only, no OAuth needed for search/download).
+JAMENDO_CLIENT_ID = os.getenv("JAMENDO_CLIENT_ID", "")
 FONT_PATH     = "font_bold.ttf"
 
 # ── Self-learning feedback loop (own video performance) ────────────────
@@ -976,7 +985,7 @@ def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
     Cached PER NICHE (bg_music_<niche>.mp3) instead of one global bg_music.mp3
     that — once committed/downloaded once — silently got reused forever for
     every niche and every video. Falls back to a synthesised ambient pad only
-    if PIXABAY_KEY is unset or the API call fails.
+    if JAMENDO_CLIENT_ID is unset or the API call fails.
     """
     niche_music_path = f"bg_music_{niche}.mp3"
     if Path(niche_music_path).exists():
@@ -987,24 +996,33 @@ def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
     if niche == "fact" and Path(MUSIC_PATH).exists():
         return MUSIC_PATH
 
-    if PIXABAY_KEY:
+    if JAMENDO_CLIENT_ID:
         query = NICHE_MUSIC_QUERIES.get(niche, "cinematic background")
         try:
-            r = requests.get("https://pixabay.com/api/videos/music/",
-                             params={"key": PIXABAY_KEY, "q": query, "per_page": 5}, timeout=10)
-            hits = r.json().get("hits", [])
-            if hits:
-                url  = random.choice(hits)["audio"]["url"]
-                data = requests.get(url, timeout=30).content
-                Path(niche_music_path).write_bytes(data)
-                log.info("Pixabay music: '%s' (niche=%s)", query, niche)
-                return niche_music_path
+            r = requests.get(
+                "https://api.jamendo.com/v3.0/tracks/",
+                params={"client_id": JAMENDO_CLIENT_ID, "format": "json",
+                        "limit": 10, "audioformat": "mp3",
+                        "search": query, "order": "popularity_total"},
+                timeout=10,
+            )
+            results = r.json().get("results", [])
+            if results:
+                track = random.choice(results)
+                url   = track.get("audio") or track.get("audiodownload")
+                if url:
+                    data = requests.get(url, timeout=30).content
+                    Path(niche_music_path).write_bytes(data)
+                    log.info("Jamendo music: '%s' → '%s' (niche=%s)",
+                             query, track.get("name"), niche)
+                    return niche_music_path
         except Exception as e:
-            log.warning("Pixabay: %s", e)
+            log.warning("Jamendo: %s", e)
     else:
-        log.warning("PIXABAY_KEY not set — using synthesised ambient pad "
-                     "instead of real music. Add the free PIXABAY_KEY secret "
-                     "for real niche-matched tracks.")
+        log.warning("JAMENDO_CLIENT_ID not set — using synthesised ambient "
+                     "pad instead of real music. Sign up free at "
+                     "developer.jamendo.com and add the JAMENDO_CLIENT_ID "
+                     "secret for real niche-matched tracks.")
     _synth_ambient(niche_music_path, duration_s + 10)
     return niche_music_path
 
@@ -1651,7 +1669,15 @@ def _trim_video_clip(path: str, duration: float) -> VideoFileClip:
 def _ken_burns(clip: VideoFileClip, scale_to: float = 1.07) -> VideoFileClip:
     """Slow Ken Burns zoom on a video clip."""
     dur = clip.duration
-    def zoom_frame(frame, t):
+    def zoom_frame(get_frame, t):
+        # FIX: MoviePy 2.x's clip.transform(func) passes func(get_frame, t) —
+        # get_frame is a CALLABLE, not the raw frame array. The old code
+        # treated the first argument as if it were already a numpy frame
+        # and called .shape on it, which silently crashed on every single
+        # scene with "'function' object has no attribute 'shape'" and fell
+        # back to the solid-color background — even after Pexels downloads
+        # started working correctly.
+        frame = get_frame(t)
         scale = 1.0 + (scale_to - 1.0) * (t / dur)
         h, w  = frame.shape[:2]
         new_w, new_h = int(w*scale), int(h*scale)
