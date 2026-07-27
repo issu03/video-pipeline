@@ -12,7 +12,7 @@ Major upgrades over v3:
 """
 
 import os, json, time, base64, pickle, random, logging, tempfile, textwrap
-import subprocess, shutil
+import subprocess, shutil, resource
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -1002,7 +1002,7 @@ def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
             r = requests.get(
                 "https://api.jamendo.com/v3.0/tracks/",
                 params={"client_id": JAMENDO_CLIENT_ID, "format": "json",
-                        "limit": 10, "audioformat": "mp3",
+                        "limit": 10, "audioformat": "mp32",
                         "search": query, "order": "popularity_total"},
                 timeout=10,
             )
@@ -1749,7 +1749,9 @@ def build_video_moviepy(
         scene_comp = CompositeVideoClip([bg, vig_clip],
                                         size=(VIDEO_W, VIDEO_H)).with_duration(dur)
         scene_clips.append(scene_comp)
-        log.info("  Scene %d/%d (%.1fs) — %s", idx+1, n, dur, q[:35])
+        rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+        log.info("  Scene %d/%d (%.1fs) — %s [rss=%.0fMB]",
+                  idx+1, n, dur, q[:35], rss_mb)
 
     # ── Crossfade transitions ─────────────────────────────────────────
     trans = [scene_clips[0]]
