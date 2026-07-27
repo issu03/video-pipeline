@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "You've Been Charging Wrong",
+      "url": "https://youtu.be/KmtQ0ITb2cg",
+      "video_id": "KmtQ0ITb2cg",
+      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
+      "ok": true,
+      "ts": "2026-07-27T10:56:23.534368"
+    },
+    {
       "niche": "scary",
       "title": "The Mysterious Disappearance of Blackwood House",
       "url": "https://youtu.be/Gv4fsXeHQBI",
