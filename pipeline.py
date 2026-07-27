@@ -1735,7 +1735,18 @@ def build_video_moviepy(
         if vid_path and Path(vid_path).exists():
             try:
                 bg = _trim_video_clip(vid_path, dur)
-                bg = _ken_burns(bg)
+                # DISABLED: _ken_burns() re-processes every single output
+                # frame through a Python/PIL callback (clip.transform()).
+                # For a ~90s/24-scene video at 30fps that's 2000+ frames run
+                # through Python one at a time — likely the cause of the
+                # 13-minute silent stall observed in the export step right
+                # after all scenes finished building, which then got the
+                # whole job killed with no useful error. A static (non-
+                # zooming) background is a reasonable trade for a render
+                # that actually finishes. Re-enable only after replacing it
+                # with a native ffmpeg zoompan filter instead of the
+                # per-frame Python version.
+                # bg = _ken_burns(bg)
             except Exception as e:
                 log.warning("Video clip error (%s), using solid BG", e)
                 bg = make_solid_bg_clip(cfg["bg"], dur)
@@ -1759,6 +1770,8 @@ def build_video_moviepy(
         trans.append(c.with_effects([CrossFadeIn(TRANSITION_DUR)]))
     final = concatenate_videoclips(trans, method="compose", padding=-TRANSITION_DUR)
     final = final.with_effects([FadeIn(FADE_IN_DUR), FadeOut(FADE_OUT_DUR)])
+    log.info("Crossfades done, %d scenes concatenated (%.1fs total)",
+             len(scene_clips), final.duration)
 
     # ── Caption overlays (word-by-word animated) ──────────────────────
     cap_clips = build_caption_clips(aai_data, niche, final.duration)
