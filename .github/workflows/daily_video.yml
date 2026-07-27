@@ -73,6 +73,7 @@ jobs:
           SHOTSTACK_API_KEY:   ${{ secrets.SHOTSTACK_API_KEY }}
           CREATOMATE_API_KEY:  ${{ secrets.CREATOMATE_API_KEY }}
           PIXABAY_KEY:         ${{ secrets.PIXABAY_KEY }}
+          JAMENDO_CLIENT_ID:   ${{ secrets.JAMENDO_CLIENT_ID }}
           GAMEPLAY_PATH:       gameplay_bg.mp4
           MUSIC_PATH:          bg_music.mp3
           IMAGEIO_FFMPEG_EXE:  ffmpeg
