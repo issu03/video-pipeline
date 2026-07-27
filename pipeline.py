@@ -1006,7 +1006,8 @@ def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
                         "search": query, "order": "popularity_total"},
                 timeout=10,
             )
-            results = r.json().get("results", [])
+            resp_json = r.json()
+            results   = resp_json.get("results", [])
             if results:
                 track = random.choice(results)
                 url   = track.get("audio") or track.get("audiodownload")
@@ -1016,6 +1017,14 @@ def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
                     log.info("Jamendo music: '%s' → '%s' (niche=%s)",
                              query, track.get("name"), niche)
                     return niche_music_path
+            else:
+                # Jamendo often returns HTTP 200 even for a bad request,
+                # with the real error hidden in resp_json["headers"] instead
+                # of an HTTP error — log it so a silent "0 results" isn't a
+                # dead end next time.
+                log.warning("Jamendo returned 0 results for '%s' — API "
+                            "response headers: %s", query,
+                            resp_json.get("headers", resp_json))
         except Exception as e:
             log.warning("Jamendo: %s", e)
     else:
