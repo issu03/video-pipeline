@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Sleep Paralysis Nightmare",
+      "url": "https://youtu.be/yIoKCfyfDmA",
+      "video_id": "yIoKCfyfDmA",
+      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
+      "ok": true,
+      "ts": "2026-07-27T19:28:03.061615"
+    },
+    {
       "niche": "rich",
       "title": "The $1,000,000 Secret Nobody Tells You",
       "url": "https://youtu.be/2Tzcl3f3u8U",
