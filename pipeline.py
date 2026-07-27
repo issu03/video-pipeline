@@ -69,6 +69,17 @@ SFX_IMPACT    = "sfx_impact.mp3"
 PIXABAY_KEY   = os.getenv("PIXABAY_KEY", "")
 FONT_PATH     = "font_bold.ttf"
 
+# ── Self-learning feedback loop (own video performance) ────────────────
+# Simple public API key (Google Cloud Console → APIs & Services →
+# Credentials → "API key", YouTube Data API v3 enabled), NOT the OAuth
+# token used for uploading. Free, no extra scope/re-auth needed since
+# view/like/comment counts are public data.
+YOUTUBE_API_KEY            = os.getenv("YOUTUBE_API_KEY", "")
+PERFORMANCE_FILE           = "performance_history.json"
+PERFORMANCE_CHECK_DELAY_D  = 3     # wait this long after upload before scoring
+PERFORMANCE_HISTORY_CAP    = 300   # keep at most this many scored videos
+NICHE_EXPLORATION_FLOOR    = 0.30  # worst niche still gets >=30% of best niche's odds
+
 NICHES = {
     # Each niche has:
     #  color/glow/bg — visual identity
@@ -306,14 +317,21 @@ def generate_script(niche: str) -> dict:
     # Load patterns from previous viral video analysis (free Groq Vision)
     patterns     = load_viral_patterns()
     pattern_hint = patterns_to_prompt_hints(patterns, niche)
+    # Load THIS channel's own past performance (self-learning feedback loop)
+    own_hint     = own_performance_hint(niche)
 
     prompt = (
         f"Write a viral {niche} YouTube Shorts script. "
         "Make it genuinely surprising, controversial or emotionally charged — "
         "something people will want to comment on or share. "
         "Fast pacing, short scenes, frequent re-hooks. "
+        "Inject genuine wit or a darkly funny/absurd angle where the niche "
+        "allows it — dry one-liners, unexpected comparisons, a punchline "
+        "beat — flat, purely informational delivery is the #1 reason "
+        "viewers scroll away on Shorts. "
         "This must feel like a tightly-edited 80+ second video, not a slow one."
         + (f"\n\n{pattern_hint}" if pattern_hint else "")
+        + (f"\n\n{own_hint}" if own_hint else "")
     )
 
     for attempt in range(5):
@@ -347,6 +365,7 @@ def generate_script(niche: str) -> dict:
             hashtags  = data.get("hashtags", [])
 
             if n_scenes >= MIN_SCENES and total_dur >= 60:
+                data["hook_style_used"] = chosen_hook   # for performance tracking
                 log.info(
                     "Script OK: %d scenes, %.0fs, %d hashtags — \"%s\"",
                     n_scenes, total_dur, len(hashtags), data.get("title", "")
@@ -1673,7 +1692,11 @@ def build_video_moviepy(
         q   = smart_pexels_query(scene.get("text",""), niche, fallback_query=q)
 
         # Background: Pexels video → solid color fallback
-        vid_path = fetch_pexels_video(q, min_dur=dur)
+        # FIX: download=True — without this, fetch_pexels_video() returns a
+        # remote CDN URL (meant for cloud render), and Path(url).exists()
+        # is always False, so every scene silently fell back to the near-
+        # black solid-color background even when Pexels had good results.
+        vid_path = fetch_pexels_video(q, min_dur=dur, download=True)
         if vid_path and Path(vid_path).exists():
             try:
                 bg = _trim_video_clip(vid_path, dur)
@@ -1732,8 +1755,8 @@ def build_video_moviepy(
     ip = sfx_impact_path or SFX_IMPACT
     if Path(wp).exists() and Path(ip).exists():
         sfx_seg = AudioSegment.silent(duration=int(vid_dur*1000)+500)
-        whoosh  = AudioSegment.from_file(wp) - 5
-        impact  = AudioSegment.from_file(ip) - 3
+        whoosh  = AudioSegment.from_file(wp) - 2
+        impact  = AudioSegment.from_file(ip) - 1
         sfx_seg = sfx_seg.overlay(impact, position=0)
         for cs in cut_points_s:
             sfx_seg = sfx_seg.overlay(whoosh, position=max(0,int(cs*1000)-130))
@@ -1825,7 +1848,17 @@ def upload_youtube(video_path: str, title: str, description: str,
     vid_url = f"https://youtu.be/{resp['id']}"
     log.info("YouTube upload: %s", vid_url)
 
-    if srt_path and Path(srt_path).exists():
+    # NOTE: captions are already burned into the video pixels via
+    # apply_beautiful_captions(). Uploading the SRT as a native YouTube
+    # caption track on top of that used to show TWO overlapping, differently
+    # -timed caption sets whenever a viewer had captions toggled on in their
+    # player. Disabled — burned-in captions already cover accessibility for
+    # viewers watching muted, which is the main Shorts use case.
+    # If you want real toggleable captions for hard-of-hearing viewers
+    # instead, that's a legitimate reason to re-enable this — just be aware
+    # it will double up with the burned-in ones.
+    UPLOAD_NATIVE_CAPTIONS = False
+    if UPLOAD_NATIVE_CAPTIONS and srt_path and Path(srt_path).exists():
         try:
             yt.captions().insert(
                 part="snippet",
@@ -1842,13 +1875,199 @@ def upload_youtube(video_path: str, title: str, description: str,
 # STEP 12 — DASHBOARD
 # ══════════════════════════════════════════════════════════════════════
 
-def update_dashboard(niche, title, url, ok):
+def update_dashboard(niche, title, url, ok, hook_style=None):
     p    = Path("dashboard.json")
     data = json.loads(p.read_text()) if p.exists() else {"videos":[]}
+    video_id = url.rstrip("/").split("/")[-1] if url else None
     data["videos"].insert(0,{"niche":niche,"title":title,"url":url,
+                              "video_id":video_id,"hook_style":hook_style,
                               "ok":ok,"ts":datetime.utcnow().isoformat()})
     data["videos"] = data["videos"][:50]
     p.write_text(json.dumps(data,indent=2))
+
+
+# ══════════════════════════════════════════════════════════════════════
+# STEP 13 — SELF-LEARNING FEEDBACK LOOP (own video performance)
+#
+#  Runs as a SEPARATE scheduled job (check-performance.yml), a few days
+#  after upload, so YouTube has had time to actually distribute the
+#  video. It never blocks the main generate-video pipeline.
+#
+#  1. fetch_video_stats()     → public view/like/comment counts (free,
+#                                simple API key, no OAuth re-auth needed)
+#  2. check_performance()     → scores newly-eligible videos, updates
+#                                performance_history.json
+#  3. weighted_niche_choice() → future generate-video runs read this file
+#                                and bias niche selection + prompts
+#                                toward what has actually performed well
+# ══════════════════════════════════════════════════════════════════════
+
+def fetch_video_stats(video_id: str) -> Optional[dict]:
+    """Public view/like/comment counts — no OAuth needed, just an API key."""
+    if not YOUTUBE_API_KEY or not video_id:
+        return None
+    try:
+        r = requests.get(
+            "https://www.googleapis.com/youtube/v3/videos",
+            params={"id": video_id, "part": "statistics",
+                    "key": YOUTUBE_API_KEY},
+            timeout=15,
+        )
+        items = r.json().get("items", [])
+        if not items:
+            log.warning("YouTube stats: no data for %s (private/deleted?)", video_id)
+            return None
+        stats = items[0]["statistics"]
+        return {
+            "views":    int(stats.get("viewCount", 0)),
+            "likes":    int(stats.get("likeCount", 0)),
+            "comments": int(stats.get("commentCount", 0)),
+        }
+    except Exception as e:
+        log.warning("YouTube stats fetch failed for %s: %s", video_id, e)
+        return None
+
+
+def _engagement_score(stats: dict) -> float:
+    """
+    Views dominate the score (that's the real algorithm signal for Shorts),
+    with a bonus for likes/comments per view (genuine engagement, not just
+    impressions). Kept simple on purpose — this is a ranking signal for
+    niche weighting, not a scientific metric.
+    """
+    views = max(stats["views"], 1)
+    engagement_rate = (stats["likes"] + stats["comments"] * 3) / views
+    return views * (1.0 + min(engagement_rate, 1.0))
+
+
+def _load_performance() -> dict:
+    p = Path(PERFORMANCE_FILE)
+    if p.exists():
+        try:
+            return json.loads(p.read_text())
+        except Exception:
+            pass
+    return {"scored_video_ids": [], "videos": [], "niche_stats": {}}
+
+
+def _save_performance(perf: dict) -> None:
+    perf["videos"] = perf["videos"][:PERFORMANCE_HISTORY_CAP]
+    Path(PERFORMANCE_FILE).write_text(json.dumps(perf, indent=2))
+
+
+def check_performance() -> None:
+    """
+    Entry point for the separate daily 'check-performance' workflow.
+    Scores any dashboard.json videos that are old enough and not yet
+    scored, then recomputes per-niche averages used by
+    weighted_niche_choice() and own_performance_hint().
+    """
+    dash_path = Path("dashboard.json")
+    if not dash_path.exists():
+        log.info("No dashboard.json yet — nothing to score")
+        return
+    if not YOUTUBE_API_KEY:
+        log.warning("YOUTUBE_API_KEY not set — cannot check performance. "
+                    "Create a free API key in Google Cloud Console (APIs & "
+                    "Services → Credentials) with YouTube Data API v3 "
+                    "enabled, and add it as the YOUTUBE_API_KEY secret.")
+        return
+
+    dashboard = json.loads(dash_path.read_text())
+    perf      = _load_performance()
+    scored_ids = set(perf["scored_video_ids"])
+    cutoff     = datetime.utcnow() - timedelta(days=PERFORMANCE_CHECK_DELAY_D)
+
+    new_scores = 0
+    for v in dashboard.get("videos", []):
+        vid = v.get("video_id")
+        if not v.get("ok") or not vid or vid in scored_ids:
+            continue
+        try:
+            ts = datetime.fromisoformat(v["ts"])
+        except Exception:
+            continue
+        if ts > cutoff:
+            continue  # too young — check again on a later run
+
+        stats = fetch_video_stats(vid)
+        if stats is None:
+            continue
+        score = _engagement_score(stats)
+        perf["videos"].insert(0, {
+            "video_id": vid, "niche": v.get("niche"), "title": v.get("title"),
+            "hook_style": v.get("hook_style"), "score": round(score, 2),
+            **stats, "checked_at": datetime.utcnow().isoformat(),
+        })
+        scored_ids.add(vid)
+        new_scores += 1
+        log.info("Scored %s (%s): %d views, %d likes → score %.1f",
+                 vid, v.get("niche"), stats["views"], stats["likes"], score)
+
+    perf["scored_video_ids"] = list(scored_ids)[-PERFORMANCE_HISTORY_CAP*2:]
+
+    # Recompute per-niche average score (simple mean of last N per niche)
+    niche_scores: dict[str, list[float]] = {}
+    for entry in perf["videos"]:
+        niche_scores.setdefault(entry["niche"], []).append(entry["score"])
+    perf["niche_stats"] = {
+        n: {"avg_score": round(sum(s)/len(s), 2), "n": len(s)}
+        for n, s in niche_scores.items()
+    }
+
+    _save_performance(perf)
+    log.info("Performance check complete: %d newly scored, niche_stats=%s",
+             new_scores, perf["niche_stats"])
+
+
+def weighted_niche_choice() -> str:
+    """
+    Picks a niche weighted by past own-video performance instead of pure
+    random.choice — better-performing niches get produced more often, but
+    NICHE_EXPLORATION_FLOOR guarantees every niche still gets picked
+    sometimes, so the pipeline keeps gathering data instead of collapsing
+    onto one "winning" niche forever.
+    """
+    all_niches = list(NICHES.keys())
+    perf = _load_performance()
+    stats = perf.get("niche_stats", {})
+
+    # Cold start / not enough data yet — behave exactly like before.
+    if not stats:
+        return random.choice(all_niches)
+
+    scores = {n: stats.get(n, {}).get("avg_score", 0) for n in all_niches}
+    max_score = max(scores.values()) or 1
+    weights = [
+        max(scores[n] / max_score, NICHE_EXPLORATION_FLOOR) if scores[n] > 0
+        else NICHE_EXPLORATION_FLOOR
+        for n in all_niches
+    ]
+    choice = random.choices(all_niches, weights=weights, k=1)[0]
+    log.info("Niche weights (own performance): %s → chose '%s'",
+             {n: round(w,2) for n,w in zip(all_niches, weights)}, choice)
+    return choice
+
+
+def own_performance_hint(niche: str) -> str:
+    """
+    Surfaces what has actually worked for THIS channel's own videos in this
+    niche (title + hook style of the best scorer so far), as a companion
+    to patterns_to_prompt_hints() which only knows about others' videos.
+    """
+    perf = _load_performance()
+    own_videos = [v for v in perf.get("videos", []) if v.get("niche") == niche]
+    if not own_videos:
+        return ""
+    best = max(own_videos, key=lambda v: v["score"])
+    lines = [
+        f"YOUR OWN PAST PERFORMANCE in {niche} ({len(own_videos)} videos scored):",
+        f"- Best performer so far: \"{best['title']}\" ({best['views']} views)"
+        + (f", hook style: {best['hook_style']}" if best.get("hook_style") else ""),
+        "- Lean toward what has actually worked for this channel, not just "
+        "generic viral theory.",
+    ]
+    return "\n".join(lines)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -2387,7 +2606,7 @@ def patterns_to_prompt_hints(patterns: dict, niche: str) -> str:
 
 
 def run_pipeline(niche: Optional[str] = None) -> None:
-    niche = niche or random.choice(list(NICHES.keys()))
+    niche = niche or weighted_niche_choice()
     log.info("═══ VaultMind v4 — niche: %s ═══", niche)
 
     ensure_font()
@@ -2477,11 +2696,15 @@ def run_pipeline(niche: Optional[str] = None) -> None:
         backup_to_drive(final_video, srt_path, title)
 
         # 11. Dashboard
-        update_dashboard(niche, title, video_url, ok=True)
+        update_dashboard(niche, title, video_url, ok=True,
+                          hook_style=script.get("hook_style_used"))
 
     log.info("═══ v4 complete: %s ═══", video_url or "no URL")
 
 
 if __name__ == "__main__":
     import sys
-    run_pipeline(sys.argv[1] if len(sys.argv) > 1 else None)
+    if len(sys.argv) > 1 and sys.argv[1] == "--check-performance":
+        check_performance()
+    else:
+        run_pipeline(sys.argv[1] if len(sys.argv) > 1 else None)
