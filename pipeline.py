@@ -1774,14 +1774,24 @@ def build_video_moviepy(
              len(scene_clips), final.duration)
 
     # ── Caption overlays (word-by-word animated) ──────────────────────
-    cap_clips = build_caption_clips(aai_data, niche, final.duration)
-    if cap_clips:
-        cap_composites = []
-        for clip, start_t in cap_clips:
-            cap_composites.append(clip.with_start(start_t))
-        final = CompositeVideoClip([final] + cap_composites,
-                                   size=(VIDEO_W, VIDEO_H))
-        log.info("Caption overlays composited (%d clips)", len(cap_clips))
+    # DISABLED: this baked a full word-by-word caption layer into raw.mp4
+    # using NICHES[niche]["color"] directly (no NO_ACCENT_NICHES override),
+    # and apply_beautiful_captions() then burned a SECOND, differently
+    # -styled/-timed caption layer on top of that afterward — this is the
+    # real source of "two different captions" that the redundant YouTube
+    # caption-track upload fix didn't catch, because this duplication is
+    # baked directly into the video pixels, not just an extra upload.
+    # apply_beautiful_captions() is the more complete, niche-aware system
+    # (correct accent color incl. NO_ACCENT_NICHES, text_animation from
+    # viral_patterns.json) and should remain the only caption source.
+    # cap_clips = build_caption_clips(aai_data, niche, final.duration)
+    # if cap_clips:
+    #     cap_composites = []
+    #     for clip, start_t in cap_clips:
+    #         cap_composites.append(clip.with_start(start_t))
+    #     final = CompositeVideoClip([final] + cap_composites,
+    #                                size=(VIDEO_W, VIDEO_H))
+    #     log.info("Caption overlays composited (%d clips)", len(cap_clips))
 
     # ── Audio mix ─────────────────────────────────────────────────────
     vid_dur  = final.duration
