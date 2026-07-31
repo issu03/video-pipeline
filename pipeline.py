@@ -66,6 +66,7 @@ GAMEPLAY_PATH = os.getenv("GAMEPLAY_PATH", "gameplay_bg.mp4")
 MUSIC_PATH    = os.getenv("MUSIC_PATH",    "bg_music.mp3")
 SFX_WHOOSH    = "sfx_whoosh.mp3"
 SFX_IMPACT    = "sfx_impact.mp3"
+SFX_POP       = "sfx_pop.mp3"
 PIXABAY_KEY   = os.getenv("PIXABAY_KEY", "")
 
 # CORRECTION: Pixabay has no public API for its music library at all — only
@@ -334,9 +335,12 @@ def generate_script(niche: str) -> dict:
         "Make it genuinely surprising, controversial or emotionally charged — "
         "something people will want to comment on or share. "
         "Fast pacing, short scenes, frequent re-hooks. "
-        "Inject genuine wit or a darkly funny/absurd angle where the niche "
-        "allows it — dry one-liners, unexpected comparisons, a punchline "
-        "beat — flat, purely informational delivery is the #1 reason "
+        "HUMOR IS MANDATORY, not optional: include at least 2-3 distinct "
+        "funny beats spread across the script (not just bunched at the "
+        "end) — a dry one-liner, an absurd comparison, a sarcastic aside, "
+        "or a self-aware joke about the topic. Write like a witty friend "
+        "telling this story at a party, not a narrator reading facts off "
+        "a card. Flat, purely informational delivery is the #1 reason "
         "viewers scroll away on Shorts. "
         "This must feel like a tightly-edited 80+ second video, not a slow one."
         + (f"\n\n{pattern_hint}" if pattern_hint else "")
@@ -954,6 +958,17 @@ def _synth_impact(path: str) -> None:
     wave = (f*dec*30000).astype(np.int16)
     AudioSegment(wave.tobytes(),frame_rate=sr,sample_width=2,channels=1).fade_out(40).export(path,format="mp3")
 
+def _synth_pop(path: str) -> None:
+    """A short, bright 'pop/bling' blip — alternated with the whoosh at cut
+    points so the same transition sound isn't repeated 20+ times per video."""
+    sr, dur = 44100, 0.15
+    n = int(sr*dur)
+    t = np.linspace(0, dur, n)
+    freq = 1400
+    env  = np.exp(-25*t)
+    wave = (np.sin(2*np.pi*freq*t)*env*28000).astype(np.int16)
+    AudioSegment(wave.tobytes(),frame_rate=sr,sample_width=2,channels=1).fade_out(30).export(path,format="mp3")
+
 def _synth_ambient(path: str, dur_s: float = 120) -> None:
     sr = 44100; n = int(sr*dur_s); t = np.linspace(0,dur_s,n)
     wave = (0.30*np.sin(2*np.pi*110*t)+0.22*np.sin(2*np.pi*165*t)+
@@ -1035,10 +1050,11 @@ def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
     _synth_ambient(niche_music_path, duration_s + 10)
     return niche_music_path
 
-def ensure_sfx() -> tuple[str,str]:
+def ensure_sfx() -> tuple[str,str,str]:
     if not Path(SFX_WHOOSH).exists(): _synth_whoosh(SFX_WHOOSH)
     if not Path(SFX_IMPACT).exists(): _synth_impact(SFX_IMPACT)
-    return SFX_WHOOSH, SFX_IMPACT
+    if not Path(SFX_POP).exists():    _synth_pop(SFX_POP)
+    return SFX_WHOOSH, SFX_IMPACT, SFX_POP
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -1706,6 +1722,7 @@ def build_video_moviepy(
     music_path:      str = "",
     sfx_whoosh_path: str = "",
     sfx_impact_path: str = "",
+    sfx_pop_path:    str = "",
 ) -> str:
     log.info("▶ MoviePy v4 render — %d scenes, %dx%d", len(scenes), VIDEO_W, VIDEO_H)
     cfg = NICHES[niche]
@@ -1813,18 +1830,21 @@ def build_video_moviepy(
 
     wp = sfx_whoosh_path or SFX_WHOOSH
     ip = sfx_impact_path or SFX_IMPACT
+    pp = sfx_pop_path or SFX_POP
     if Path(wp).exists() and Path(ip).exists():
         sfx_seg = AudioSegment.silent(duration=int(vid_dur*1000)+500)
         whoosh  = AudioSegment.from_file(wp) - 2
         impact  = AudioSegment.from_file(ip) - 1
+        pop     = AudioSegment.from_file(pp) - 3 if Path(pp).exists() else whoosh
         sfx_seg = sfx_seg.overlay(impact, position=0)
-        for cs in cut_points_s:
-            sfx_seg = sfx_seg.overlay(whoosh, position=max(0,int(cs*1000)-130))
+        for i, cs in enumerate(cut_points_s):
+            snd = whoosh if i % 2 == 0 else pop   # alternate for variety
+            sfx_seg = sfx_seg.overlay(snd, position=max(0,int(cs*1000)-130))
         with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
             stmp = f.name
         sfx_seg.export(stmp, format="mp3")
         tracks.append(AudioFileClip(stmp).subclipped(0, vid_dur))
-        log.info("SFX mixed (%d cuts)", len(cut_points_s))
+        log.info("SFX mixed (%d cuts, whoosh/pop alternating)", len(cut_points_s))
 
     final = final.with_audio(CompositeAudioClip(tracks))
 
@@ -2174,7 +2194,7 @@ def apply_beautiful_captions(
     srt_path:    str,
     output_path: str,
     niche:       str = "fact",
-    words_per_line: int = 2,
+    words_per_line: int = 1,
 ) -> str:
     """
     Burn animated word-by-word captions onto video.
@@ -2187,18 +2207,40 @@ def apply_beautiful_captions(
     style = get_caption_style(niche)
     accent, anim_type = style["color"], style["animation"]
 
-    # ── Method 1: beautiful-captions (niche-matched animation/color) ──
+    # ── Method 1: ffmpeg ASS karaoke subtitles (PRIMARY) ───────────────
+    # This is the primary method now, not the fallback: beautiful-captions
+    # only animates how a caption CHUNK appears (bounce/pop/fade) — it has
+    # no per-word "highlight the word being spoken right now" feature (its
+    # own docs confirm "diarization" colors SPEAKERS, not the active word).
+    # The ASS karaoke path actually does real \k-tag word-by-word
+    # highlighting, which is what was asked for.
+    try:
+        ass_path = srt_path.replace(".srt", ".ass")
+        _srt_to_ass_karaoke(srt_path, ass_path, accent)
+        cmd = [
+            "ffmpeg", "-y", "-i", video_path,
+            "-vf", f"ass={ass_path}",
+            "-c:a", "copy", "-preset", "fast", output_path,
+        ]
+        subprocess.run(cmd, check=True, capture_output=True)
+        log.info("ASS karaoke captions applied (word-highlight) → %s", output_path)
+        return output_path
+    except Exception as e:
+        log.warning("ASS karaoke failed (%s) — falling back to beautiful-captions", e)
+
+    # ── Method 2: beautiful-captions (fallback — chunk-entrance animation,
+    #    no active-word highlight, but still niche-colored) ─────────────
     if BEAUTIFUL_CAPTIONS_OK:
         try:
             cfg = CaptionConfig(
                 animation={"enabled": True, "type": anim_type, "keyframes": 12},
                 style={
-                    "font":              "Montserrat",
+                    "font":              "Anton",
                     "font_size":         140,
                     "color":             accent,
                     "outline_color":     "black",
                     "outline_thickness": 12,
-                    "verticle_position": 0.50,   # center-screen (note: their typo)
+                    "verticle_position": 0.18,   # 0.0=bottom, 1.0=top (library docs)
                     "max_words_per_line": words_per_line,
                     "auto_scale_font":   True,
                 },
@@ -2215,23 +2257,9 @@ def apply_beautiful_captions(
                      anim_type, accent, output_path)
             return output_path
         except Exception as e:
-            log.warning("beautiful-captions failed (%s) — falling back to ASS", e)
+            log.warning("beautiful-captions also failed (%s) — returning raw video", e)
 
-    # ── Method 2: ffmpeg ASS karaoke subtitles (fallback) ─────────────
-    try:
-        ass_path = srt_path.replace(".srt", ".ass")
-        _srt_to_ass_karaoke(srt_path, ass_path, accent)
-        cmd = [
-            "ffmpeg", "-y", "-i", video_path,
-            "-vf", f"ass={ass_path}",
-            "-c:a", "copy", "-preset", "fast", output_path,
-        ]
-        subprocess.run(cmd, check=True, capture_output=True)
-        log.info("ASS karaoke captions applied → %s", output_path)
-        return output_path
-    except Exception as e:
-        log.warning("ASS fallback also failed (%s) — returning raw video", e)
-        return video_path
+    return video_path
 
 
 def _srt_to_ass_karaoke(srt_path: str, ass_path: str, accent: str) -> None:
@@ -2258,7 +2286,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,ScaleX,ScaleY,Spacing,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV
-Style: Default,Arial,85,&H00FFFFFF,{ass_col},&H00000000,&H99000000,-1,0,0,100,100,0,1,6,2,2,60,60,220
+Style: Default,Liberation Sans Bold,85,&H00FFFFFF,{ass_col},&H00000000,&H99000000,-1,0,0,100,100,0,1,6,2,2,60,60,220
 
 [Events]
 Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
@@ -2671,7 +2699,7 @@ def run_pipeline(niche: Optional[str] = None) -> None:
 
     ensure_font()
     music_path             = ensure_music(niche=niche, duration_s=120)
-    sfx_whoosh, sfx_impact = ensure_sfx()
+    sfx_whoosh, sfx_impact, sfx_pop = ensure_sfx()
 
     # Analyze curated viral videos (free, skips if <3 days old)
     analyze_viral_videos()
@@ -2724,6 +2752,7 @@ def run_pipeline(niche: Optional[str] = None) -> None:
                 music_path=music_path,
                 sfx_whoosh_path=sfx_whoosh,
                 sfx_impact_path=sfx_impact,
+                sfx_pop_path=sfx_pop,
             )
 
         # 7. Animated captions — SKIP if Creatomate already burned in
@@ -2738,7 +2767,7 @@ def run_pipeline(niche: Optional[str] = None) -> None:
                 srt_path       = srt_path,
                 output_path    = captioned_video,
                 niche          = niche,
-                words_per_line = 2,
+                words_per_line = 1,
             )
 
         # 8. Cinematic color grade (teal-orange + unsharp)
