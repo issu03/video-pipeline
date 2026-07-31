@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Dark Side of Cute",
+      "url": "https://youtu.be/BZL5r2y89F0",
+      "video_id": "BZL5r2y89F0",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "ok": true,
+      "ts": "2026-07-31T12:04:32.553680"
+    },
+    {
       "niche": "learn",
       "title": "You Won't Believe What Scientists Just Discovered About Dreams",
       "url": "https://youtu.be/rm-7c_tNUcY",
