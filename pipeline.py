@@ -959,15 +959,19 @@ def _synth_impact(path: str) -> None:
     AudioSegment(wave.tobytes(),frame_rate=sr,sample_width=2,channels=1).fade_out(40).export(path,format="mp3")
 
 def _synth_pop(path: str) -> None:
-    """A short, bright 'pop/bling' blip — alternated with the whoosh at cut
-    points so the same transition sound isn't repeated 20+ times per video."""
-    sr, dur = 44100, 0.15
+    """A short, broadband percussive 'pop' — a filtered noise click, NOT a
+    pure tone. (The previous version used a single 1400Hz sine wave, which
+    is acoustically a beep, not a pop — that's the rhythmic 'beep' sound
+    reported at every other cut point. Real pops/clicks are broadband
+    transients, closer to the impact SFX than to whoosh.)"""
+    sr, dur = 44100, 0.09
     n = int(sr*dur)
-    t = np.linspace(0, dur, n)
-    freq = 1400
-    env  = np.exp(-25*t)
-    wave = (np.sin(2*np.pi*freq*t)*env*28000).astype(np.int16)
-    AudioSegment(wave.tobytes(),frame_rate=sr,sample_width=2,channels=1).fade_out(30).export(path,format="mp3")
+    noise = np.random.uniform(-1, 1, n)
+    b, a  = scipy.signal.butter(4, 2500/(sr/2), btype="low")
+    f     = scipy.signal.lfilter(b, a, noise)
+    dec   = np.exp(-np.linspace(0, 18, n))
+    wave  = (f*dec*27000).astype(np.int16)
+    AudioSegment(wave.tobytes(),frame_rate=sr,sample_width=2,channels=1).fade_out(20).export(path,format="mp3")
 
 def _synth_ambient(path: str, dur_s: float = 120) -> None:
     sr = 44100; n = int(sr*dur_s); t = np.linspace(0,dur_s,n)
@@ -1018,7 +1022,11 @@ def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
                 "https://api.jamendo.com/v3.0/tracks/",
                 params={"client_id": JAMENDO_CLIENT_ID, "format": "json",
                         "limit": 10, "audioformat": "mp32",
-                        "search": query, "order": "popularity_total"},
+                        "search": query, "order": "popularity_total",
+                        # No vocals — a track with singing/lyrics competes
+                        # with the narration and is what made the music
+                        # sound "unpassend" (fighting the voiceover).
+                        "vocalinstrumental": "instrumental"},
                 timeout=10,
             )
             resp_json = r.json()
@@ -1028,8 +1036,19 @@ def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
                 url   = track.get("audio") or track.get("audiodownload")
                 if url:
                     data = requests.get(url, timeout=30).content
-                    Path(niche_music_path).write_bytes(data)
-                    log.info("Jamendo music: '%s' → '%s' (niche=%s)",
+                    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
+                        raw_tmp = f.name
+                    Path(raw_tmp).write_bytes(data)
+                    # Jamendo tracks are mastered at wildly different
+                    # loudness levels — the fixed dB duck downstream assumed
+                    # a consistent input level, so a loud source track came
+                    # out "too loud" no matter the duck amount. Normalize to
+                    # a fixed target here so ducking behaves consistently.
+                    seg = AudioSegment.from_file(raw_tmp)
+                    seg = seg.apply_gain(-20.0 - seg.dBFS)
+                    seg.export(niche_music_path, format="mp3")
+                    log.info("Jamendo music: '%s' → '%s' (niche=%s, "
+                             "normalized to -20dBFS)",
                              query, track.get("name"), niche)
                     return niche_music_path
             else:
