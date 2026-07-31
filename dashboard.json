@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "You Won't Believe What Scientists Just Discovered About Dreams",
+      "url": "https://youtu.be/rm-7c_tNUcY",
+      "video_id": "rm-7c_tNUcY",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "ok": true,
+      "ts": "2026-07-31T11:29:43.431143"
+    },
+    {
       "niche": "reddit",
       "title": "Reddit's Darkest Secret",
       "url": "https://youtu.be/Ql8Dnvyd9Y8",
