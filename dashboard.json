@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "You Won't Believe the $1,000 a Day Loophole",
+      "url": "https://youtu.be/S6pQMNAjr64",
+      "video_id": "S6pQMNAjr64",
+      "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
+      "ok": true,
+      "ts": "2026-07-31T19:24:12.134437"
+    },
+    {
       "niche": "fact",
       "title": "The Dark Side of Cute",
       "url": "https://youtu.be/BZL5r2y89F0",
