@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "You Won't Believe This Insane Morning Routine Hack",
+      "url": "https://youtu.be/Q04Qt5XgtCg",
+      "video_id": "Q04Qt5XgtCg",
+      "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
+      "ok": true,
+      "ts": "2026-08-01T10:08:03.729819"
+    },
+    {
       "niche": "rich",
       "title": "You Won't Believe the $1,000 a Day Loophole",
       "url": "https://youtu.be/S6pQMNAjr64",
