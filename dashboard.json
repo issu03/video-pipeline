@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "motivation",
+      "title": "From Couch to Champion: The Unbelievable Story",
+      "url": "https://youtu.be/KKZMOpMGrrg",
+      "video_id": "KKZMOpMGrrg",
+      "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
+      "ok": true,
+      "ts": "2026-08-02T11:51:05.756608"
+    },
+    {
+      "niche": "motivation",
       "title": "From Couch to Champion: The 1% Rule",
       "url": "https://youtu.be/s5gpYrbvBmA",
       "video_id": "s5gpYrbvBmA",
