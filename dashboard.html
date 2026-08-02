@@ -243,7 +243,28 @@ async function loadDash() {
     const r = await fetch(GH_RAW + '?_=' + Date.now(), {cache:'no-store'});
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
-    const remote = data.videos || [];
+    // FIX: the real pipeline (update_dashboard() in pipeline.py) writes a
+    // flat schema — {niche, title, url, video_id, hook_style, ok, ts} —
+    // but this dashboard was built expecting {created_at, youtube:{url,
+    // scheduled}, tiktok:{scheduled}}. Without this mapping every real
+    // video sorted as if it were from 1970 (created_at was just missing →
+    // 0), so old local-only test entries with a real created_at (from the
+    // "Video generieren" preview button) permanently sat above all real
+    // uploads. Map the real fields into the shape the rest of the
+    // dashboard expects.
+    // NOTE: "ts" is when update_dashboard() ran (upload completion), not
+    // the actual scheduled PUBLIC release time (+1 day, set separately
+    // inside the YouTube API call and not written back to dashboard.json)
+    // — so "scheduled" here is a close approximation, not exact.
+    const remote = (data.videos || []).map(v => ({
+      id:      v.video_id || v.url || v.ts,
+      title:   v.title,
+      niche:   v.niche,
+      type:    v.niche,
+      ok:      v.ok,
+      created_at: v.ts,
+      youtube: v.url ? { url: v.url, scheduled: v.ts } : undefined,
+    }));
 
     // Merge: remote is authoritative, keep local entries not in remote
     const remoteIds = new Set(remote.map(v => String(v.id)));
