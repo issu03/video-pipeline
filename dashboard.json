@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "From Couch to Champion: The 1% Rule",
+      "url": "https://youtu.be/s5gpYrbvBmA",
+      "video_id": "s5gpYrbvBmA",
+      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
+      "ok": true,
+      "ts": "2026-08-02T10:06:10.709125"
+    },
+    {
       "niche": "lifehack",
       "title": "You Won't Believe This Insane Morning Routine Hack",
       "url": "https://youtu.be/Q04Qt5XgtCg",
