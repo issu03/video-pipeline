@@ -2214,6 +2214,7 @@ def apply_beautiful_captions(
     output_path: str,
     niche:       str = "fact",
     words_per_line: int = 1,
+    aai_data:    Optional[dict] = None,
 ) -> str:
     """
     Burn animated word-by-word captions onto video.
@@ -2231,18 +2232,27 @@ def apply_beautiful_captions(
     # only animates how a caption CHUNK appears (bounce/pop/fade) — it has
     # no per-word "highlight the word being spoken right now" feature (its
     # own docs confirm "diarization" colors SPEAKERS, not the active word).
-    # The ASS karaoke path actually does real \k-tag word-by-word
-    # highlighting, which is what was asked for.
+    # The ASS karaoke path does real word-by-word highlighting.
     try:
         ass_path = srt_path.replace(".srt", ".ass")
-        _srt_to_ass_karaoke(srt_path, ass_path, accent)
+        if aai_data and aai_data.get("words"):
+            # Word-level timestamps available: real \k color-highlight
+            # PLUS a scale-bounce pulse on each word exactly while it's
+            # being spoken — not just a color change.
+            _build_word_level_ass(aai_data, ass_path, accent)
+            method_desc = "word-highlight + bounce"
+        else:
+            # No word-level data (shouldn't normally happen) — color-only
+            # karaoke reconstructed from the coarser SRT chunks.
+            _srt_to_ass_karaoke(srt_path, ass_path, accent)
+            method_desc = "word-highlight (color only, no word timestamps)"
         cmd = [
             "ffmpeg", "-y", "-i", video_path,
             "-vf", f"ass={ass_path}",
             "-c:a", "copy", "-preset", "fast", output_path,
         ]
         subprocess.run(cmd, check=True, capture_output=True)
-        log.info("ASS karaoke captions applied (word-highlight) → %s", output_path)
+        log.info("ASS karaoke captions applied (%s) → %s", method_desc, output_path)
         return output_path
     except Exception as e:
         log.warning("ASS karaoke failed (%s) — falling back to beautiful-captions", e)
@@ -2259,7 +2269,11 @@ def apply_beautiful_captions(
                     "color":             accent,
                     "outline_color":     "black",
                     "outline_thickness": 12,
-                    "verticle_position": 0.18,   # 0.0=bottom, 1.0=top (library docs)
+                    # 0.0=bottom, 1.0=top (library docs). Kept off the very
+                    # edge (not e.g. 0.10) so captions don't sit under
+                    # YouTube Shorts' own UI overlay (like/comment/share
+                    # buttons, sound title) at the bottom of the screen.
+                    "verticle_position": 0.24,
                     "max_words_per_line": words_per_line,
                     "auto_scale_font":   True,
                 },
@@ -2279,6 +2293,73 @@ def apply_beautiful_captions(
             log.warning("beautiful-captions also failed (%s) — returning raw video", e)
 
     return video_path
+
+
+def _build_word_level_ass(aai_data: dict, ass_path: str, accent: str,
+                          words_per_chunk: int = 3) -> None:
+    """
+    Builds ASS captions from exact word-level timestamps (not the coarser
+    SRT). Each word gets a color highlight (\\k karaoke timing, switches
+    Primary→Secondary colour exactly while that word is spoken) PLUS a
+    quick scale-up/down pulse (\\t transform) timed to that same word —
+    a real bounce, not just a color change. Several words share one on-
+    screen line (words_per_chunk) so there's visible "highlighted word
+    among others" contrast, matching real karaoke-caption apps.
+    """
+    words = aai_data.get("words", [])
+    if not words:
+        raise ValueError("No word-level timestamps in aai_data")
+
+    def ms_to_ass(ms: int) -> str:
+        h  = ms // 3600000
+        m  = (ms % 3600000) // 60000
+        s  = (ms % 60000) // 1000
+        cs = (ms % 1000) // 10
+        return f"{h}:{m:02d}:{s:02d}.{cs:02d}"
+
+    def esc(text: str) -> str:
+        return text.replace("\\", "").replace("{", "").replace("}", "")
+
+    r, g, b = _hex(accent)
+    ass_col = f"&H00{b:02X}{g:02X}{r:02X}&"
+
+    header = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: {VIDEO_W}
+PlayResY: {VIDEO_H}
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,ScaleX,ScaleY,Spacing,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV
+Style: Default,Liberation Sans Bold,85,&H00FFFFFF,&H00FFFFFF,&H00000000,&H99000000,-1,0,0,100,100,0,1,6,2,2,60,60,260
+
+[Events]
+Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+"""
+    _t, _c, _r, _fx, _fy = (chr(92)+"t", chr(92)+"c", chr(92)+"r",
+                             chr(92)+"fscx", chr(92)+"fscy")
+    events = []
+    i = 0
+    while i < len(words):
+        chunk = words[i:i+words_per_chunk]
+        chunk_start = chunk[0]["start_ms"]
+        chunk_end   = chunk[-1]["end_ms"]
+        parts = []
+        for w in chunk:
+            w_start = max(0, w["start_ms"] - chunk_start)
+            w_end   = max(w_start + 60, w["end_ms"] - chunk_start)
+            bounce  = min(w_start + 90, w_end)   # 90ms pop, then settle
+            override = (f"{{{_c}{ass_col}"
+                        f"{_t}({w_start},{bounce},{_fx}128{_fy}128)"
+                        f"{_t}({bounce},{w_end},{_fx}100{_fy}100)}}")
+            parts.append(f"{override}{esc(w['text'])}{{{_r}}}")
+        events.append(
+            f"Dialogue: 0,{ms_to_ass(chunk_start)},{ms_to_ass(chunk_end)},"
+            f"Default,,0,0,0,,{' '.join(parts)}"
+        )
+        i += words_per_chunk
+
+    Path(ass_path).write_text(header + "\n".join(events), encoding="utf-8")
 
 
 def _srt_to_ass_karaoke(srt_path: str, ass_path: str, accent: str) -> None:
@@ -2305,7 +2386,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,ScaleX,ScaleY,Spacing,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV
-Style: Default,Liberation Sans Bold,85,&H00FFFFFF,{ass_col},&H00000000,&H99000000,-1,0,0,100,100,0,1,6,2,2,60,60,220
+Style: Default,Liberation Sans Bold,85,&H00FFFFFF,{ass_col},&H00000000,&H99000000,-1,0,0,100,100,0,1,6,2,2,60,60,260
 
 [Events]
 Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
@@ -2787,6 +2868,7 @@ def run_pipeline(niche: Optional[str] = None) -> None:
                 output_path    = captioned_video,
                 niche          = niche,
                 words_per_line = 1,
+                aai_data       = aai_data,
             )
 
         # 8. Cinematic color grade (teal-orange + unsharp)
