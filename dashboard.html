@@ -231,11 +231,16 @@ const MAX  = 2;
 async function loadDash() {
   logL('🔄 Sync dashboard.json...','info');
   try {
-    // Only try fetch if we're served over HTTP (not file://)
-    if (window.location.protocol === 'file:') {
-      throw new Error('file:// protocol — using localStorage only');
-    }
-    const r = await fetch('dashboard.json?_=' + Date.now(), {cache:'no-store'});
+    // FIX: fetch the LIVE file straight from GitHub instead of a relative
+    // local path. A relative path only works if dashboard.json sits next
+    // to this HTML file on a real web server — opened locally (file://,
+    // e.g. double-clicked after downloading once) that fetch always fails,
+    // and the code used to skip it entirely and show stale localStorage
+    // data forever. raw.githubusercontent.com serves permissive CORS
+    // headers, so this works fine even from a locally-opened file.
+    // If your default branch isn't "main", change it below.
+    const GH_RAW = 'https://raw.githubusercontent.com/issu03/video-pipeline/main/dashboard.json';
+    const r = await fetch(GH_RAW + '?_=' + Date.now(), {cache:'no-store'});
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     const remote = data.videos || [];
