@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "dating",
+      "title": "The Dark Secret of Modern Dating",
+      "url": "https://youtu.be/dvJTEJD8-bY",
+      "video_id": "dvJTEJD8-bY",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "ok": true,
+      "ts": "2026-08-03T19:39:02.850305"
+    },
+    {
       "niche": "motivation",
       "title": "From Couch to Champion: The Unbelievable Story",
       "url": "https://youtu.be/KKZMOpMGrrg",
