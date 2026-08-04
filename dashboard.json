@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "The 5-Minute Morning Routine That Will Change Your Life",
+      "url": "https://youtu.be/vzg6MLjbBEs",
+      "video_id": "vzg6MLjbBEs",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "ok": true,
+      "ts": "2026-08-04T12:02:33.562165"
+    },
+    {
       "niche": "dating",
       "title": "The Dark Secret of Modern Dating",
       "url": "https://youtu.be/dvJTEJD8-bY",
