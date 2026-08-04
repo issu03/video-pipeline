@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "You Won't Believe What Happens When You Die",
+      "url": "https://youtu.be/1U8tFYKaSGs",
+      "video_id": "1U8tFYKaSGs",
+      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
+      "ok": true,
+      "ts": "2026-08-04T17:45:09.437567"
+    },
+    {
       "niche": "lifehack",
       "title": "The 5-Minute Morning Routine That Will Change Your Life",
       "url": "https://youtu.be/vzg6MLjbBEs",
