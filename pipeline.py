@@ -2187,6 +2187,24 @@ def own_performance_hint(niche: str) -> str:
 # stay plain white/black for these regardless of the niche's brand color.
 NO_ACCENT_NICHES = {"scary"}
 
+# Caption highlight colors, tuned specifically for text legibility/appeal —
+# NOT the same as NICHES[n]["color"] (which is for UI/vignette accents and
+# includes a harsh neon green for lifehack + a teal-green for learn; those
+# read badly as highlighted text, hence "nur grün sieht schlecht aus").
+# Chosen to stay visually distinct from each other while avoiding harsh
+# neons and low-contrast/dark hues.
+CAPTION_HIGHLIGHT_COLORS = {
+    "reddit":     "#FF4500",  # orange-red — unchanged, reads well
+    "dating":     "#FF69B4",  # pink — unchanged, reads well
+    "rich":       "#FFD700",  # gold — unchanged, classic highlight color
+    "lifehack":   "#FFC107",  # was neon green #00FF88 → warm amber
+    "fact":       "#00BFFF",  # blue — unchanged, reads well
+    "scary":      "#FFFFFF",  # white — via NO_ACCENT_NICHES below
+    "motivation": "#FF8C00",  # orange — unchanged, reads well
+    "conspiracy": "#B57BE0",  # brightened from #9B59B6 for better contrast
+    "learn":      "#4FC3F7",  # was teal-green #1ABC9C → light cyan-blue
+}
+
 def get_caption_style(niche: str) -> dict:
     """
     Derive caption color + animation type for a niche instead of hard-coding
@@ -2194,7 +2212,7 @@ def get_caption_style(niche: str) -> dict:
     (text_animation field from real analyzed videos), falls back to the
     niche's brand color from NICHES and a safe default animation.
     """
-    color = "#FFFFFF" if niche in NO_ACCENT_NICHES else NICHES.get(niche, {}).get("color", "#FFD700")
+    color = "#FFFFFF" if niche in NO_ACCENT_NICHES else CAPTION_HIGHLIGHT_COLORS.get(niche, "#FFD700")
     animation = "bounce"
     try:
         patterns  = load_viral_patterns()
@@ -2377,8 +2395,15 @@ Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
         # not a hard cut. Capped so it doesn't eat into very short chunks.
         fade_ms = min(90, max(20, (chunk_end - chunk_start) // 6))
         parts = [f"{{\\fad({fade_ms},{fade_ms})}}"]
-        for w in chunk:
+        for wi, w in enumerate(chunk):
             w_start = max(0, w["start_ms"] - chunk_start)
+            # Stagger the very first word's highlight so it doesn't start
+            # at the exact same instant (t=0) as the block's own \fad
+            # fade-in — several \t transforms (color, scale) racing the
+            # \fad alpha animation on the same first frames was a likely
+            # source of the reported "glitch".
+            if wi == 0:
+                w_start = max(w_start, fade_ms)
             w_end   = max(w_start + 80, w["end_ms"] - chunk_start)
             w_dur   = w_end - w_start
             # Snap to accent color almost instantly, hold, snap back to
@@ -2400,8 +2425,11 @@ Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
                 f"{_t}({w_start+pop},{w_end},{_fx}100{_fy}100)}}"
             )
             parts.append(f"{override}{esc(w['text'])}{{{_r}\\c{white}}}")
+        # Small explicit gap before the next block starts, so two
+        # consecutive Dialogue events can never overlap by a stray
+        # rounded frame at the boundary (a second possible glitch source).
         events.append(
-            f"Dialogue: 0,{ms_to_ass(chunk_start)},{ms_to_ass(chunk_end)},"
+            f"Dialogue: 0,{ms_to_ass(chunk_start)},{ms_to_ass(max(chunk_start+1, chunk_end-20))},"
             f"Default,,0,0,0,,{' '.join(parts)}"
         )
 
