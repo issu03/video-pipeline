@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "You Won't Believe What's Happening to the World's Oceans",
+      "url": "https://youtu.be/ZDzGicu-Kbw",
+      "video_id": "ZDzGicu-Kbw",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "ok": true,
+      "ts": "2026-08-06T11:15:48.386982"
+    },
+    {
       "niche": "rich",
       "title": "You Won't Believe How Much Money You're Losing",
       "url": "https://youtu.be/tOw2uMmvDcI",
