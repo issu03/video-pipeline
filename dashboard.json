@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "The $1,000 Per Week Secret Nobody Talks About",
+      "url": "https://youtu.be/ROVnYt-Wmws",
+      "video_id": "ROVnYt-Wmws",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "ok": true,
+      "ts": "2026-08-07T18:55:37.532239"
+    },
+    {
       "niche": "fact",
       "title": "You Won't Believe What's Happening to the World's Oceans",
       "url": "https://youtu.be/ZDzGicu-Kbw",
