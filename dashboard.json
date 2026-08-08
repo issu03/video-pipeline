@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "You Won't Believe What Happens When You Die",
+      "url": "https://youtu.be/j_6Nhv-RQvY",
+      "video_id": "j_6Nhv-RQvY",
+      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
+      "ok": true,
+      "ts": "2026-08-08T08:44:04.762101"
+    },
+    {
       "niche": "rich",
       "title": "The $1,000 Per Week Secret Nobody Talks About",
       "url": "https://youtu.be/ROVnYt-Wmws",
