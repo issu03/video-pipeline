@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Dark Side of Sleep",
+      "url": "https://youtu.be/I8C2wD0bj7E",
+      "video_id": "I8C2wD0bj7E",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "ok": true,
+      "ts": "2026-08-09T08:48:39.429935"
+    },
+    {
       "niche": "fact",
       "title": "You Won't Believe What Happens When You Die",
       "url": "https://youtu.be/j_6Nhv-RQvY",
