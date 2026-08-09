@@ -1,0 +1,41 @@
+name: Check Performance
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # täglich 06:00 UTC — Zeit ggf. anpassen
+  workflow_dispatch:        # manuelles Auslösen zum Testen
+
+permissions:
+  contents: write
+
+concurrency:
+  group: check-performance
+  cancel-in-progress: false
+
+jobs:
+  check-performance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run performance check
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python pipeline.py --check-performance
+
+      - name: Commit performance history
+        run: |
+          git config user.name "vaultmind-bot"
+          git config user.email "actions@github.com"
+          git add performance_history.json
+          git diff --staged --quiet || git commit -m "chore: update performance history [skip ci]"
+          git push
