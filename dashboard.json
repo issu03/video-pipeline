@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "The Dark Side of Intelligence",
+      "url": "https://youtu.be/z5GoBR8fgyw",
+      "video_id": "z5GoBR8fgyw",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "ok": true,
+      "ts": "2026-08-10T18:59:19.748241"
+    },
+    {
       "niche": "scary",
       "title": "The Dark Side of Sleep",
       "url": "https://youtu.be/I8C2wD0bj7E",
