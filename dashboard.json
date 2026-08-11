@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "dating",
+      "title": "Why You're Getting Ghosted By Your Dream Match",
+      "url": "https://youtu.be/vEw_JRRJifU",
+      "video_id": "vEw_JRRJifU",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-08-11T16:57:35.327490"
+    },
+    {
+      "niche": "dating",
       "title": "Everyone's Favorite Dating Rule Is Actually Killing Your Love Life",
       "url": "https://youtu.be/YtAlqMr4y0c",
       "video_id": "YtAlqMr4y0c",
