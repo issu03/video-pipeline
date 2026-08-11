@@ -35,6 +35,10 @@ jobs:
 
       - name: Commit performance history
         run: |
+          if [ ! -f performance_history.json ]; then
+            echo "performance_history.json wurde in diesem Run nicht erzeugt (z.B. fehlender YOUTUBE_API_KEY oder noch nichts alt genug zum Scoren) — nichts zu committen."
+            exit 0
+          fi
           git config user.name "vaultmind-bot"
           git config user.email "bot@vaultmind.auto"
           git add performance_history.json
