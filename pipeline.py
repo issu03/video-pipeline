@@ -53,8 +53,14 @@ log = logging.getLogger("vaultmind")
 # ══════════════════════════════════════════════════════════════════════
 VIDEO_W, VIDEO_H   = 1080, 1920
 FPS                = 30
-MIN_SCENES         = 20        # more scenes = faster cuts even at 80s+ (viral pacing)
-TARGET_DUR         = 85        # >60s required for Shorts monetization eligibility
+MIN_SCENES         = 12        # FLOOR only — real target is "as many scenes as the story
+                                # supports" (see generate_script prompt), not a fixed count
+TARGET_DUR         = 85        # soft target, NOT a monetization requirement — YouTube has
+                                # no minimum Shorts length for ad eligibility. Script prompt
+                                # now flexes 40-90s so simple facts aren't padded with filler
+PUBLISH_HOUR_UTC   = 22         # fixed publish hour (~6pm US-Eastern/3pm US-Pacific) instead
+                                # of "whenever the cron happened to fire + 24h" — adjust once
+                                # YouTube Analytics shows your actual audience's active hours
 TRANSITION_DUR     = 0.22      # snappier cuts — matches faster viral edit rhythm
 FADE_IN_DUR        = 0.3
 FADE_OUT_DUR       = 0.5
@@ -273,28 +279,52 @@ def load_font(size: int) -> ImageFont.FreeTypeFont:
 # STEP 1 — SCRIPT (aggressive viral prompts)
 # ══════════════════════════════════════════════════════════════════════
 
+def recent_titles(n: int = 15) -> list[str]:
+    """Last N titles already posted (any niche), for prompt-level dedup —
+    stops the exact-duplicate problem (e.g. one title shipped 3x)."""
+    p = Path("dashboard.json")
+    if not p.exists():
+        return []
+    try:
+        data = json.loads(p.read_text())
+    except Exception:
+        return []
+    return [v["title"] for v in data.get("videos", [])[:n] if v.get("title")]
+
+
+# Labels the model must never echo into a title/hook — safety net in case it
+# still leaks one despite the STYLE LEAK RULE in the system prompt below.
+_HOOK_LABEL_LEAK_PATTERNS = ("OUTCOME-FIRST", "QUESTION/WHY-HOW", "CONTRARIAN")
+
+
 def generate_script(niche: str) -> dict:
     """
     Script generation tuned to 2026 viral-format research:
     - Outcome/result-first hooks (or Question/Why-How — both top performers)
     - Third-person narration (narrate, don't star)
-    - FAST CUT PACING: many short scenes (2.5-4.5s each) even though total
-      runtime stays 80-95s for monetization — this mimics the rapid scene-
-      change rhythm of actually-viral Shorts instead of slow 5-6s scenes
-    - 8-12 hashtags generated as part of the script (5-8 niche + 2-4 generic)
-    - Mid-video "re-hooks" every ~15-20s to fight drop-off on longer videos
+    - FAST CUT PACING: many short scenes (2.5-4.5s each); total runtime
+      flexes 40-90s based on how much the topic genuinely supports — no
+      padding just to hit a fixed length
+    - 8-12 hashtags generated as part of the script (7-10 niche + 1-2 generic,
+      no #fyp — TikTok-only convention with no YouTube discovery value)
+    - Mid-video "re-hooks" every ~15-20s to fight drop-off, each worded
+      differently so scripts stop sounding interchangeable
+    - Ends on a loop-back or open question to encourage rewatches
     """
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
 
     hook_styles = [
-        "OUTCOME-FIRST: open by showing/stating the shocking result or fact "
-        "immediately — viewer must know the payoff within 2 seconds",
-        "QUESTION/WHY-HOW: open with a sharp specific question the viewer "
-        "needs answered ('Why does X happen?', 'How is X even possible?')",
-        "CONTRARIAN: open by contradicting a widely-held belief ('Everyone "
-        "thinks X. They're wrong.')",
+        ("outcome_first",
+         "Open by showing/stating the shocking result or fact immediately — "
+         "the viewer must know the payoff within 2 seconds."),
+        ("question_why_how",
+         "Open with a sharp specific question the viewer needs answered "
+         "('Why does X happen?', 'How is X even possible?')."),
+        ("contrarian",
+         "Open by contradicting a widely-held belief ('Everyone thinks X. "
+         "They're wrong.')."),
     ]
-    chosen_hook = random.choice(hook_styles)
+    chosen_hook_name, chosen_hook_instruction = random.choice(hook_styles)
 
     system = (
         "You are a viral YouTube Shorts / TikTok scriptwriter optimized for "
@@ -302,25 +332,37 @@ def generate_script(niche: str) -> dict:
         "no preamble. "
         "Format: {title, hook, hashtags: [string], scenes: [{text, duration, pexels_query}]} "
         ""
-        "HOOK RULE — use this exact style for the opening line: "
-        f"{chosen_hook} "
+        "HOOK RULE — the opening line must follow this instruction: "
+        f"{chosen_hook_instruction} "
+        "STYLE LEAK RULE: that instruction is for YOU only — never print a "
+        "style label (the words 'OUTCOME-FIRST', 'QUESTION/WHY-HOW', or "
+        "'CONTRARIAN') anywhere in the title, hook, or scene text. "
         ""
         "PACING RULE (critical — this is what separates viral from flat): "
-        "- Generate 20-26 scenes minimum "
+        "- Let the STORY set the length — most scripts land at 12-26 scenes "
+        "and 40-90 seconds total. Never pad with filler scenes to hit a "
+        "target; a tight 45s script beats a stretched, draggy 90s one. "
         "- EACH scene is 2.5-4.5 seconds, ONE short punchy sentence or fragment "
         "- Never let two consecutive scenes run long — vary rhythm like a "
         "real edit: short-short-medium-short "
-        "- Total spoken duration must sum to 80-95 seconds "
-        "- Every 4-5 scenes, insert a mini cliffhanger or re-hook line "
-        "('But here's the part nobody talks about...', 'And it gets weirder...') "
-        "to fight viewer drop-off across the longer runtime "
+        "- On longer scripts, every 4-5 scenes insert a mini cliffhanger or "
+        "re-hook line to fight viewer drop-off. Vary the wording every time "
+        "— draw on different angles, e.g. 'But here's the part nobody talks "
+        "about...', 'And it gets weirder...', 'Here's where it gets dark...', "
+        "'Nobody expected what happened next...', 'That's not even the "
+        "strangest part...', 'Stay with me, this changes everything...'. "
+        "Never reuse the same re-hook line twice in one script. "
+        "- LOOP RULE: end on a line that flows naturally back into the "
+        "opening hook, or on an open question — aim for an instant rewatch "
+        "instead of a scroll-away. "
         ""
         "NARRATION RULE: third-person narrator voice — describe the fact/story, "
         "never 'I' or personal anecdotes, like a documentary voiceover "
         ""
-        "HASHTAG RULE: generate exactly 8-12 hashtags — 5-8 specific to the "
-        "niche/topic content, 2-4 generic high-traffic tags (#shorts #fyp "
-        "#viral #trending) "
+        "HASHTAG RULE: generate exactly 8-12 hashtags — 7-10 specific to the "
+        "niche/topic content, 1-2 generic tags (#shorts, optionally #viral or "
+        "#trending). Never use #fyp — it's a TikTok-only convention with no "
+        "YouTube discovery value. "
         ""
         "pexels_query: 3-word visual search term per scene for stock footage"
     )
@@ -329,6 +371,14 @@ def generate_script(niche: str) -> dict:
     pattern_hint = patterns_to_prompt_hints(patterns, niche)
     # Load THIS channel's own past performance (self-learning feedback loop)
     own_hint     = own_performance_hint(niche)
+    # Recent titles across ALL niches, so the model doesn't recycle one
+    # ("You Won't Believe What Happens When You Die" had already shipped 3x)
+    recent     = recent_titles(15)
+    dedup_hint = (
+        "AVOID reusing or closely rephrasing any of these recent titles:\n"
+        + "\n".join(f"- {t}" for t in recent)
+        if recent else ""
+    )
 
     prompt = (
         f"Write a viral {niche} YouTube Shorts script. "
@@ -342,9 +392,10 @@ def generate_script(niche: str) -> dict:
         "telling this story at a party, not a narrator reading facts off "
         "a card. Flat, purely informational delivery is the #1 reason "
         "viewers scroll away on Shorts. "
-        "This must feel like a tightly-edited 80+ second video, not a slow one."
+        "Let the story's own substance set the length — don't stretch it."
         + (f"\n\n{pattern_hint}" if pattern_hint else "")
         + (f"\n\n{own_hint}" if own_hint else "")
+        + (f"\n\n{dedup_hint}" if dedup_hint else "")
     )
 
     for attempt in range(5):
@@ -357,7 +408,7 @@ def generate_script(niche: str) -> dict:
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": system},
                               {"role": "user",   "content": prompt}],
-                    temperature=0.95, max_tokens=3000,
+                    temperature=0.78, max_tokens=3000,
                     response_format={"type": "json_object"},
                 )
             except Exception:
@@ -367,7 +418,7 @@ def generate_script(niche: str) -> dict:
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": system},
                               {"role": "user",   "content": prompt}],
-                    temperature=0.95, max_tokens=3000,
+                    temperature=0.78, max_tokens=3000,
                 )
             raw  = resp.choices[0].message.content.strip()
             raw  = raw.strip("```json").strip("```").strip()
@@ -376,17 +427,21 @@ def generate_script(niche: str) -> dict:
             n_scenes  = len(data.get("scenes", []))
             total_dur = sum(float(s.get("duration", 0)) for s in data.get("scenes", []))
             hashtags  = data.get("hashtags", [])
+            title     = data.get("title", "")
 
-            if n_scenes >= MIN_SCENES and total_dur >= 60:
-                data["hook_style_used"] = chosen_hook   # for performance tracking
+            leaked = any(pat in title.upper() for pat in _HOOK_LABEL_LEAK_PATTERNS)
+            duped  = title in recent
+
+            if n_scenes >= MIN_SCENES and 40 <= total_dur <= 95 and not leaked and not duped:
+                data["hook_style_used"] = chosen_hook_name   # short name — for performance tracking
                 log.info(
                     "Script OK: %d scenes, %.0fs, %d hashtags — \"%s\"",
-                    n_scenes, total_dur, len(hashtags), data.get("title", "")
+                    n_scenes, total_dur, len(hashtags), title
                 )
                 return data
             log.warning(
-                "Script rejected (scenes=%d, dur=%.0fs) — retrying…",
-                n_scenes, total_dur
+                "Script rejected (scenes=%d, dur=%.0fs, leaked=%s, duped=%s) — retrying…",
+                n_scenes, total_dur, leaked, duped
             )
         except Exception as e:
             log.warning("Script attempt %d: %s", attempt + 1, e)
@@ -1933,7 +1988,12 @@ def upload_youtube(video_path: str, title: str, description: str,
         creds = Credentials.from_authorized_user_info(creds_data)
 
     yt        = build("youtube","v3",credentials=creds,cache_discovery=False)
-    pub_at    = (datetime.utcnow()+timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    # Fixed target hour instead of "whenever the cron happened to fire + 24h"
+    # — lands content during a deliberately chosen audience window instead
+    # of a random time of day (see PUBLISH_HOUR_UTC in CONFIG).
+    _target = (datetime.utcnow() + timedelta(days=1)).replace(
+        hour=PUBLISH_HOUR_UTC, minute=0, second=0, microsecond=0)
+    pub_at    = _target.strftime("%Y-%m-%dT%H:%M:%S.000Z")
     tag_list  = [t.lstrip("#") for t in (tags or ["shorts", "viral"])][:15]
     body      = {"snippet":  {"title": title[:100], "description": description,
                              "tags": tag_list, "categoryId": "22"},
