@@ -1,0 +1,176 @@
+{
+  "scored_video_ids": [
+    "s5gpYrbvBmA",
+    "1U8tFYKaSGs",
+    "rm-7c_tNUcY",
+    "j_6Nhv-RQvY",
+    "BZL5r2y89F0",
+    "vzg6MLjbBEs",
+    "ZDzGicu-Kbw",
+    "Q04Qt5XgtCg",
+    "ROVnYt-Wmws",
+    "tOw2uMmvDcI",
+    "dvJTEJD8-bY",
+    "S6pQMNAjr64"
+  ],
+  "videos": [
+    {
+      "video_id": "rm-7c_tNUcY",
+      "niche": "learn",
+      "title": "You Won't Believe What Scientists Just Discovered About Dreams",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "score": 26.0,
+      "views": 26,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:28.025458"
+    },
+    {
+      "video_id": "BZL5r2y89F0",
+      "niche": "fact",
+      "title": "The Dark Side of Cute",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "score": 1.0,
+      "views": 1,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:27.894802"
+    },
+    {
+      "video_id": "S6pQMNAjr64",
+      "niche": "rich",
+      "title": "You Won't Believe the $1,000 a Day Loophole",
+      "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
+      "score": 1.0,
+      "views": 1,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:27.777002"
+    },
+    {
+      "video_id": "Q04Qt5XgtCg",
+      "niche": "lifehack",
+      "title": "You Won't Believe This Insane Morning Routine Hack",
+      "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
+      "score": 18.0,
+      "views": 18,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:27.646371"
+    },
+    {
+      "video_id": "s5gpYrbvBmA",
+      "niche": "motivation",
+      "title": "From Couch to Champion: The 1% Rule",
+      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
+      "score": 398.0,
+      "views": 393,
+      "likes": 5,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:27.512890"
+    },
+    {
+      "video_id": "dvJTEJD8-bY",
+      "niche": "dating",
+      "title": "The Dark Secret of Modern Dating",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "score": 57.0,
+      "views": 56,
+      "likes": 1,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:27.244736"
+    },
+    {
+      "video_id": "vzg6MLjbBEs",
+      "niche": "lifehack",
+      "title": "The 5-Minute Morning Routine That Will Change Your Life",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "score": 3.0,
+      "views": 3,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:27.110769"
+    },
+    {
+      "video_id": "1U8tFYKaSGs",
+      "niche": "fact",
+      "title": "You Won't Believe What Happens When You Die",
+      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
+      "score": 1.0,
+      "views": 1,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:26.988369"
+    },
+    {
+      "video_id": "tOw2uMmvDcI",
+      "niche": "rich",
+      "title": "You Won't Believe How Much Money You're Losing",
+      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
+      "score": 3.0,
+      "views": 2,
+      "likes": 1,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:26.868899"
+    },
+    {
+      "video_id": "ZDzGicu-Kbw",
+      "niche": "fact",
+      "title": "You Won't Believe What's Happening to the World's Oceans",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "score": 550.0,
+      "views": 532,
+      "likes": 18,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:26.734654"
+    },
+    {
+      "video_id": "ROVnYt-Wmws",
+      "niche": "rich",
+      "title": "The $1,000 Per Week Secret Nobody Talks About",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "score": 1.0,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:26.597979"
+    },
+    {
+      "video_id": "j_6Nhv-RQvY",
+      "niche": "fact",
+      "title": "You Won't Believe What Happens When You Die",
+      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
+      "score": 184.0,
+      "views": 183,
+      "likes": 1,
+      "comments": 0,
+      "checked_at": "2026-08-11T12:05:26.459721"
+    }
+  ],
+  "niche_stats": {
+    "learn": {
+      "avg_score": 26.0,
+      "n": 1
+    },
+    "fact": {
+      "avg_score": 184.0,
+      "n": 4
+    },
+    "rich": {
+      "avg_score": 1.67,
+      "n": 3
+    },
+    "lifehack": {
+      "avg_score": 10.5,
+      "n": 2
+    },
+    "motivation": {
+      "avg_score": 398.0,
+      "n": 1
+    },
+    "dating": {
+      "avg_score": 57.0,
+      "n": 1
+    }
+  }
+}
