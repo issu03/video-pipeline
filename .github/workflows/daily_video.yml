@@ -8,13 +8,17 @@ permissions:
   contents: write
 on:
   schedule:
-    - cron: '0 16 * * 2,4'
-    - cron: '0 18 * * 1,3,5'
-    - cron: '0 8  * * 6,0'
+    # Wirklich jeden Tag, feste Zeiten statt 3 verschiedener je Wochentag:
+    - cron: '0 4  * * *'   # Generierung Slot "midday"  → publisht ~17:00 UTC (~1pm US-Eastern)
+    - cron: '0 10 * * *'   # Generierung Slot "evening" → publisht ~22:00 UTC (~6pm US-Eastern)
   workflow_dispatch:
     inputs:
       niche:
         description: "Niche (reddit|dating|rich|lifehack|fact|scary|motivation|conspiracy|learn)"
+        required: false
+        default: ""
+      publish_hour_utc:
+        description: "Publish-Stunde UTC überschreiben (0-23), leer = automatisch je Slot"
         required: false
         default: ""
 # Verhindert überlappende Runs (z.B. manueller Trigger während eines
@@ -61,9 +65,20 @@ jobs:
                       f.write_text(t.replace('from src.beautiful_captions.core.', 'from .'))
                       print('Patched:', f)
           "
+      - name: Determine publish slot
+        id: slot
+        run: |
+          if [ -n "${{ github.event.inputs.publish_hour_utc }}" ]; then
+            echo "hour=${{ github.event.inputs.publish_hour_utc }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 10 * * *" ]; then
+            echo "hour=22" >> "$GITHUB_OUTPUT"   # evening slot
+          else
+            echo "hour=17" >> "$GITHUB_OUTPUT"   # midday slot (default: 04:00-Cron oder manueller Run)
+          fi
       - name: Run pipeline
         uses: nick-fields/retry@v3
         env:
+          PUBLISH_HOUR_UTC:    ${{ steps.slot.outputs.hour }}
           GROQ_API_KEY:        ${{ secrets.GROQ_API_KEY }}
           ELEVENLABS_KEY:      ${{ secrets.ELEVENLABS_KEY }}
           OPENAI_API_KEY:      ${{ secrets.OPENAI_API_KEY }}
