@@ -1,19 +1,31 @@
 {
   "scored_video_ids": [
-    "ZDzGicu-Kbw",
-    "s5gpYrbvBmA",
-    "vzg6MLjbBEs",
-    "tOw2uMmvDcI",
-    "j_6Nhv-RQvY",
-    "1U8tFYKaSGs",
-    "ROVnYt-Wmws",
-    "S6pQMNAjr64",
-    "Q04Qt5XgtCg",
     "rm-7c_tNUcY",
     "BZL5r2y89F0",
-    "dvJTEJD8-bY"
+    "j_6Nhv-RQvY",
+    "s5gpYrbvBmA",
+    "tOw2uMmvDcI",
+    "ZDzGicu-Kbw",
+    "S6pQMNAjr64",
+    "1U8tFYKaSGs",
+    "Q04Qt5XgtCg",
+    "vzg6MLjbBEs",
+    "ROVnYt-Wmws",
+    "dvJTEJD8-bY",
+    "I8C2wD0bj7E"
   ],
   "videos": [
+    {
+      "video_id": "I8C2wD0bj7E",
+      "niche": "scary",
+      "title": "The Dark Side of Sleep",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "score": 575.0,
+      "views": 568,
+      "likes": 7,
+      "comments": 0,
+      "checked_at": "2026-08-13T07:45:11.075658"
+    },
     {
       "video_id": "rm-7c_tNUcY",
       "niche": "learn",
@@ -148,6 +160,10 @@
     }
   ],
   "niche_stats": {
+    "scary": {
+      "avg_score": 575.0,
+      "n": 1
+    },
     "learn": {
       "avg_score": 26.0,
       "n": 1
