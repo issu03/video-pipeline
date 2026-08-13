@@ -58,9 +58,12 @@ MIN_SCENES         = 12        # FLOOR only — real target is "as many scenes a
 TARGET_DUR         = 85        # soft target, NOT a monetization requirement — YouTube has
                                 # no minimum Shorts length for ad eligibility. Script prompt
                                 # now flexes 40-90s so simple facts aren't padded with filler
-PUBLISH_HOUR_UTC   = 22         # fixed publish hour (~6pm US-Eastern/3pm US-Pacific) instead
-                                # of "whenever the cron happened to fire + 24h" — adjust once
-                                # YouTube Analytics shows your actual audience's active hours
+PUBLISH_HOUR_UTC   = int(os.getenv("PUBLISH_HOUR_UTC", "22"))
+                                # target publish hour (UTC), overridable per workflow run —
+                                # daily_video.yml now sets this per slot: ~17 UTC (midday
+                                # US audience window) or ~22 UTC (evening US window), based
+                                # on research-backed Shorts engagement peaks (12-3pm & 7-9pm
+                                # local). Falls back to 22 if not set (e.g. local runs).
 TRANSITION_DUR     = 0.22      # snappier cuts — matches faster viral edit rhythm
 FADE_IN_DUR        = 0.3
 FADE_OUT_DUR       = 0.5
