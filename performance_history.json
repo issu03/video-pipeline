@@ -1,20 +1,32 @@
 {
   "scored_video_ids": [
-    "rm-7c_tNUcY",
-    "BZL5r2y89F0",
-    "j_6Nhv-RQvY",
-    "s5gpYrbvBmA",
-    "tOw2uMmvDcI",
-    "ZDzGicu-Kbw",
+    "Q04Qt5XgtCg",
     "S6pQMNAjr64",
     "1U8tFYKaSGs",
-    "Q04Qt5XgtCg",
-    "vzg6MLjbBEs",
-    "ROVnYt-Wmws",
+    "I8C2wD0bj7E",
     "dvJTEJD8-bY",
-    "I8C2wD0bj7E"
+    "ROVnYt-Wmws",
+    "tOw2uMmvDcI",
+    "z5GoBR8fgyw",
+    "BZL5r2y89F0",
+    "vzg6MLjbBEs",
+    "j_6Nhv-RQvY",
+    "ZDzGicu-Kbw",
+    "s5gpYrbvBmA",
+    "rm-7c_tNUcY"
   ],
   "videos": [
+    {
+      "video_id": "z5GoBR8fgyw",
+      "niche": "learn",
+      "title": "The Dark Side of Intelligence",
+      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
+      "score": 3.0,
+      "views": 3,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-14T07:42:32.022172"
+    },
     {
       "video_id": "I8C2wD0bj7E",
       "niche": "scary",
@@ -160,12 +172,12 @@
     }
   ],
   "niche_stats": {
+    "learn": {
+      "avg_score": 14.5,
+      "n": 2
+    },
     "scary": {
       "avg_score": 575.0,
-      "n": 1
-    },
-    "learn": {
-      "avg_score": 26.0,
       "n": 1
     },
     "fact": {
