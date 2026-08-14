@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "scary",
+      "title": "Your Mirror Is Watching You",
+      "url": "https://youtu.be/XBcqp_itVxE",
+      "video_id": "XBcqp_itVxE",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-08-14T11:12:20.970459"
+    },
+    {
+      "niche": "scary",
       "title": "The Terrifying Truth About Your Reflection",
       "url": "https://youtu.be/TziknAw_NTE",
       "video_id": "TziknAw_NTE",
@@ -611,24 +620,6 @@
         "status": "scheduled"
       },
       "hashtags": "#lifehack #productivity #tips #fyp #shorts #viral #mindset",
-      "status": "scheduled"
-    },
-    {
-      "id": 1776606069,
-      "title": "Mindset Shift",
-      "type": "motivation",
-      "niche": "motivation",
-      "created_at": "2026-04-19T13:53:58.415113",
-      "youtube": {
-        "scheduled": "2026-04-20T17:00:00",
-        "url": "https://youtube.com/shorts/AFKr02Hn-2M",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-04-20T17:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#motivation #mindset #success #fyp #shorts #viral #inspiration",
       "status": "scheduled"
     }
   ],
