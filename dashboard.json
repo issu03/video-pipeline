@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The One Thing You Should Never Do Before Bed",
+      "url": "https://youtu.be/49aKw2jq7dE",
+      "video_id": "49aKw2jq7dE",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-08-15T10:37:24.584189"
+    },
+    {
       "niche": "fact",
       "title": "The Shocking Truth About Your Brain",
       "url": "https://youtu.be/AycTDlFcTlU",
@@ -593,24 +602,6 @@
         "status": "scheduled"
       },
       "hashtags": "#scary #creepy #horror #fyp #shorts #viral #truecrime #darkfacts",
-      "status": "scheduled"
-    },
-    {
-      "id": 1776711116,
-      "title": "You're Being Watched",
-      "type": "fact",
-      "niche": "fact",
-      "created_at": "2026-04-20T19:05:03.798641",
-      "youtube": {
-        "scheduled": "2026-04-22T16:00:00",
-        "url": "https://youtube.com/shorts/SoMM2InPApU",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-04-22T16:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#facts #mindblowing #didyouknow #fyp #shorts #viral #psychology",
       "status": "scheduled"
     }
   ],
