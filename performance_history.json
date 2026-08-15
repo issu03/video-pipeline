@@ -1,21 +1,45 @@
 {
   "scored_video_ids": [
-    "Q04Qt5XgtCg",
-    "S6pQMNAjr64",
-    "1U8tFYKaSGs",
-    "I8C2wD0bj7E",
-    "dvJTEJD8-bY",
+    "vEw_JRRJifU",
     "ROVnYt-Wmws",
     "tOw2uMmvDcI",
-    "z5GoBR8fgyw",
+    "I8C2wD0bj7E",
     "BZL5r2y89F0",
+    "rm-7c_tNUcY",
+    "Q04Qt5XgtCg",
+    "z5GoBR8fgyw",
+    "dvJTEJD8-bY",
     "vzg6MLjbBEs",
-    "j_6Nhv-RQvY",
-    "ZDzGicu-Kbw",
     "s5gpYrbvBmA",
-    "rm-7c_tNUcY"
+    "1U8tFYKaSGs",
+    "ZDzGicu-Kbw",
+    "YtAlqMr4y0c",
+    "j_6Nhv-RQvY",
+    "S6pQMNAjr64"
   ],
   "videos": [
+    {
+      "video_id": "YtAlqMr4y0c",
+      "niche": "dating",
+      "title": "Everyone's Favorite Dating Rule Is Actually Killing Your Love Life",
+      "hook_style": "contrarian",
+      "score": 7.0,
+      "views": 7,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-15T06:50:10.344110"
+    },
+    {
+      "video_id": "vEw_JRRJifU",
+      "niche": "dating",
+      "title": "Why You're Getting Ghosted By Your Dream Match",
+      "hook_style": "question_why_how",
+      "score": 26.0,
+      "views": 26,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-15T06:50:10.251900"
+    },
     {
       "video_id": "z5GoBR8fgyw",
       "niche": "learn",
@@ -172,6 +196,10 @@
     }
   ],
   "niche_stats": {
+    "dating": {
+      "avg_score": 30.0,
+      "n": 3
+    },
     "learn": {
       "avg_score": 14.5,
       "n": 2
@@ -194,10 +222,6 @@
     },
     "motivation": {
       "avg_score": 398.0,
-      "n": 1
-    },
-    "dating": {
-      "avg_score": 57.0,
       "n": 1
     }
   }
