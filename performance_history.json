@@ -1,23 +1,35 @@
 {
   "scored_video_ids": [
-    "vEw_JRRJifU",
-    "ROVnYt-Wmws",
-    "tOw2uMmvDcI",
-    "I8C2wD0bj7E",
-    "BZL5r2y89F0",
-    "rm-7c_tNUcY",
     "Q04Qt5XgtCg",
+    "YtAlqMr4y0c",
+    "rm-7c_tNUcY",
+    "I8C2wD0bj7E",
     "z5GoBR8fgyw",
-    "dvJTEJD8-bY",
+    "RI7A7AKpg_4",
+    "BZL5r2y89F0",
     "vzg6MLjbBEs",
     "s5gpYrbvBmA",
-    "1U8tFYKaSGs",
+    "dvJTEJD8-bY",
+    "ROVnYt-Wmws",
+    "S6pQMNAjr64",
     "ZDzGicu-Kbw",
-    "YtAlqMr4y0c",
+    "1U8tFYKaSGs",
     "j_6Nhv-RQvY",
-    "S6pQMNAjr64"
+    "tOw2uMmvDcI",
+    "vEw_JRRJifU"
   ],
   "videos": [
+    {
+      "video_id": "RI7A7AKpg_4",
+      "niche": "dating",
+      "title": "Everyone Thinks Love at First Sight Is Real, They're Wrong",
+      "hook_style": "contrarian",
+      "score": 18.0,
+      "views": 18,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-16T06:52:03.964211"
+    },
     {
       "video_id": "YtAlqMr4y0c",
       "niche": "dating",
@@ -197,8 +209,8 @@
   ],
   "niche_stats": {
     "dating": {
-      "avg_score": 30.0,
-      "n": 3
+      "avg_score": 27.0,
+      "n": 4
     },
     "learn": {
       "avg_score": 14.5,
