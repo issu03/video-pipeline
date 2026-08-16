@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "reddit",
+      "title": "The Insane Reason Why Your Worst Dates Are Actually Good for You",
+      "url": "https://youtu.be/FnPFkKoUd88",
+      "video_id": "FnPFkKoUd88",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-08-16T10:42:56.675761"
+    },
+    {
+      "niche": "reddit",
       "title": "The Ridiculous Reason Why You're Still Single",
       "url": "https://youtu.be/qwFDC1pV7KU",
       "video_id": "qwFDC1pV7KU",
@@ -572,24 +581,6 @@
       },
       "tiktok": {
         "scheduled": "2026-04-25T09:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#learn #education #howto #fyp #shorts #viral #explained",
-      "status": "scheduled"
-    },
-    {
-      "id": 1776964262,
-      "title": "Habits Uncovered",
-      "type": "learn",
-      "niche": "learn",
-      "created_at": "2026-04-23T17:24:40.498414",
-      "youtube": {
-        "scheduled": "2026-04-24T17:00:00",
-        "url": "https://youtube.com/shorts/A7QgA1M7fPo",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-04-24T17:30:00",
         "status": "scheduled"
       },
       "hashtags": "#learn #education #howto #fyp #shorts #viral #explained",
