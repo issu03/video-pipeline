@@ -1,24 +1,36 @@
 {
   "scored_video_ids": [
-    "Q04Qt5XgtCg",
-    "YtAlqMr4y0c",
+    "j_6Nhv-RQvY",
+    "vEw_JRRJifU",
     "rm-7c_tNUcY",
-    "I8C2wD0bj7E",
-    "z5GoBR8fgyw",
-    "RI7A7AKpg_4",
-    "BZL5r2y89F0",
     "vzg6MLjbBEs",
     "s5gpYrbvBmA",
+    "z5GoBR8fgyw",
     "dvJTEJD8-bY",
     "ROVnYt-Wmws",
-    "S6pQMNAjr64",
-    "ZDzGicu-Kbw",
     "1U8tFYKaSGs",
-    "j_6Nhv-RQvY",
+    "YtAlqMr4y0c",
+    "BZL5r2y89F0",
+    "S6pQMNAjr64",
     "tOw2uMmvDcI",
-    "vEw_JRRJifU"
+    "Q04Qt5XgtCg",
+    "ZDzGicu-Kbw",
+    "TziknAw_NTE",
+    "I8C2wD0bj7E",
+    "RI7A7AKpg_4"
   ],
   "videos": [
+    {
+      "video_id": "TziknAw_NTE",
+      "niche": "scary",
+      "title": "The Terrifying Truth About Your Reflection",
+      "hook_style": "question_why_how",
+      "score": 24.0,
+      "views": 23,
+      "likes": 1,
+      "comments": 0,
+      "checked_at": "2026-08-17T07:08:22.885054"
+    },
     {
       "video_id": "RI7A7AKpg_4",
       "niche": "dating",
@@ -208,6 +220,10 @@
     }
   ],
   "niche_stats": {
+    "scary": {
+      "avg_score": 299.5,
+      "n": 2
+    },
     "dating": {
       "avg_score": 27.0,
       "n": 4
@@ -215,10 +231,6 @@
     "learn": {
       "avg_score": 14.5,
       "n": 2
-    },
-    "scary": {
-      "avg_score": 575.0,
-      "n": 1
     },
     "fact": {
       "avg_score": 184.0,
