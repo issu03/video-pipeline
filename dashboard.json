@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Creepy Reason Your House Wants You Dead",
+      "url": "https://youtu.be/l4xeKKOhqyE",
+      "video_id": "l4xeKKOhqyE",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-08-17T04:59:21.546776"
+    },
+    {
       "niche": "reddit",
       "title": "The Insane Reason Why Your Worst Dates Are Actually Good for You",
       "url": "https://youtu.be/FnPFkKoUd88",
@@ -566,24 +575,6 @@
         "status": "scheduled"
       },
       "hashtags": "#facts #mindblowing #didyouknow #fyp #shorts #viral",
-      "status": "scheduled"
-    },
-    {
-      "id": 1777055770,
-      "title": "Read Minds?",
-      "type": "learn",
-      "niche": "learn",
-      "created_at": "2026-04-24T18:49:58.302449",
-      "youtube": {
-        "scheduled": "2026-04-25T09:00:00",
-        "url": "https://youtube.com/shorts/5Q2GJQL4aTI",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-04-25T09:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#learn #education #howto #fyp #shorts #viral #explained",
       "status": "scheduled"
     }
   ],
