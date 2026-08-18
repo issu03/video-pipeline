@@ -1,25 +1,49 @@
 {
   "scored_video_ids": [
-    "j_6Nhv-RQvY",
-    "vEw_JRRJifU",
-    "rm-7c_tNUcY",
-    "vzg6MLjbBEs",
-    "s5gpYrbvBmA",
-    "z5GoBR8fgyw",
-    "dvJTEJD8-bY",
     "ROVnYt-Wmws",
-    "1U8tFYKaSGs",
-    "YtAlqMr4y0c",
-    "BZL5r2y89F0",
-    "S6pQMNAjr64",
-    "tOw2uMmvDcI",
-    "Q04Qt5XgtCg",
-    "ZDzGicu-Kbw",
     "TziknAw_NTE",
+    "s5gpYrbvBmA",
+    "AycTDlFcTlU",
+    "ZDzGicu-Kbw",
+    "rm-7c_tNUcY",
+    "j_6Nhv-RQvY",
+    "z5GoBR8fgyw",
+    "S6pQMNAjr64",
+    "1U8tFYKaSGs",
+    "vEw_JRRJifU",
+    "vzg6MLjbBEs",
+    "tOw2uMmvDcI",
+    "XBcqp_itVxE",
     "I8C2wD0bj7E",
-    "RI7A7AKpg_4"
+    "RI7A7AKpg_4",
+    "Q04Qt5XgtCg",
+    "BZL5r2y89F0",
+    "dvJTEJD8-bY",
+    "YtAlqMr4y0c"
   ],
   "videos": [
+    {
+      "video_id": "XBcqp_itVxE",
+      "niche": "scary",
+      "title": "Your Mirror Is Watching You",
+      "hook_style": "outcome_first",
+      "score": 53.0,
+      "views": 52,
+      "likes": 1,
+      "comments": 0,
+      "checked_at": "2026-08-18T06:55:23.032863"
+    },
+    {
+      "video_id": "AycTDlFcTlU",
+      "niche": "fact",
+      "title": "The Shocking Truth About Your Brain",
+      "hook_style": "contrarian",
+      "score": 1.0,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-18T06:55:22.940584"
+    },
     {
       "video_id": "TziknAw_NTE",
       "niche": "scary",
@@ -221,8 +245,12 @@
   ],
   "niche_stats": {
     "scary": {
-      "avg_score": 299.5,
-      "n": 2
+      "avg_score": 217.33,
+      "n": 3
+    },
+    "fact": {
+      "avg_score": 147.4,
+      "n": 5
     },
     "dating": {
       "avg_score": 27.0,
@@ -231,10 +259,6 @@
     "learn": {
       "avg_score": 14.5,
       "n": 2
-    },
-    "fact": {
-      "avg_score": 184.0,
-      "n": 4
     },
     "rich": {
       "avg_score": 1.67,
