@@ -1,27 +1,51 @@
 {
   "scored_video_ids": [
-    "ROVnYt-Wmws",
-    "TziknAw_NTE",
-    "s5gpYrbvBmA",
-    "AycTDlFcTlU",
-    "ZDzGicu-Kbw",
-    "rm-7c_tNUcY",
-    "j_6Nhv-RQvY",
-    "z5GoBR8fgyw",
-    "S6pQMNAjr64",
-    "1U8tFYKaSGs",
-    "vEw_JRRJifU",
-    "vzg6MLjbBEs",
     "tOw2uMmvDcI",
+    "j_6Nhv-RQvY",
     "XBcqp_itVxE",
-    "I8C2wD0bj7E",
-    "RI7A7AKpg_4",
-    "Q04Qt5XgtCg",
-    "BZL5r2y89F0",
+    "S6pQMNAjr64",
+    "ZDzGicu-Kbw",
     "dvJTEJD8-bY",
-    "YtAlqMr4y0c"
+    "vEw_JRRJifU",
+    "TziknAw_NTE",
+    "vzg6MLjbBEs",
+    "I8C2wD0bj7E",
+    "s5gpYrbvBmA",
+    "Q04Qt5XgtCg",
+    "RI7A7AKpg_4",
+    "AycTDlFcTlU",
+    "YtAlqMr4y0c",
+    "qwFDC1pV7KU",
+    "1U8tFYKaSGs",
+    "49aKw2jq7dE",
+    "ROVnYt-Wmws",
+    "z5GoBR8fgyw",
+    "rm-7c_tNUcY",
+    "BZL5r2y89F0"
   ],
   "videos": [
+    {
+      "video_id": "49aKw2jq7dE",
+      "niche": "scary",
+      "title": "The One Thing You Should Never Do Before Bed",
+      "hook_style": "question_why_how",
+      "score": 1.0,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-19T06:55:43.164183"
+    },
+    {
+      "video_id": "qwFDC1pV7KU",
+      "niche": "reddit",
+      "title": "The Ridiculous Reason Why You're Still Single",
+      "hook_style": "contrarian",
+      "score": 10.0,
+      "views": 9,
+      "likes": 1,
+      "comments": 0,
+      "checked_at": "2026-08-19T06:55:43.036099"
+    },
     {
       "video_id": "XBcqp_itVxE",
       "niche": "scary",
@@ -245,8 +269,12 @@
   ],
   "niche_stats": {
     "scary": {
-      "avg_score": 217.33,
-      "n": 3
+      "avg_score": 163.25,
+      "n": 4
+    },
+    "reddit": {
+      "avg_score": 10.0,
+      "n": 1
     },
     "fact": {
       "avg_score": 147.4,
