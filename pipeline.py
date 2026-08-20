@@ -408,7 +408,7 @@ def generate_script(niche: str) -> dict:
                 # eliminates the "Expecting ',' delimiter" parse failures
                 # that used to cost 1-2 wasted retries on most runs.
                 resp = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
+                    model="openai/gpt-oss-120b",  # migrated from decommissioned llama-3.3-70b-versatile (Aug 2026)
                     messages=[{"role": "system", "content": system},
                               {"role": "user",   "content": prompt}],
                     temperature=0.78, max_tokens=3000,
@@ -418,7 +418,7 @@ def generate_script(niche: str) -> dict:
                 # Some Groq models/versions may reject response_format —
                 # fall back to the plain call so this never hard-fails.
                 resp = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
+                    model="openai/gpt-oss-120b",  # migrated from decommissioned llama-3.3-70b-versatile (Aug 2026)
                     messages=[{"role": "system", "content": system},
                               {"role": "user",   "content": prompt}],
                     temperature=0.78, max_tokens=3000,
@@ -802,7 +802,7 @@ def smart_pexels_query(scene_text: str, niche: str,
     try:
         client = Groq(api_key=groq_key)
         resp = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",  # migrated from decommissioned llama-3.3-70b-versatile (Aug 2026)
             messages=[{
                 "role": "system",
                 "content": (
@@ -2661,7 +2661,7 @@ def backup_to_drive(video_path: str, srt_path: str, title: str) -> Optional[str]
 #  Uses only FREE tools:
 #    • yt-dlp   → download captions (no Whisper needed for YouTube)
 #    • ffmpeg   → extract keyframes
-#    • Groq Vision (llama-4-scout) → analyze frames (free tier, 1000 RPD)
+#    • Groq Vision (qwen3.6-27b) → analyze frames (free tier, 1000 RPD)
 #
 #  Result: viral_patterns.json committed to repo.
 #  Script generator reads it and adapts prompts automatically.
@@ -2771,7 +2771,7 @@ def _extract_frames(url: str, out_dir: str, n_frames: int = 8) -> list[str]:
 def _analyze_frames_groq(frames: list[str], transcript: str,
                           niche: str) -> Optional[dict]:
     """
-    Send frames + transcript to Groq Vision (llama-4-scout, free).
+    Send frames + transcript to Groq Vision (qwen3.6-27b, free).
     Returns structured analysis dict or None on failure.
     """
     key = os.getenv("GROQ_API_KEY")
@@ -2808,7 +2808,7 @@ def _analyze_frames_groq(frames: list[str], transcript: str,
         )
 
         resp = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            model="qwen/qwen3.6-27b",  # migrated from decommissioned llama-4-scout (Aug 2026) — current Groq vision model
             messages=[{
                 "role": "user",
                 "content": image_blocks + [{"type": "text", "text": prompt}]
