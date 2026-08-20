@@ -1,29 +1,53 @@
 {
   "scored_video_ids": [
-    "tOw2uMmvDcI",
-    "j_6Nhv-RQvY",
-    "XBcqp_itVxE",
-    "S6pQMNAjr64",
-    "ZDzGicu-Kbw",
-    "dvJTEJD8-bY",
-    "vEw_JRRJifU",
-    "TziknAw_NTE",
-    "vzg6MLjbBEs",
-    "I8C2wD0bj7E",
-    "s5gpYrbvBmA",
-    "Q04Qt5XgtCg",
-    "RI7A7AKpg_4",
     "AycTDlFcTlU",
-    "YtAlqMr4y0c",
-    "qwFDC1pV7KU",
-    "1U8tFYKaSGs",
-    "49aKw2jq7dE",
+    "BZL5r2y89F0",
     "ROVnYt-Wmws",
-    "z5GoBR8fgyw",
+    "FnPFkKoUd88",
     "rm-7c_tNUcY",
-    "BZL5r2y89F0"
+    "qwFDC1pV7KU",
+    "XBcqp_itVxE",
+    "TziknAw_NTE",
+    "l4xeKKOhqyE",
+    "j_6Nhv-RQvY",
+    "z5GoBR8fgyw",
+    "vEw_JRRJifU",
+    "tOw2uMmvDcI",
+    "S6pQMNAjr64",
+    "dvJTEJD8-bY",
+    "vzg6MLjbBEs",
+    "YtAlqMr4y0c",
+    "s5gpYrbvBmA",
+    "I8C2wD0bj7E",
+    "Q04Qt5XgtCg",
+    "ZDzGicu-Kbw",
+    "RI7A7AKpg_4",
+    "1U8tFYKaSGs",
+    "49aKw2jq7dE"
   ],
   "videos": [
+    {
+      "video_id": "FnPFkKoUd88",
+      "niche": "reddit",
+      "title": "The Insane Reason Why Your Worst Dates Are Actually Good for You",
+      "hook_style": "contrarian",
+      "score": 6.0,
+      "views": 6,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-20T06:56:51.302549"
+    },
+    {
+      "video_id": "l4xeKKOhqyE",
+      "niche": "scary",
+      "title": "The Creepy Reason Your House Wants You Dead",
+      "hook_style": "question_why_how",
+      "score": 3.0,
+      "views": 3,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-20T06:56:51.171806"
+    },
     {
       "video_id": "49aKw2jq7dE",
       "niche": "scary",
@@ -268,13 +292,13 @@
     }
   ],
   "niche_stats": {
-    "scary": {
-      "avg_score": 163.25,
-      "n": 4
-    },
     "reddit": {
-      "avg_score": 10.0,
-      "n": 1
+      "avg_score": 8.0,
+      "n": 2
+    },
+    "scary": {
+      "avg_score": 131.2,
+      "n": 5
     },
     "fact": {
       "avg_score": 147.4,
