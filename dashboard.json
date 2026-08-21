@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "From Debt to Millionaire: The 2% Habit That Defied Logic",
+      "url": "https://youtu.be/KhVHwpGkn18",
+      "video_id": "KhVHwpGkn18",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-08-21T05:01:52.010225"
+    },
+    {
       "niche": "scary",
       "title": "The Creepy Reason Your House Wants You Dead",
       "url": "https://youtu.be/l4xeKKOhqyE",
@@ -557,24 +566,6 @@
         "status": "scheduled"
       },
       "hashtags": "#dating #relationship #redflag #fyp #shorts #viral",
-      "status": "scheduled"
-    },
-    {
-      "id": 1777316615,
-      "title": "Your Pillow Is Disgusting",
-      "type": "fact",
-      "niche": "fact",
-      "created_at": "2026-04-27T19:14:05.870419",
-      "youtube": {
-        "scheduled": "2026-04-27T20:00:00",
-        "url": "https://youtube.com/shorts/HR9-seMAxow",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-04-27T20:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#facts #mindblowing #didyouknow #fyp #shorts #viral",
       "status": "scheduled"
     }
   ],
