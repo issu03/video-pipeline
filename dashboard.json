@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "motivation",
+      "title": "From Zero to Hero in 30 Days: The Secret No One Talks About",
+      "url": "https://youtu.be/2kWW0Jr06CI",
+      "video_id": "2kWW0Jr06CI",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-08-21T10:46:29.505345"
+    },
+    {
+      "niche": "motivation",
       "title": "From Debt to Millionaire: The 2% Habit That Defied Logic",
       "url": "https://youtu.be/KhVHwpGkn18",
       "video_id": "KhVHwpGkn18",
@@ -548,24 +557,6 @@
         "status": "scheduled"
       },
       "hashtags": "#money #wealth #sidehustle #fyp #shorts #viral #finance",
-      "status": "scheduled"
-    },
-    {
-      "id": 1777489663,
-      "title": "I Ignored THIS",
-      "type": "dating",
-      "niche": "dating",
-      "created_at": "2026-04-29T19:18:19.911589",
-      "youtube": {
-        "scheduled": "2026-04-29T20:00:00",
-        "url": "https://youtube.com/shorts/vP2GzLS2k8g",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-04-29T20:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#dating #relationship #redflag #fyp #shorts #viral",
       "status": "scheduled"
     }
   ],
