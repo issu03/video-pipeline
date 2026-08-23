@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "The $5 Habit That Bleeds You $10,000 Annually",
+      "url": "https://youtu.be/MZ9zwhp8Akk",
+      "video_id": "MZ9zwhp8Akk",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-08-23T10:45:51.057904"
+    },
+    {
       "niche": "scary",
       "title": "The Mirror That Knew My Worst Decisions (and My Cat)",
       "url": "https://youtu.be/KBirLSu1XLQ",
@@ -512,24 +521,6 @@
         "status": "scheduled"
       },
       "hashtags": "#motivation #mindset #success #fyp #shorts #viral",
-      "status": "scheduled"
-    },
-    {
-      "id": 1778001930,
-      "title": "Green Flag Alert!",
-      "type": "dating",
-      "niche": "dating",
-      "created_at": "2026-05-05T17:38:06.449960",
-      "youtube": {
-        "scheduled": "2026-05-05T19:00:00",
-        "url": "https://youtube.com/shorts/XhLmp0V4-Dk",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-05-05T19:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#dating #relationship #redflag #fyp #shorts #viral",
       "status": "scheduled"
     }
   ],
