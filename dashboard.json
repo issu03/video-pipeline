@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Mirror That Knew My Worst Decisions (and My Cat)",
+      "url": "https://youtu.be/KBirLSu1XLQ",
+      "video_id": "KBirLSu1XLQ",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-08-23T04:58:21.518121"
+    },
+    {
       "niche": "fact",
       "title": "The Hidden Ingredient in Diet Coke That Europe Banned",
       "url": "https://youtu.be/L98vlLOgvnw",
@@ -521,24 +530,6 @@
         "status": "scheduled"
       },
       "hashtags": "#dating #relationship #redflag #fyp #shorts #viral",
-      "status": "scheduled"
-    },
-    {
-      "id": 1777921973,
-      "title": "Harsh Truth",
-      "type": "motivation",
-      "niche": "motivation",
-      "created_at": "2026-05-04T19:24:42.239276",
-      "youtube": {
-        "scheduled": "2026-05-04T20:00:00",
-        "url": "https://youtube.com/shorts/ugGvAwGwt80",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-05-04T20:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#motivation #mindset #success #fyp #shorts #viral",
       "status": "scheduled"
     }
   ],
