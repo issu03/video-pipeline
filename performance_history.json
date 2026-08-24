@@ -1,31 +1,43 @@
 {
   "scored_video_ids": [
+    "FnPFkKoUd88",
+    "qwFDC1pV7KU",
+    "S6pQMNAjr64",
+    "dvJTEJD8-bY",
+    "XBcqp_itVxE",
+    "AycTDlFcTlU",
+    "BZL5r2y89F0",
+    "j_6Nhv-RQvY",
+    "tOw2uMmvDcI",
+    "TziknAw_NTE",
+    "vEw_JRRJifU",
+    "l4xeKKOhqyE",
+    "vzg6MLjbBEs",
+    "ZDzGicu-Kbw",
+    "z5GoBR8fgyw",
+    "Q04Qt5XgtCg",
+    "rm-7c_tNUcY",
+    "49aKw2jq7dE",
     "YtAlqMr4y0c",
     "1U8tFYKaSGs",
-    "s5gpYrbvBmA",
-    "qwFDC1pV7KU",
-    "dvJTEJD8-bY",
-    "49aKw2jq7dE",
-    "Q04Qt5XgtCg",
-    "ZDzGicu-Kbw",
-    "tOw2uMmvDcI",
-    "vEw_JRRJifU",
-    "ROVnYt-Wmws",
-    "TziknAw_NTE",
-    "S6pQMNAjr64",
-    "BZL5r2y89F0",
-    "z5GoBR8fgyw",
-    "rm-7c_tNUcY",
-    "j_6Nhv-RQvY",
-    "XBcqp_itVxE",
-    "RI7A7AKpg_4",
-    "vzg6MLjbBEs",
-    "l4xeKKOhqyE",
-    "FnPFkKoUd88",
     "I8C2wD0bj7E",
-    "AycTDlFcTlU"
+    "RI7A7AKpg_4",
+    "ROVnYt-Wmws",
+    "s5gpYrbvBmA",
+    "KhVHwpGkn18"
   ],
   "videos": [
+    {
+      "video_id": "KhVHwpGkn18",
+      "niche": "motivation",
+      "title": "From Debt to Millionaire: The 2% Habit That Defied Logic",
+      "hook_style": "outcome_first",
+      "score": 1.0,
+      "views": 1,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-24T07:11:38.641141"
+    },
     {
       "video_id": "FnPFkKoUd88",
       "niche": "reddit",
@@ -292,6 +304,10 @@
     }
   ],
   "niche_stats": {
+    "motivation": {
+      "avg_score": 199.5,
+      "n": 2
+    },
     "reddit": {
       "avg_score": 8.0,
       "n": 2
@@ -319,10 +335,6 @@
     "lifehack": {
       "avg_score": 10.5,
       "n": 2
-    },
-    "motivation": {
-      "avg_score": 398.0,
-      "n": 1
     }
   }
 }
