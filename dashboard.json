@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "When Your Closet Starts a Reality Show",
+      "url": "https://youtu.be/eyJ-aMccXS4",
+      "video_id": "eyJ-aMccXS4",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-08-24T05:07:23.034959"
+    },
+    {
       "niche": "rich",
       "title": "The $5 Habit That Bleeds You $10,000 Annually",
       "url": "https://youtu.be/MZ9zwhp8Akk",
@@ -503,24 +512,6 @@
         "status": "scheduled"
       },
       "hashtags": "#money #wealth #sidehustle #fyp #shorts #viral #finance",
-      "status": "scheduled"
-    },
-    {
-      "id": 1778175713,
-      "title": "UNLOCK Success",
-      "type": "motivation",
-      "niche": "motivation",
-      "created_at": "2026-05-07T17:51:18.901241",
-      "youtube": {
-        "scheduled": "2026-05-07T19:00:00",
-        "url": "https://youtube.com/shorts/3tqednFkTfg",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-05-07T19:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#motivation #mindset #success #fyp #shorts #viral",
       "status": "scheduled"
     }
   ],
