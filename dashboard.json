@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "dating",
+      "title": "The Secret Reason 90% of First Dates End Awkwardly",
+      "url": "https://youtu.be/wEJCYEO_bcM",
+      "video_id": "wEJCYEO_bcM",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-08-24T10:55:34.231309"
+    },
+    {
       "niche": "scary",
       "title": "When Your Closet Starts a Reality Show",
       "url": "https://youtu.be/eyJ-aMccXS4",
@@ -494,24 +503,6 @@
         "status": "scheduled"
       },
       "hashtags": "#motivation #mindset #success #fyp #shorts #viral",
-      "status": "scheduled"
-    },
-    {
-      "id": 1778317703,
-      "title": "Savings Destroyed",
-      "type": "rich",
-      "niche": "rich",
-      "created_at": "2026-05-09T09:18:49.405897",
-      "youtube": {
-        "scheduled": "2026-05-09T20:00:00",
-        "url": "https://youtube.com/shorts/jLai0R1orqs",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-05-09T20:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#money #wealth #sidehustle #fyp #shorts #viral #finance",
       "status": "scheduled"
     }
   ],
