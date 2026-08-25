@@ -1,32 +1,56 @@
 {
   "scored_video_ids": [
-    "FnPFkKoUd88",
-    "qwFDC1pV7KU",
-    "S6pQMNAjr64",
-    "dvJTEJD8-bY",
-    "XBcqp_itVxE",
     "AycTDlFcTlU",
-    "BZL5r2y89F0",
-    "j_6Nhv-RQvY",
-    "tOw2uMmvDcI",
-    "TziknAw_NTE",
-    "vEw_JRRJifU",
-    "l4xeKKOhqyE",
-    "vzg6MLjbBEs",
-    "ZDzGicu-Kbw",
-    "z5GoBR8fgyw",
-    "Q04Qt5XgtCg",
+    "dvJTEJD8-bY",
+    "qwFDC1pV7KU",
     "rm-7c_tNUcY",
-    "49aKw2jq7dE",
     "YtAlqMr4y0c",
-    "1U8tFYKaSGs",
-    "I8C2wD0bj7E",
-    "RI7A7AKpg_4",
-    "ROVnYt-Wmws",
+    "vzg6MLjbBEs",
+    "BZL5r2y89F0",
+    "2kWW0Jr06CI",
     "s5gpYrbvBmA",
-    "KhVHwpGkn18"
+    "l4xeKKOhqyE",
+    "vEw_JRRJifU",
+    "RI7A7AKpg_4",
+    "49aKw2jq7dE",
+    "KhVHwpGkn18",
+    "XBcqp_itVxE",
+    "S6pQMNAjr64",
+    "ROVnYt-Wmws",
+    "TziknAw_NTE",
+    "z5GoBR8fgyw",
+    "1U8tFYKaSGs",
+    "FnPFkKoUd88",
+    "I8C2wD0bj7E",
+    "Q04Qt5XgtCg",
+    "tOw2uMmvDcI",
+    "oe5SauhCwQQ",
+    "ZDzGicu-Kbw",
+    "j_6Nhv-RQvY"
   ],
   "videos": [
+    {
+      "video_id": "2kWW0Jr06CI",
+      "niche": "motivation",
+      "title": "From Zero to Hero in 30 Days: The Secret No One Talks About",
+      "hook_style": "contrarian",
+      "score": 43.0,
+      "views": 43,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-25T06:59:27.499859"
+    },
+    {
+      "video_id": "oe5SauhCwQQ",
+      "niche": "reddit",
+      "title": "How a Reddit Poll Bulldozed a Town Park (and Made a Cat Famous)",
+      "hook_style": "contrarian",
+      "score": 16.0,
+      "views": 16,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-25T06:59:27.373193"
+    },
     {
       "video_id": "KhVHwpGkn18",
       "niche": "motivation",
@@ -305,12 +329,12 @@
   ],
   "niche_stats": {
     "motivation": {
-      "avg_score": 199.5,
-      "n": 2
+      "avg_score": 147.33,
+      "n": 3
     },
     "reddit": {
-      "avg_score": 8.0,
-      "n": 2
+      "avg_score": 10.67,
+      "n": 3
     },
     "scary": {
       "avg_score": 131.2,
