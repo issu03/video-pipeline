@@ -1,34 +1,58 @@
 {
   "scored_video_ids": [
-    "AycTDlFcTlU",
-    "dvJTEJD8-bY",
-    "qwFDC1pV7KU",
-    "rm-7c_tNUcY",
-    "YtAlqMr4y0c",
-    "vzg6MLjbBEs",
-    "BZL5r2y89F0",
-    "2kWW0Jr06CI",
-    "s5gpYrbvBmA",
-    "l4xeKKOhqyE",
-    "vEw_JRRJifU",
-    "RI7A7AKpg_4",
-    "49aKw2jq7dE",
-    "KhVHwpGkn18",
     "XBcqp_itVxE",
+    "49aKw2jq7dE",
     "S6pQMNAjr64",
-    "ROVnYt-Wmws",
-    "TziknAw_NTE",
-    "z5GoBR8fgyw",
-    "1U8tFYKaSGs",
+    "KBirLSu1XLQ",
     "FnPFkKoUd88",
-    "I8C2wD0bj7E",
-    "Q04Qt5XgtCg",
-    "tOw2uMmvDcI",
+    "qwFDC1pV7KU",
+    "s5gpYrbvBmA",
     "oe5SauhCwQQ",
+    "RI7A7AKpg_4",
+    "dvJTEJD8-bY",
     "ZDzGicu-Kbw",
-    "j_6Nhv-RQvY"
+    "YtAlqMr4y0c",
+    "tOw2uMmvDcI",
+    "TziknAw_NTE",
+    "j_6Nhv-RQvY",
+    "l4xeKKOhqyE",
+    "I8C2wD0bj7E",
+    "AycTDlFcTlU",
+    "vEw_JRRJifU",
+    "z5GoBR8fgyw",
+    "rm-7c_tNUcY",
+    "2kWW0Jr06CI",
+    "KhVHwpGkn18",
+    "L98vlLOgvnw",
+    "vzg6MLjbBEs",
+    "ROVnYt-Wmws",
+    "1U8tFYKaSGs",
+    "Q04Qt5XgtCg",
+    "BZL5r2y89F0"
   ],
   "videos": [
+    {
+      "video_id": "L98vlLOgvnw",
+      "niche": "fact",
+      "title": "The Hidden Ingredient in Diet Coke That Europe Banned",
+      "hook_style": "outcome_first",
+      "score": 1.0,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-26T06:59:55.493138"
+    },
+    {
+      "video_id": "KBirLSu1XLQ",
+      "niche": "scary",
+      "title": "The Mirror That Knew My Worst Decisions (and My Cat)",
+      "hook_style": "question_why_how",
+      "score": 1.0,
+      "views": 1,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-26T06:59:55.403156"
+    },
     {
       "video_id": "2kWW0Jr06CI",
       "niche": "motivation",
@@ -328,6 +352,14 @@
     }
   ],
   "niche_stats": {
+    "fact": {
+      "avg_score": 123.0,
+      "n": 6
+    },
+    "scary": {
+      "avg_score": 109.5,
+      "n": 6
+    },
     "motivation": {
       "avg_score": 147.33,
       "n": 3
@@ -335,14 +367,6 @@
     "reddit": {
       "avg_score": 10.67,
       "n": 3
-    },
-    "scary": {
-      "avg_score": 131.2,
-      "n": 5
-    },
-    "fact": {
-      "avg_score": 147.4,
-      "n": 5
     },
     "dating": {
       "avg_score": 27.0,
