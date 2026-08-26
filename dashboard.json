@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Plastic Bottle Time Bomb Nobody Talks About",
+      "url": "https://youtu.be/0TBzLtO1jqc",
+      "video_id": "0TBzLtO1jqc",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-08-26T10:55:18.278288"
+    },
+    {
       "niche": "reddit",
       "title": "How One Reddit Comment Got the FBI to Police a Meme",
       "url": "https://youtu.be/rOi35oGTNZc",
@@ -458,24 +467,6 @@
         "status": "scheduled"
       },
       "hashtags": "#lifehack #productivity #hack #fyp #shorts #viral",
-      "status": "scheduled"
-    },
-    {
-      "id": 1778700604,
-      "title": "Your Pillows Are Gross",
-      "type": "fact",
-      "niche": "fact",
-      "created_at": "2026-05-13T19:40:26.549303",
-      "youtube": {
-        "scheduled": "2026-05-14T07:00:00",
-        "url": "https://youtube.com/shorts/uNlVUa9hdxU",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-05-14T07:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#facts #mindblowing #didyouknow #fyp #shorts #viral",
       "status": "scheduled"
     }
   ],
