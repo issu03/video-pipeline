@@ -1,36 +1,72 @@
 {
   "scored_video_ids": [
-    "XBcqp_itVxE",
-    "49aKw2jq7dE",
-    "S6pQMNAjr64",
-    "KBirLSu1XLQ",
-    "FnPFkKoUd88",
-    "qwFDC1pV7KU",
-    "s5gpYrbvBmA",
-    "oe5SauhCwQQ",
-    "RI7A7AKpg_4",
-    "dvJTEJD8-bY",
-    "ZDzGicu-Kbw",
-    "YtAlqMr4y0c",
-    "tOw2uMmvDcI",
-    "TziknAw_NTE",
     "j_6Nhv-RQvY",
-    "l4xeKKOhqyE",
-    "I8C2wD0bj7E",
-    "AycTDlFcTlU",
     "vEw_JRRJifU",
     "z5GoBR8fgyw",
-    "rm-7c_tNUcY",
-    "2kWW0Jr06CI",
-    "KhVHwpGkn18",
+    "KBirLSu1XLQ",
+    "TziknAw_NTE",
     "L98vlLOgvnw",
-    "vzg6MLjbBEs",
     "ROVnYt-Wmws",
+    "oe5SauhCwQQ",
+    "YtAlqMr4y0c",
+    "vzg6MLjbBEs",
+    "KhVHwpGkn18",
+    "BZL5r2y89F0",
     "1U8tFYKaSGs",
     "Q04Qt5XgtCg",
-    "BZL5r2y89F0"
+    "eyJ-aMccXS4",
+    "rm-7c_tNUcY",
+    "dvJTEJD8-bY",
+    "S6pQMNAjr64",
+    "ZDzGicu-Kbw",
+    "MZ9zwhp8Akk",
+    "AycTDlFcTlU",
+    "qwFDC1pV7KU",
+    "FnPFkKoUd88",
+    "I8C2wD0bj7E",
+    "XBcqp_itVxE",
+    "RI7A7AKpg_4",
+    "tOw2uMmvDcI",
+    "wEJCYEO_bcM",
+    "l4xeKKOhqyE",
+    "49aKw2jq7dE",
+    "s5gpYrbvBmA",
+    "2kWW0Jr06CI"
   ],
   "videos": [
+    {
+      "video_id": "MZ9zwhp8Akk",
+      "niche": "rich",
+      "title": "The $5 Habit That Bleeds You $10,000 Annually",
+      "hook_style": "outcome_first",
+      "score": 2.0,
+      "views": 2,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-27T17:33:33.324026"
+    },
+    {
+      "video_id": "eyJ-aMccXS4",
+      "niche": "scary",
+      "title": "When Your Closet Starts a Reality Show",
+      "hook_style": "contrarian",
+      "score": 3.0,
+      "views": 3,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-27T17:33:33.231104"
+    },
+    {
+      "video_id": "wEJCYEO_bcM",
+      "niche": "dating",
+      "title": "The Secret Reason 90% of First Dates End Awkwardly",
+      "hook_style": "outcome_first",
+      "score": 13.0,
+      "views": 13,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-27T17:33:33.102057"
+    },
     {
       "video_id": "L98vlLOgvnw",
       "niche": "fact",
@@ -352,12 +388,20 @@
     }
   ],
   "niche_stats": {
-    "fact": {
-      "avg_score": 123.0,
-      "n": 6
+    "rich": {
+      "avg_score": 1.75,
+      "n": 4
     },
     "scary": {
-      "avg_score": 109.5,
+      "avg_score": 94.29,
+      "n": 7
+    },
+    "dating": {
+      "avg_score": 24.2,
+      "n": 5
+    },
+    "fact": {
+      "avg_score": 123.0,
       "n": 6
     },
     "motivation": {
@@ -368,17 +412,9 @@
       "avg_score": 10.67,
       "n": 3
     },
-    "dating": {
-      "avg_score": 27.0,
-      "n": 4
-    },
     "learn": {
       "avg_score": 14.5,
       "n": 2
-    },
-    "rich": {
-      "avg_score": 1.67,
-      "n": 3
     },
     "lifehack": {
       "avg_score": 10.5,
