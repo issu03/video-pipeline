@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Baby Monitor That Screamed Before Anyone Entered",
+      "url": "https://youtu.be/ImJC9yS_SdA",
+      "video_id": "ImJC9yS_SdA",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-08-27T15:19:36.794229"
+    },
+    {
       "niche": "fact",
       "title": "The Plastic Bottle Time Bomb Nobody Talks About",
       "url": "https://youtu.be/0TBzLtO1jqc",
@@ -446,24 +455,6 @@
       },
       "tiktok": {
         "scheduled": "2026-05-17T09:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#lifehack #productivity #hack #fyp #shorts #viral",
-      "status": "scheduled"
-    },
-    {
-      "id": 1778872509,
-      "title": "Stop Procrastinating NOW",
-      "type": "lifehack",
-      "niche": "lifehack",
-      "created_at": "2026-05-15T19:25:47.592845",
-      "youtube": {
-        "scheduled": "2026-05-16T09:00:00",
-        "url": "https://youtube.com/shorts/kRUNakkWD1o",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-05-16T09:30:00",
         "status": "scheduled"
       },
       "hashtags": "#lifehack #productivity #hack #fyp #shorts #viral",
