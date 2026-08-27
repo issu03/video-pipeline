@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "From Dumpster to Dream: The 90\u2011Day Billionaire Flip",
+      "url": "https://youtu.be/ru_kDdcw6I8",
+      "video_id": "ru_kDdcw6I8",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-08-27T20:28:41.531378"
+    },
+    {
       "niche": "scary",
       "title": "The Baby Monitor That Screamed Before Anyone Entered",
       "url": "https://youtu.be/ImJC9yS_SdA",
@@ -440,24 +449,6 @@
         "status": "scheduled"
       },
       "hashtags": "#dating #relationship #redflag #fyp #shorts #viral",
-      "status": "scheduled"
-    },
-    {
-      "id": 1778923261,
-      "title": "Navy SEAL Sleep Hack",
-      "type": "lifehack",
-      "niche": "lifehack",
-      "created_at": "2026-05-16T09:30:53.673588",
-      "youtube": {
-        "scheduled": "2026-05-17T09:00:00",
-        "url": "https://youtube.com/shorts/BYSNrOeSxQQ",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-05-17T09:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#lifehack #productivity #hack #fyp #shorts #viral",
       "status": "scheduled"
     }
   ],
