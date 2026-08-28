@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "How $0 Apps Are Stealing $1,200 From Your Wallet Every Year",
+      "url": "https://youtu.be/spW1y-EsHto",
+      "video_id": "spW1y-EsHto",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-08-28T16:39:43.991354"
+    },
+    {
       "niche": "motivation",
       "title": "From Dumpster to Dream: The 90\u2011Day Billionaire Flip",
       "url": "https://youtu.be/ru_kDdcw6I8",
@@ -432,24 +441,6 @@
       "url": "https://youtu.be/YoO20fEI6-A",
       "ok": true,
       "ts": "2026-07-23T19:18:58.092798"
-    },
-    {
-      "id": 1779010039,
-      "title": "SWIPE RIGHT REGRET",
-      "type": "dating",
-      "niche": "dating",
-      "created_at": "2026-05-17T09:39:21.829237",
-      "youtube": {
-        "scheduled": "2026-05-18T17:00:00",
-        "url": "https://youtube.com/shorts/eByc4iAFHfQ",
-        "status": "scheduled"
-      },
-      "tiktok": {
-        "scheduled": "2026-05-18T17:30:00",
-        "status": "scheduled"
-      },
-      "hashtags": "#dating #relationship #redflag #fyp #shorts #viral",
-      "status": "scheduled"
     }
   ],
   "stats": {
