@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "Smart Speaker Told My Darkest Thought\u2014Then Went Full Horror",
+      "url": "https://youtu.be/-8AAlrsydfs",
+      "video_id": "-8AAlrsydfs",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-08-28T21:23:54.764284"
+    },
+    {
       "niche": "rich",
       "title": "How $0 Apps Are Stealing $1,200 From Your Wallet Every Year",
       "url": "https://youtu.be/spW1y-EsHto",
@@ -434,13 +443,6 @@
       "url": "https://youtu.be/xklb1XY4uIM",
       "ok": true,
       "ts": "2026-07-24T19:20:37.032168"
-    },
-    {
-      "niche": "learn",
-      "title": "The Shocking Truth About Intelligence",
-      "url": "https://youtu.be/YoO20fEI6-A",
-      "ok": true,
-      "ts": "2026-07-23T19:18:58.092798"
     }
   ],
   "stats": {
