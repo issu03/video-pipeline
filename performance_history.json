@@ -1,39 +1,63 @@
 {
   "scored_video_ids": [
-    "j_6Nhv-RQvY",
-    "vEw_JRRJifU",
-    "z5GoBR8fgyw",
-    "KBirLSu1XLQ",
-    "TziknAw_NTE",
-    "L98vlLOgvnw",
-    "ROVnYt-Wmws",
-    "oe5SauhCwQQ",
-    "YtAlqMr4y0c",
-    "vzg6MLjbBEs",
-    "KhVHwpGkn18",
-    "BZL5r2y89F0",
-    "1U8tFYKaSGs",
-    "Q04Qt5XgtCg",
-    "eyJ-aMccXS4",
-    "rm-7c_tNUcY",
-    "dvJTEJD8-bY",
-    "S6pQMNAjr64",
-    "ZDzGicu-Kbw",
-    "MZ9zwhp8Akk",
-    "AycTDlFcTlU",
-    "qwFDC1pV7KU",
-    "FnPFkKoUd88",
-    "I8C2wD0bj7E",
-    "XBcqp_itVxE",
-    "RI7A7AKpg_4",
-    "tOw2uMmvDcI",
     "wEJCYEO_bcM",
+    "S6pQMNAjr64",
+    "YtAlqMr4y0c",
+    "AycTDlFcTlU",
+    "BZL5r2y89F0",
+    "I8C2wD0bj7E",
+    "uXpBidbPigQ",
+    "FnPFkKoUd88",
+    "KhVHwpGkn18",
+    "ZDzGicu-Kbw",
+    "qwFDC1pV7KU",
+    "rm-7c_tNUcY",
     "l4xeKKOhqyE",
-    "49aKw2jq7dE",
+    "KBirLSu1XLQ",
     "s5gpYrbvBmA",
-    "2kWW0Jr06CI"
+    "eyJ-aMccXS4",
+    "tOw2uMmvDcI",
+    "XBcqp_itVxE",
+    "49aKw2jq7dE",
+    "oe5SauhCwQQ",
+    "2kWW0Jr06CI",
+    "vEw_JRRJifU",
+    "L98vlLOgvnw",
+    "vzg6MLjbBEs",
+    "TziknAw_NTE",
+    "dvJTEJD8-bY",
+    "j_6Nhv-RQvY",
+    "RI7A7AKpg_4",
+    "z5GoBR8fgyw",
+    "MZ9zwhp8Akk",
+    "1U8tFYKaSGs",
+    "ROVnYt-Wmws",
+    "dL-lj2EfnAY",
+    "Q04Qt5XgtCg"
   ],
   "videos": [
+    {
+      "video_id": "uXpBidbPigQ",
+      "niche": "dating",
+      "title": "The Silent Killer of First Dates",
+      "hook_style": "contrarian",
+      "score": 13.0,
+      "views": 13,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-28T18:30:17.396300"
+    },
+    {
+      "video_id": "dL-lj2EfnAY",
+      "niche": "motivation",
+      "title": "From Coffee Stains to Cash Stacks: 90-Day Shock",
+      "hook_style": "question_why_how",
+      "score": 1.0,
+      "views": 1,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-28T18:30:17.236962"
+    },
     {
       "video_id": "MZ9zwhp8Akk",
       "niche": "rich",
@@ -388,6 +412,14 @@
     }
   ],
   "niche_stats": {
+    "dating": {
+      "avg_score": 22.33,
+      "n": 6
+    },
+    "motivation": {
+      "avg_score": 110.75,
+      "n": 4
+    },
     "rich": {
       "avg_score": 1.75,
       "n": 4
@@ -396,17 +428,9 @@
       "avg_score": 94.29,
       "n": 7
     },
-    "dating": {
-      "avg_score": 24.2,
-      "n": 5
-    },
     "fact": {
       "avg_score": 123.0,
       "n": 6
-    },
-    "motivation": {
-      "avg_score": 147.33,
-      "n": 3
     },
     "reddit": {
       "avg_score": 10.67,
