@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "Bend a Paperclip, Keep Coffee Hot \u2013 10\u2011Minute Miracle Hack",
+      "url": "https://youtu.be/9k-nJTBSxZU",
+      "video_id": "9k-nJTBSxZU",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-08-29T15:12:40.966954"
+    },
+    {
       "niche": "rich",
       "title": "The $0.01 Trick That\u2019s Draining Your Wallet",
       "url": "https://youtu.be/aG3obgmZAew",
@@ -438,13 +447,6 @@
       "url": "https://youtu.be/Gv4fsXeHQBI",
       "ok": true,
       "ts": "2026-07-26T10:04:24.453975"
-    },
-    {
-      "niche": "learn",
-      "title": "You Won't Believe What Scientists Just Discovered About Human Intelligence",
-      "url": "https://youtu.be/2e3oSKqg7uk",
-      "ok": true,
-      "ts": "2026-07-25T09:48:55.915268"
     }
   ],
   "stats": {
