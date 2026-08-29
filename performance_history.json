@@ -1,41 +1,65 @@
 {
   "scored_video_ids": [
-    "wEJCYEO_bcM",
-    "S6pQMNAjr64",
+    "ROVnYt-Wmws",
     "YtAlqMr4y0c",
-    "AycTDlFcTlU",
-    "BZL5r2y89F0",
-    "I8C2wD0bj7E",
-    "uXpBidbPigQ",
-    "FnPFkKoUd88",
-    "KhVHwpGkn18",
-    "ZDzGicu-Kbw",
     "qwFDC1pV7KU",
-    "rm-7c_tNUcY",
-    "l4xeKKOhqyE",
-    "KBirLSu1XLQ",
-    "s5gpYrbvBmA",
-    "eyJ-aMccXS4",
-    "tOw2uMmvDcI",
     "XBcqp_itVxE",
+    "l4xeKKOhqyE",
+    "tOw2uMmvDcI",
+    "BZL5r2y89F0",
+    "1U8tFYKaSGs",
     "49aKw2jq7dE",
+    "eyJ-aMccXS4",
+    "FnPFkKoUd88",
+    "ZDzGicu-Kbw",
+    "uXpBidbPigQ",
+    "KhVHwpGkn18",
     "oe5SauhCwQQ",
-    "2kWW0Jr06CI",
-    "vEw_JRRJifU",
     "L98vlLOgvnw",
-    "vzg6MLjbBEs",
-    "TziknAw_NTE",
-    "dvJTEJD8-bY",
-    "j_6Nhv-RQvY",
+    "AycTDlFcTlU",
+    "MZ9zwhp8Akk",
+    "KBirLSu1XLQ",
+    "I8C2wD0bj7E",
     "RI7A7AKpg_4",
     "z5GoBR8fgyw",
-    "MZ9zwhp8Akk",
-    "1U8tFYKaSGs",
-    "ROVnYt-Wmws",
+    "S6pQMNAjr64",
+    "rm-7c_tNUcY",
     "dL-lj2EfnAY",
-    "Q04Qt5XgtCg"
+    "Q04Qt5XgtCg",
+    "j_6Nhv-RQvY",
+    "rOi35oGTNZc",
+    "s5gpYrbvBmA",
+    "0TBzLtO1jqc",
+    "dvJTEJD8-bY",
+    "vEw_JRRJifU",
+    "2kWW0Jr06CI",
+    "wEJCYEO_bcM",
+    "vzg6MLjbBEs",
+    "TziknAw_NTE"
   ],
   "videos": [
+    {
+      "video_id": "rOi35oGTNZc",
+      "niche": "reddit",
+      "title": "How One Reddit Comment Got the FBI to Police a Meme",
+      "hook_style": "outcome_first",
+      "score": 6.0,
+      "views": 6,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-29T12:35:52.017681"
+    },
+    {
+      "video_id": "0TBzLtO1jqc",
+      "niche": "fact",
+      "title": "The Plastic Bottle Time Bomb Nobody Talks About",
+      "hook_style": "question_why_how",
+      "score": 17.0,
+      "views": 17,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-29T12:35:51.890427"
+    },
     {
       "video_id": "uXpBidbPigQ",
       "niche": "dating",
@@ -412,6 +436,14 @@
     }
   ],
   "niche_stats": {
+    "reddit": {
+      "avg_score": 9.5,
+      "n": 4
+    },
+    "fact": {
+      "avg_score": 107.86,
+      "n": 7
+    },
     "dating": {
       "avg_score": 22.33,
       "n": 6
@@ -427,14 +459,6 @@
     "scary": {
       "avg_score": 94.29,
       "n": 7
-    },
-    "fact": {
-      "avg_score": 123.0,
-      "n": 6
-    },
-    "reddit": {
-      "avg_score": 10.67,
-      "n": 3
     },
     "learn": {
       "avg_score": 14.5,
