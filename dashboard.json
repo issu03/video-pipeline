@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "The $0.01 Trick That\u2019s Draining Your Wallet",
+      "url": "https://youtu.be/aG3obgmZAew",
+      "video_id": "aG3obgmZAew",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-08-29T11:10:37.293745"
+    },
+    {
       "niche": "scary",
       "title": "Smart Speaker Told My Darkest Thought\u2014Then Went Full Horror",
       "url": "https://youtu.be/-8AAlrsydfs",
@@ -436,13 +445,6 @@
       "url": "https://youtu.be/2e3oSKqg7uk",
       "ok": true,
       "ts": "2026-07-25T09:48:55.915268"
-    },
-    {
-      "niche": "fact",
-      "title": "You Won't Believe What Happens When You Die",
-      "url": "https://youtu.be/xklb1XY4uIM",
-      "ok": true,
-      "ts": "2026-07-24T19:20:37.032168"
     }
   ],
   "stats": {
