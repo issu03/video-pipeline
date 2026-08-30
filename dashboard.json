@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "The 8\u2011Glass Water Lie That\u2019s Killing Your Kidneys",
+      "url": "https://youtu.be/KoCaZhpupK4",
+      "video_id": "KoCaZhpupK4",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-08-30T14:58:56.183711"
+    },
+    {
       "niche": "scary",
       "title": "The Airbnb That Trapped Guests in a Time Loop",
       "url": "https://youtu.be/IY-ueW7CUDw",
@@ -440,15 +449,6 @@
       "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
       "ok": true,
       "ts": "2026-07-27T16:48:58.858861"
-    },
-    {
-      "niche": "lifehack",
-      "title": "You've Been Charging Wrong",
-      "url": "https://youtu.be/KmtQ0ITb2cg",
-      "video_id": "KmtQ0ITb2cg",
-      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
-      "ok": true,
-      "ts": "2026-07-27T10:56:23.534368"
     }
   ],
   "stats": {
