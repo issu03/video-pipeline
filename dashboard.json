@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "learn",
+      "title": "The Brain Hack That Makes You Smarter Instantly",
+      "url": "https://youtu.be/afm8tqRgA1c",
+      "video_id": "afm8tqRgA1c",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-08-31T10:57:26.543021"
+    },
+    {
+      "niche": "learn",
       "title": "The 8\u2011Glass Water Lie That\u2019s Killing Your Kidneys",
       "url": "https://youtu.be/KoCaZhpupK4",
       "video_id": "KoCaZhpupK4",
@@ -440,15 +449,6 @@
       "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
       "ok": true,
       "ts": "2026-07-27T19:28:03.061615"
-    },
-    {
-      "niche": "rich",
-      "title": "The $1,000,000 Secret Nobody Tells You",
-      "url": "https://youtu.be/2Tzcl3f3u8U",
-      "video_id": "2Tzcl3f3u8U",
-      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
-      "ok": true,
-      "ts": "2026-07-27T16:48:58.858861"
     }
   ],
   "stats": {
