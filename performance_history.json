@@ -1,43 +1,67 @@
 {
   "scored_video_ids": [
-    "L98vlLOgvnw",
-    "s5gpYrbvBmA",
-    "S6pQMNAjr64",
-    "vEw_JRRJifU",
-    "YtAlqMr4y0c",
-    "rm-7c_tNUcY",
-    "oe5SauhCwQQ",
-    "ROVnYt-Wmws",
-    "KBirLSu1XLQ",
-    "eyJ-aMccXS4",
-    "ZDzGicu-Kbw",
     "FnPFkKoUd88",
-    "z5GoBR8fgyw",
-    "uXpBidbPigQ",
-    "0TBzLtO1jqc",
-    "KhVHwpGkn18",
-    "I8C2wD0bj7E",
-    "vzg6MLjbBEs",
-    "MZ9zwhp8Akk",
-    "rOi35oGTNZc",
-    "j_6Nhv-RQvY",
-    "TziknAw_NTE",
-    "49aKw2jq7dE",
-    "RI7A7AKpg_4",
-    "dL-lj2EfnAY",
-    "XBcqp_itVxE",
-    "1U8tFYKaSGs",
+    "L98vlLOgvnw",
     "Q04Qt5XgtCg",
-    "tOw2uMmvDcI",
-    "AycTDlFcTlU",
-    "wEJCYEO_bcM",
-    "l4xeKKOhqyE",
-    "qwFDC1pV7KU",
+    "YtAlqMr4y0c",
+    "ru_kDdcw6I8",
+    "vzg6MLjbBEs",
+    "2kWW0Jr06CI",
+    "vEw_JRRJifU",
     "dvJTEJD8-bY",
+    "I8C2wD0bj7E",
+    "S6pQMNAjr64",
+    "dL-lj2EfnAY",
+    "ImJC9yS_SdA",
+    "rOi35oGTNZc",
+    "TziknAw_NTE",
+    "wEJCYEO_bcM",
+    "ZDzGicu-Kbw",
+    "qwFDC1pV7KU",
+    "49aKw2jq7dE",
+    "tOw2uMmvDcI",
+    "z5GoBR8fgyw",
+    "s5gpYrbvBmA",
+    "AycTDlFcTlU",
+    "MZ9zwhp8Akk",
+    "KhVHwpGkn18",
+    "ROVnYt-Wmws",
+    "eyJ-aMccXS4",
+    "uXpBidbPigQ",
+    "RI7A7AKpg_4",
+    "KBirLSu1XLQ",
+    "1U8tFYKaSGs",
+    "l4xeKKOhqyE",
+    "j_6Nhv-RQvY",
+    "oe5SauhCwQQ",
+    "rm-7c_tNUcY",
     "BZL5r2y89F0",
-    "2kWW0Jr06CI"
+    "0TBzLtO1jqc",
+    "XBcqp_itVxE"
   ],
   "videos": [
+    {
+      "video_id": "ImJC9yS_SdA",
+      "niche": "scary",
+      "title": "The Baby Monitor That Screamed Before Anyone Entered",
+      "hook_style": "outcome_first",
+      "score": 42.0,
+      "views": 42,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-31T13:25:00.349508"
+    },
+    {
+      "video_id": "ru_kDdcw6I8",
+      "niche": "motivation",
+      "title": "From Dumpster to Dream: The 90\u2011Day Billionaire Flip",
+      "hook_style": "question_why_how",
+      "score": 4.0,
+      "views": 4,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-08-31T13:25:00.235992"
+    },
     {
       "video_id": "rOi35oGTNZc",
       "niche": "reddit",
@@ -436,6 +460,14 @@
     }
   ],
   "niche_stats": {
+    "scary": {
+      "avg_score": 87.75,
+      "n": 8
+    },
+    "motivation": {
+      "avg_score": 89.4,
+      "n": 5
+    },
     "reddit": {
       "avg_score": 9.5,
       "n": 4
@@ -448,17 +480,9 @@
       "avg_score": 22.33,
       "n": 6
     },
-    "motivation": {
-      "avg_score": 110.75,
-      "n": 4
-    },
     "rich": {
       "avg_score": 1.75,
       "n": 4
-    },
-    "scary": {
-      "avg_score": 94.29,
-      "n": 7
     },
     "learn": {
       "avg_score": 14.5,
