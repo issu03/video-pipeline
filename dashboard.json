@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Biggest Desert Is Actually a Frozen Wasteland",
+      "url": "https://youtu.be/UbtpIcRETcY",
+      "video_id": "UbtpIcRETcY",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-08-31T17:43:08.122133"
+    },
+    {
       "niche": "learn",
       "title": "The Brain Hack That Makes You Smarter Instantly",
       "url": "https://youtu.be/afm8tqRgA1c",
@@ -440,15 +449,6 @@
       "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
       "ok": true,
       "ts": "2026-07-28T17:36:53.977535"
-    },
-    {
-      "niche": "scary",
-      "title": "The Sleep Paralysis Nightmare",
-      "url": "https://youtu.be/yIoKCfyfDmA",
-      "video_id": "yIoKCfyfDmA",
-      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
-      "ok": true,
-      "ts": "2026-07-27T19:28:03.061615"
     }
   ],
   "stats": {
