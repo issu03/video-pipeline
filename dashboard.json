@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Hidden Giant: Why Mauna Kea Beats Everest",
+      "url": "https://youtu.be/BEiD2-5Iv24",
+      "video_id": "BEiD2-5Iv24",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-01T14:54:06.565689"
+    },
+    {
       "niche": "scary",
       "title": "The Haunted Mirror That Hates You",
       "url": "https://youtu.be/sor1yQ6wHeE",
@@ -440,15 +449,6 @@
       "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
       "ok": true,
       "ts": "2026-07-30T17:31:35.344263"
-    },
-    {
-      "niche": "dating",
-      "title": "The Dark Truth About Dating Apps",
-      "url": "https://youtu.be/RQVtlkNWnQg",
-      "video_id": "RQVtlkNWnQg",
-      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
-      "ok": true,
-      "ts": "2026-07-30T12:13:54.165618"
     }
   ],
   "stats": {
