@@ -1,45 +1,81 @@
 {
   "scored_video_ids": [
-    "FnPFkKoUd88",
-    "L98vlLOgvnw",
-    "Q04Qt5XgtCg",
-    "YtAlqMr4y0c",
-    "ru_kDdcw6I8",
-    "vzg6MLjbBEs",
-    "2kWW0Jr06CI",
-    "vEw_JRRJifU",
-    "dvJTEJD8-bY",
-    "I8C2wD0bj7E",
-    "S6pQMNAjr64",
-    "dL-lj2EfnAY",
-    "ImJC9yS_SdA",
     "rOi35oGTNZc",
-    "TziknAw_NTE",
-    "wEJCYEO_bcM",
-    "ZDzGicu-Kbw",
-    "qwFDC1pV7KU",
-    "49aKw2jq7dE",
-    "tOw2uMmvDcI",
-    "z5GoBR8fgyw",
-    "s5gpYrbvBmA",
-    "AycTDlFcTlU",
-    "MZ9zwhp8Akk",
-    "KhVHwpGkn18",
-    "ROVnYt-Wmws",
-    "eyJ-aMccXS4",
-    "uXpBidbPigQ",
-    "RI7A7AKpg_4",
-    "KBirLSu1XLQ",
-    "1U8tFYKaSGs",
-    "l4xeKKOhqyE",
+    "2kWW0Jr06CI",
     "j_6Nhv-RQvY",
-    "oe5SauhCwQQ",
+    "vzg6MLjbBEs",
+    "l4xeKKOhqyE",
+    "vEw_JRRJifU",
+    "eyJ-aMccXS4",
+    "spW1y-EsHto",
+    "uXpBidbPigQ",
+    "S6pQMNAjr64",
+    "ZDzGicu-Kbw",
+    "wEJCYEO_bcM",
+    "FnPFkKoUd88",
+    "TziknAw_NTE",
+    "MZ9zwhp8Akk",
+    "RI7A7AKpg_4",
+    "z5GoBR8fgyw",
     "rm-7c_tNUcY",
+    "XBcqp_itVxE",
+    "ru_kDdcw6I8",
+    "oe5SauhCwQQ",
+    "1U8tFYKaSGs",
+    "KhVHwpGkn18",
+    "L98vlLOgvnw",
+    "YtAlqMr4y0c",
+    "I8C2wD0bj7E",
+    "dvJTEJD8-bY",
+    "KBirLSu1XLQ",
     "BZL5r2y89F0",
+    "ROVnYt-Wmws",
+    "aG3obgmZAew",
+    "49aKw2jq7dE",
+    "AycTDlFcTlU",
     "0TBzLtO1jqc",
-    "XBcqp_itVxE"
+    "tOw2uMmvDcI",
+    "s5gpYrbvBmA",
+    "Q04Qt5XgtCg",
+    "qwFDC1pV7KU",
+    "dL-lj2EfnAY",
+    "-8AAlrsydfs",
+    "ImJC9yS_SdA"
   ],
   "videos": [
+    {
+      "video_id": "spW1y-EsHto",
+      "niche": "rich",
+      "title": "How $0 Apps Are Stealing $1,200 From Your Wallet Every Year",
+      "hook_style": "outcome_first",
+      "score": 8.0,
+      "views": 8,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-09-01T11:30:33.626553"
+    },
+    {
+      "video_id": "-8AAlrsydfs",
+      "niche": "scary",
+      "title": "Smart Speaker Told My Darkest Thought\u2014Then Went Full Horror",
+      "hook_style": "outcome_first",
+      "score": 6.0,
+      "views": 6,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-09-01T11:30:33.524690"
+    },
+    {
+      "video_id": "aG3obgmZAew",
+      "niche": "rich",
+      "title": "The $0.01 Trick That\u2019s Draining Your Wallet",
+      "hook_style": "question_why_how",
+      "score": 1.0,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-09-01T11:30:33.428853"
+    },
     {
       "video_id": "ImJC9yS_SdA",
       "niche": "scary",
@@ -460,9 +496,13 @@
     }
   ],
   "niche_stats": {
+    "rich": {
+      "avg_score": 2.67,
+      "n": 6
+    },
     "scary": {
-      "avg_score": 87.75,
-      "n": 8
+      "avg_score": 78.67,
+      "n": 9
     },
     "motivation": {
       "avg_score": 89.4,
@@ -479,10 +519,6 @@
     "dating": {
       "avg_score": 22.33,
       "n": 6
-    },
-    "rich": {
-      "avg_score": 1.75,
-      "n": 4
     },
     "learn": {
       "avg_score": 14.5,
