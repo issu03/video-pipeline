@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Haunted Mirror That Hates You",
+      "url": "https://youtu.be/sor1yQ6wHeE",
+      "video_id": "sor1yQ6wHeE",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-01T09:30:08.522041"
+    },
+    {
       "niche": "fact",
       "title": "The Biggest Desert Is Actually a Frozen Wasteland",
       "url": "https://youtu.be/UbtpIcRETcY",
@@ -440,15 +449,6 @@
       "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
       "ok": true,
       "ts": "2026-07-30T12:13:54.165618"
-    },
-    {
-      "niche": "scary",
-      "title": "The Dark Side of Sleep",
-      "url": "https://youtu.be/Rw6c6ubRi1U",
-      "video_id": "Rw6c6ubRi1U",
-      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
-      "ok": true,
-      "ts": "2026-07-28T17:36:53.977535"
     }
   ],
   "stats": {
