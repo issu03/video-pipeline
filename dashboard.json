@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "Freeze Any Drink in 2 Minutes with a Wet Towel \u2013 Mind\u2011Blowing Hack",
+      "url": "https://youtu.be/Qjp3AvNJJcA",
+      "video_id": "Qjp3AvNJJcA",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-02T08:51:13.287789"
+    },
+    {
       "niche": "fact",
       "title": "The Hidden Giant: Why Mauna Kea Beats Everest",
       "url": "https://youtu.be/BEiD2-5Iv24",
@@ -440,15 +449,6 @@
       "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
       "ok": true,
       "ts": "2026-07-31T11:29:43.431143"
-    },
-    {
-      "niche": "reddit",
-      "title": "Reddit's Darkest Secret",
-      "url": "https://youtu.be/Ql8Dnvyd9Y8",
-      "video_id": "Ql8Dnvyd9Y8",
-      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
-      "ok": true,
-      "ts": "2026-07-30T17:31:35.344263"
     }
   ],
   "stats": {
