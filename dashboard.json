@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Closet That Talked Back and Said \"Finally\"",
+      "url": "https://youtu.be/qSym6vggdVg",
+      "video_id": "qSym6vggdVg",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-02T14:30:40.616847"
+    },
+    {
       "niche": "lifehack",
       "title": "Freeze Any Drink in 2 Minutes with a Wet Towel \u2013 Mind\u2011Blowing Hack",
       "url": "https://youtu.be/Qjp3AvNJJcA",
@@ -440,15 +449,6 @@
       "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
       "ok": true,
       "ts": "2026-07-31T12:04:32.553680"
-    },
-    {
-      "niche": "learn",
-      "title": "You Won't Believe What Scientists Just Discovered About Dreams",
-      "url": "https://youtu.be/rm-7c_tNUcY",
-      "video_id": "rm-7c_tNUcY",
-      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
-      "ok": true,
-      "ts": "2026-07-31T11:29:43.431143"
     }
   ],
   "stats": {
