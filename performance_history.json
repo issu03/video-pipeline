@@ -1,48 +1,72 @@
 {
   "scored_video_ids": [
+    "RI7A7AKpg_4",
+    "XBcqp_itVxE",
+    "KhVHwpGkn18",
+    "ROVnYt-Wmws",
+    "9k-nJTBSxZU",
+    "YtAlqMr4y0c",
+    "BZL5r2y89F0",
+    "qwFDC1pV7KU",
+    "vEw_JRRJifU",
     "rOi35oGTNZc",
+    "dL-lj2EfnAY",
+    "spW1y-EsHto",
+    "S6pQMNAjr64",
+    "z5GoBR8fgyw",
+    "L98vlLOgvnw",
+    "I8C2wD0bj7E",
+    "Q04Qt5XgtCg",
+    "IY-ueW7CUDw",
+    "AycTDlFcTlU",
+    "FnPFkKoUd88",
+    "0TBzLtO1jqc",
+    "ImJC9yS_SdA",
+    "uXpBidbPigQ",
+    "oe5SauhCwQQ",
+    "dvJTEJD8-bY",
+    "aG3obgmZAew",
+    "-8AAlrsydfs",
+    "l4xeKKOhqyE",
+    "s5gpYrbvBmA",
+    "ZDzGicu-Kbw",
+    "rm-7c_tNUcY",
+    "ru_kDdcw6I8",
+    "wEJCYEO_bcM",
+    "MZ9zwhp8Akk",
+    "1U8tFYKaSGs",
+    "49aKw2jq7dE",
     "2kWW0Jr06CI",
     "j_6Nhv-RQvY",
-    "vzg6MLjbBEs",
-    "l4xeKKOhqyE",
-    "vEw_JRRJifU",
-    "eyJ-aMccXS4",
-    "spW1y-EsHto",
-    "uXpBidbPigQ",
-    "S6pQMNAjr64",
-    "ZDzGicu-Kbw",
-    "wEJCYEO_bcM",
-    "FnPFkKoUd88",
     "TziknAw_NTE",
-    "MZ9zwhp8Akk",
-    "RI7A7AKpg_4",
-    "z5GoBR8fgyw",
-    "rm-7c_tNUcY",
-    "XBcqp_itVxE",
-    "ru_kDdcw6I8",
-    "oe5SauhCwQQ",
-    "1U8tFYKaSGs",
-    "KhVHwpGkn18",
-    "L98vlLOgvnw",
-    "YtAlqMr4y0c",
-    "I8C2wD0bj7E",
-    "dvJTEJD8-bY",
-    "KBirLSu1XLQ",
-    "BZL5r2y89F0",
-    "ROVnYt-Wmws",
-    "aG3obgmZAew",
-    "49aKw2jq7dE",
-    "AycTDlFcTlU",
-    "0TBzLtO1jqc",
+    "vzg6MLjbBEs",
+    "eyJ-aMccXS4",
     "tOw2uMmvDcI",
-    "s5gpYrbvBmA",
-    "Q04Qt5XgtCg",
-    "qwFDC1pV7KU",
-    "dL-lj2EfnAY",
-    "-8AAlrsydfs",
-    "ImJC9yS_SdA"
+    "KBirLSu1XLQ"
   ],
   "videos": [
+    {
+      "video_id": "9k-nJTBSxZU",
+      "niche": "lifehack",
+      "title": "Bend a Paperclip, Keep Coffee Hot \u2013 10\u2011Minute Miracle Hack",
+      "hook_style": "contrarian",
+      "score": 6.0,
+      "views": 6,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-09-02T11:05:47.168540"
+    },
+    {
+      "video_id": "IY-ueW7CUDw",
+      "niche": "scary",
+      "title": "The Airbnb That Trapped Guests in a Time Loop",
+      "hook_style": "question_why_how",
+      "score": 5.0,
+      "views": 5,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-09-02T11:05:47.032978"
+    },
     {
       "video_id": "spW1y-EsHto",
       "niche": "rich",
@@ -496,13 +520,17 @@
     }
   ],
   "niche_stats": {
+    "lifehack": {
+      "avg_score": 9.0,
+      "n": 3
+    },
+    "scary": {
+      "avg_score": 71.3,
+      "n": 10
+    },
     "rich": {
       "avg_score": 2.67,
       "n": 6
-    },
-    "scary": {
-      "avg_score": 78.67,
-      "n": 9
     },
     "motivation": {
       "avg_score": 89.4,
@@ -522,10 +550,6 @@
     },
     "learn": {
       "avg_score": 14.5,
-      "n": 2
-    },
-    "lifehack": {
-      "avg_score": 10.5,
       "n": 2
     }
   }
