@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "Your Dead Brain Is Busier Than Your Daydreams",
+      "url": "https://youtu.be/pIQs-HoEOcY",
+      "video_id": "pIQs-HoEOcY",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-03T09:00:08.709310"
+    },
+    {
       "niche": "scary",
       "title": "The Closet That Talked Back and Said \"Finally\"",
       "url": "https://youtu.be/qSym6vggdVg",
@@ -440,15 +449,6 @@
       "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
       "ok": true,
       "ts": "2026-07-31T19:24:12.134437"
-    },
-    {
-      "niche": "fact",
-      "title": "The Dark Side of Cute",
-      "url": "https://youtu.be/BZL5r2y89F0",
-      "video_id": "BZL5r2y89F0",
-      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
-      "ok": true,
-      "ts": "2026-07-31T12:04:32.553680"
     }
   ],
   "stats": {
