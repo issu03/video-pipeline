@@ -1,50 +1,74 @@
 {
   "scored_video_ids": [
-    "RI7A7AKpg_4",
-    "XBcqp_itVxE",
-    "KhVHwpGkn18",
-    "ROVnYt-Wmws",
-    "9k-nJTBSxZU",
-    "YtAlqMr4y0c",
-    "BZL5r2y89F0",
-    "qwFDC1pV7KU",
-    "vEw_JRRJifU",
-    "rOi35oGTNZc",
-    "dL-lj2EfnAY",
-    "spW1y-EsHto",
-    "S6pQMNAjr64",
-    "z5GoBR8fgyw",
-    "L98vlLOgvnw",
-    "I8C2wD0bj7E",
-    "Q04Qt5XgtCg",
-    "IY-ueW7CUDw",
-    "AycTDlFcTlU",
-    "FnPFkKoUd88",
-    "0TBzLtO1jqc",
-    "ImJC9yS_SdA",
-    "uXpBidbPigQ",
-    "oe5SauhCwQQ",
-    "dvJTEJD8-bY",
-    "aG3obgmZAew",
-    "-8AAlrsydfs",
-    "l4xeKKOhqyE",
-    "s5gpYrbvBmA",
-    "ZDzGicu-Kbw",
-    "rm-7c_tNUcY",
-    "ru_kDdcw6I8",
-    "wEJCYEO_bcM",
-    "MZ9zwhp8Akk",
     "1U8tFYKaSGs",
+    "I8C2wD0bj7E",
+    "vEw_JRRJifU",
+    "S6pQMNAjr64",
+    "IY-ueW7CUDw",
+    "FnPFkKoUd88",
+    "-8AAlrsydfs",
+    "rOi35oGTNZc",
+    "ZDzGicu-Kbw",
+    "afm8tqRgA1c",
+    "dL-lj2EfnAY",
     "49aKw2jq7dE",
-    "2kWW0Jr06CI",
+    "z5GoBR8fgyw",
     "j_6Nhv-RQvY",
+    "ROVnYt-Wmws",
+    "qwFDC1pV7KU",
+    "YtAlqMr4y0c",
+    "ImJC9yS_SdA",
+    "ru_kDdcw6I8",
+    "l4xeKKOhqyE",
+    "uXpBidbPigQ",
     "TziknAw_NTE",
+    "0TBzLtO1jqc",
+    "spW1y-EsHto",
+    "Q04Qt5XgtCg",
+    "dvJTEJD8-bY",
+    "tOw2uMmvDcI",
+    "BZL5r2y89F0",
+    "AycTDlFcTlU",
+    "RI7A7AKpg_4",
+    "KoCaZhpupK4",
+    "s5gpYrbvBmA",
+    "MZ9zwhp8Akk",
+    "oe5SauhCwQQ",
+    "2kWW0Jr06CI",
+    "KBirLSu1XLQ",
+    "aG3obgmZAew",
+    "wEJCYEO_bcM",
+    "rm-7c_tNUcY",
     "vzg6MLjbBEs",
     "eyJ-aMccXS4",
-    "tOw2uMmvDcI",
-    "KBirLSu1XLQ"
+    "XBcqp_itVxE",
+    "KhVHwpGkn18",
+    "L98vlLOgvnw",
+    "9k-nJTBSxZU"
   ],
   "videos": [
+    {
+      "video_id": "KoCaZhpupK4",
+      "niche": "learn",
+      "title": "The 8\u2011Glass Water Lie That\u2019s Killing Your Kidneys",
+      "hook_style": "contrarian",
+      "score": 2.0,
+      "views": 2,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-09-03T11:02:44.384998"
+    },
+    {
+      "video_id": "afm8tqRgA1c",
+      "niche": "learn",
+      "title": "The Brain Hack That Makes You Smarter Instantly",
+      "hook_style": "contrarian",
+      "score": 15.0,
+      "views": 15,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-09-03T11:02:44.215433"
+    },
     {
       "video_id": "9k-nJTBSxZU",
       "niche": "lifehack",
@@ -520,6 +544,10 @@
     }
   ],
   "niche_stats": {
+    "learn": {
+      "avg_score": 11.5,
+      "n": 4
+    },
     "lifehack": {
       "avg_score": 9.0,
       "n": 3
@@ -547,10 +575,6 @@
     "dating": {
       "avg_score": 22.33,
       "n": 6
-    },
-    "learn": {
-      "avg_score": 14.5,
-      "n": 2
     }
   }
 }
