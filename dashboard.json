@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "dating",
+      "title": "The Swipe Mistake That's Killing Your Love Life",
+      "url": "https://youtu.be/UiTvKLSVN4A",
+      "video_id": "UiTvKLSVN4A",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-03T14:31:19.162536"
+    },
+    {
       "niche": "learn",
       "title": "Your Dead Brain Is Busier Than Your Daydreams",
       "url": "https://youtu.be/pIQs-HoEOcY",
@@ -440,15 +449,6 @@
       "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
       "ok": true,
       "ts": "2026-08-01T10:08:03.729819"
-    },
-    {
-      "niche": "rich",
-      "title": "You Won't Believe the $1,000 a Day Loophole",
-      "url": "https://youtu.be/S6pQMNAjr64",
-      "video_id": "S6pQMNAjr64",
-      "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
-      "ok": true,
-      "ts": "2026-07-31T19:24:12.134437"
     }
   ],
   "stats": {
