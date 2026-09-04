@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "Zero to Marathon: The Lazy Hack That Actually Works",
+      "url": "https://youtu.be/O4nE_olTJZI",
+      "video_id": "O4nE_olTJZI",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-04T08:56:22.728424"
+    },
+    {
       "niche": "dating",
       "title": "The Swipe Mistake That's Killing Your Love Life",
       "url": "https://youtu.be/UiTvKLSVN4A",
@@ -440,15 +449,6 @@
       "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
       "ok": true,
       "ts": "2026-08-02T10:06:10.709125"
-    },
-    {
-      "niche": "lifehack",
-      "title": "You Won't Believe This Insane Morning Routine Hack",
-      "url": "https://youtu.be/Q04Qt5XgtCg",
-      "video_id": "Q04Qt5XgtCg",
-      "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
-      "ok": true,
-      "ts": "2026-08-01T10:08:03.729819"
     }
   ],
   "stats": {
