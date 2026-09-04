@@ -1,52 +1,76 @@
 {
   "scored_video_ids": [
-    "1U8tFYKaSGs",
-    "I8C2wD0bj7E",
-    "vEw_JRRJifU",
-    "S6pQMNAjr64",
-    "IY-ueW7CUDw",
-    "FnPFkKoUd88",
-    "-8AAlrsydfs",
-    "rOi35oGTNZc",
-    "ZDzGicu-Kbw",
-    "afm8tqRgA1c",
-    "dL-lj2EfnAY",
     "49aKw2jq7dE",
-    "z5GoBR8fgyw",
-    "j_6Nhv-RQvY",
-    "ROVnYt-Wmws",
-    "qwFDC1pV7KU",
-    "YtAlqMr4y0c",
     "ImJC9yS_SdA",
-    "ru_kDdcw6I8",
-    "l4xeKKOhqyE",
-    "uXpBidbPigQ",
-    "TziknAw_NTE",
-    "0TBzLtO1jqc",
-    "spW1y-EsHto",
-    "Q04Qt5XgtCg",
+    "rOi35oGTNZc",
+    "sor1yQ6wHeE",
     "dvJTEJD8-bY",
+    "qwFDC1pV7KU",
     "tOw2uMmvDcI",
-    "BZL5r2y89F0",
-    "AycTDlFcTlU",
-    "RI7A7AKpg_4",
+    "KhVHwpGkn18",
+    "dL-lj2EfnAY",
+    "0TBzLtO1jqc",
     "KoCaZhpupK4",
+    "z5GoBR8fgyw",
+    "uXpBidbPigQ",
+    "ru_kDdcw6I8",
+    "BZL5r2y89F0",
+    "UbtpIcRETcY",
+    "l4xeKKOhqyE",
+    "rm-7c_tNUcY",
+    "I8C2wD0bj7E",
+    "Q04Qt5XgtCg",
+    "oe5SauhCwQQ",
+    "eyJ-aMccXS4",
+    "-8AAlrsydfs",
+    "AycTDlFcTlU",
+    "S6pQMNAjr64",
     "s5gpYrbvBmA",
     "MZ9zwhp8Akk",
-    "oe5SauhCwQQ",
-    "2kWW0Jr06CI",
+    "IY-ueW7CUDw",
     "KBirLSu1XLQ",
-    "aG3obgmZAew",
-    "wEJCYEO_bcM",
-    "rm-7c_tNUcY",
-    "vzg6MLjbBEs",
-    "eyJ-aMccXS4",
-    "XBcqp_itVxE",
-    "KhVHwpGkn18",
+    "ZDzGicu-Kbw",
+    "TziknAw_NTE",
+    "RI7A7AKpg_4",
     "L98vlLOgvnw",
-    "9k-nJTBSxZU"
+    "j_6Nhv-RQvY",
+    "XBcqp_itVxE",
+    "vEw_JRRJifU",
+    "ROVnYt-Wmws",
+    "aG3obgmZAew",
+    "1U8tFYKaSGs",
+    "9k-nJTBSxZU",
+    "YtAlqMr4y0c",
+    "vzg6MLjbBEs",
+    "2kWW0Jr06CI",
+    "afm8tqRgA1c",
+    "FnPFkKoUd88",
+    "wEJCYEO_bcM",
+    "spW1y-EsHto"
   ],
   "videos": [
+    {
+      "video_id": "UbtpIcRETcY",
+      "niche": "fact",
+      "title": "The Biggest Desert Is Actually a Frozen Wasteland",
+      "hook_style": "contrarian",
+      "score": 42.0,
+      "views": 41,
+      "likes": 1,
+      "comments": 0,
+      "checked_at": "2026-09-04T11:03:42.978000"
+    },
+    {
+      "video_id": "sor1yQ6wHeE",
+      "niche": "scary",
+      "title": "The Haunted Mirror That Hates You",
+      "hook_style": "contrarian",
+      "score": 56.0,
+      "views": 56,
+      "likes": 0,
+      "comments": 0,
+      "checked_at": "2026-09-04T11:03:42.874902"
+    },
     {
       "video_id": "KoCaZhpupK4",
       "niche": "learn",
@@ -544,6 +568,14 @@
     }
   ],
   "niche_stats": {
+    "fact": {
+      "avg_score": 99.62,
+      "n": 8
+    },
+    "scary": {
+      "avg_score": 69.91,
+      "n": 11
+    },
     "learn": {
       "avg_score": 11.5,
       "n": 4
@@ -551,10 +583,6 @@
     "lifehack": {
       "avg_score": 9.0,
       "n": 3
-    },
-    "scary": {
-      "avg_score": 71.3,
-      "n": 10
     },
     "rich": {
       "avg_score": 2.67,
@@ -567,10 +595,6 @@
     "reddit": {
       "avg_score": 9.5,
       "n": 4
-    },
-    "fact": {
-      "avg_score": 107.86,
-      "n": 7
     },
     "dating": {
       "avg_score": 22.33,
