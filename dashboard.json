@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "From Zero to Hero: The 3\u2011Month Money Flip",
+      "url": "https://youtu.be/ddMOhd9OnQ8",
+      "video_id": "ddMOhd9OnQ8",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-05T08:28:43.193123"
+    },
+    {
       "niche": "rich",
       "title": "The $27 Mistake That's Quietly Paying People $10,000 a Year",
       "url": "https://youtu.be/taQs-GjTeLI",
@@ -440,15 +449,6 @@
       "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
       "ok": true,
       "ts": "2026-08-03T19:39:02.850305"
-    },
-    {
-      "niche": "motivation",
-      "title": "From Couch to Champion: The Unbelievable Story",
-      "url": "https://youtu.be/KKZMOpMGrrg",
-      "video_id": "KKZMOpMGrrg",
-      "hook_style": "QUESTION/WHY-HOW: open with a sharp specific question the viewer needs answered ('Why does X happen?', 'How is X even possible?')",
-      "ok": true,
-      "ts": "2026-08-02T11:51:05.756608"
     }
   ],
   "stats": {
