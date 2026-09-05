@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "conspiracy",
+      "title": "The Sweet Secret Big Pharma Hides",
+      "url": "https://youtu.be/dB2cFtcr4Nk",
+      "video_id": "dB2cFtcr4Nk",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-05T13:36:48.981649"
+    },
+    {
       "niche": "motivation",
       "title": "From Zero to Hero: The 3\u2011Month Money Flip",
       "url": "https://youtu.be/ddMOhd9OnQ8",
@@ -440,15 +449,6 @@
       "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
       "ok": true,
       "ts": "2026-08-04T12:02:33.562165"
-    },
-    {
-      "niche": "dating",
-      "title": "The Dark Secret of Modern Dating",
-      "url": "https://youtu.be/dvJTEJD8-bY",
-      "video_id": "dvJTEJD8-bY",
-      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
-      "ok": true,
-      "ts": "2026-08-03T19:39:02.850305"
     }
   ],
   "stats": {
