@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Oxygen Lie: Why the Amazon Isn't Saving Your Breath",
+      "url": "https://youtu.be/uaW9hMgnWdw",
+      "video_id": "uaW9hMgnWdw",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-06T08:46:55.136684"
+    },
+    {
       "niche": "conspiracy",
       "title": "The Sweet Secret Big Pharma Hides",
       "url": "https://youtu.be/dB2cFtcr4Nk",
@@ -440,15 +449,6 @@
       "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
       "ok": true,
       "ts": "2026-08-04T17:45:09.437567"
-    },
-    {
-      "niche": "lifehack",
-      "title": "The 5-Minute Morning Routine That Will Change Your Life",
-      "url": "https://youtu.be/vzg6MLjbBEs",
-      "video_id": "vzg6MLjbBEs",
-      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
-      "ok": true,
-      "ts": "2026-08-04T12:02:33.562165"
     }
   ],
   "stats": {
