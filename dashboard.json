@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "fact",
+      "title": "Your Body Is a Hidden Supermachine: Iron Nails, Sun\u2011Spanning DNA & More",
+      "url": "https://youtu.be/yE9dQ50FmeE",
+      "video_id": "yE9dQ50FmeE",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-06T13:45:28.371770"
+    },
+    {
+      "niche": "fact",
       "title": "The Oxygen Lie: Why the Amazon Isn't Saving Your Breath",
       "url": "https://youtu.be/uaW9hMgnWdw",
       "video_id": "uaW9hMgnWdw",
@@ -440,15 +449,6 @@
       "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
       "ok": true,
       "ts": "2026-08-05T19:23:27.555681"
-    },
-    {
-      "niche": "fact",
-      "title": "You Won't Believe What Happens When You Die",
-      "url": "https://youtu.be/1U8tFYKaSGs",
-      "video_id": "1U8tFYKaSGs",
-      "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
-      "ok": true,
-      "ts": "2026-08-04T17:45:09.437567"
     }
   ],
   "stats": {
