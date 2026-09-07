@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "From Zero to Six\u2011Figure: The $0 Myth Busted",
+      "url": "https://youtu.be/_mpG64hqTu4",
+      "video_id": "_mpG64hqTu4",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-07T15:57:38.078085"
+    },
+    {
       "niche": "fact",
       "title": "The Secret Mushroom That Runs the Forest",
       "url": "https://youtu.be/z4N9Hv8FiiA",
@@ -440,15 +449,6 @@
       "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
       "ok": true,
       "ts": "2026-08-07T18:55:37.532239"
-    },
-    {
-      "niche": "fact",
-      "title": "You Won't Believe What's Happening to the World's Oceans",
-      "url": "https://youtu.be/ZDzGicu-Kbw",
-      "video_id": "ZDzGicu-Kbw",
-      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
-      "ok": true,
-      "ts": "2026-08-06T11:15:48.386982"
     }
   ],
   "stats": {
