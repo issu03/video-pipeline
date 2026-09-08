@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Immortal Jellyfish: Nature\u2019s Real\u2011Life Benjamin Button",
+      "url": "https://youtu.be/8tOz_KyGJMo",
+      "video_id": "8tOz_KyGJMo",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-08T08:58:25.190942"
+    },
+    {
       "niche": "motivation",
       "title": "From Zero to Six\u2011Figure: The $0 Myth Busted",
       "url": "https://youtu.be/_mpG64hqTu4",
@@ -440,15 +449,6 @@
       "hook_style": "OUTCOME-FIRST: open by showing/stating the shocking result or fact immediately \u2014 viewer must know the payoff within 2 seconds",
       "ok": true,
       "ts": "2026-08-08T08:44:04.762101"
-    },
-    {
-      "niche": "rich",
-      "title": "The $1,000 Per Week Secret Nobody Talks About",
-      "url": "https://youtu.be/ROVnYt-Wmws",
-      "video_id": "ROVnYt-Wmws",
-      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
-      "ok": true,
-      "ts": "2026-08-07T18:55:37.532239"
     }
   ],
   "stats": {
