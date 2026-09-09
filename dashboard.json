@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "motivation",
+      "title": "Why Success Isn\u2019t About Hustle: The Shocking Truth",
+      "url": "https://youtu.be/hM4n4Jofrbc",
+      "video_id": "hM4n4Jofrbc",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-09T09:03:27.185308"
+    },
+    {
+      "niche": "motivation",
       "title": "From Zero to $100K: The 90-Day Shock",
       "url": "https://youtu.be/CrY5-TFznXo",
       "video_id": "CrY5-TFznXo",
@@ -440,15 +449,6 @@
       "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
       "ok": true,
       "ts": "2026-08-10T18:59:19.748241"
-    },
-    {
-      "niche": "scary",
-      "title": "The Dark Side of Sleep",
-      "url": "https://youtu.be/I8C2wD0bj7E",
-      "video_id": "I8C2wD0bj7E",
-      "hook_style": "CONTRARIAN: open by contradicting a widely-held belief ('Everyone thinks X. They're wrong.')",
-      "ok": true,
-      "ts": "2026-08-09T08:48:39.429935"
     }
   ],
   "stats": {
