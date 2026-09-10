@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "rich",
+      "title": "The Free App That Rakes In $2,500 From Your Wallet Every Year",
+      "url": "https://youtu.be/7FsGzLiHnaE",
+      "video_id": "7FsGzLiHnaE",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-10T14:24:16.697053"
+    },
+    {
+      "niche": "rich",
       "title": "The $5 Trick Banks Hate: $10K Hidden Income",
       "url": "https://youtu.be/4l8rvNOCNRk",
       "video_id": "4l8rvNOCNRk",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-12T19:00:05.090935"
-    },
-    {
-      "niche": "dating",
-      "title": "Why You're Getting Ghosted By Your Dream Match",
-      "url": "https://youtu.be/vEw_JRRJifU",
-      "video_id": "vEw_JRRJifU",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-08-11T16:57:35.327490"
     }
   ],
   "stats": {
