@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "The $5 Trick Banks Hate: $10K Hidden Income",
+      "url": "https://youtu.be/4l8rvNOCNRk",
+      "video_id": "4l8rvNOCNRk",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-10T09:07:08.287821"
+    },
+    {
       "niche": "motivation",
       "title": "The Nap That Made a Millionaire",
       "url": "https://youtu.be/W9X4o60FeC0",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-08-11T16:57:35.327490"
-    },
-    {
-      "niche": "dating",
-      "title": "Everyone's Favorite Dating Rule Is Actually Killing Your Love Life",
-      "url": "https://youtu.be/YtAlqMr4y0c",
-      "video_id": "YtAlqMr4y0c",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-11T12:02:49.585657"
     }
   ],
   "stats": {
