@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VaultMind — Privacy Policy</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --void:#0b0c12; --panel:#14161f; --line:#2a2e40; --lime:#39ff14; --ink:#eef0f5; --dim:#8b93a7; }
+  body{ margin:0; background:var(--void); color:var(--ink); font-family:'Space Grotesk',sans-serif; line-height:1.65; }
+  .wrap{ max-width:720px; margin:0 auto; padding:60px 24px 100px; }
+  a{ color:var(--lime); }
+  .back{ color:var(--dim); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Bungee'; font-weight:400; font-size:1.7rem; margin:28px 0 6px; }
+  .updated{ color:var(--dim); font-size:0.85rem; margin:0 0 40px; }
+  h2{ font-size:1.1rem; margin:36px 0 12px; }
+  p, li{ color:#c7cbdb; font-size:0.95rem; }
+  ul{ padding-left:22px; }
+  code{ background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:1px 6px; font-size:0.88em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">&larr; VaultMind</a>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: August 2026</p>
+
+  <p>VaultMind ("the project," "we") is an independent, single-operator automated video pipeline. It publishes pre-generated videos to its own YouTube and TikTok accounts. This policy explains what data the pipeline touches when it connects to those platforms, and what this site collects from visitors.</p>
+
+  <h2>What this covers</h2>
+  <p>This policy applies to (a) this website, and (b) the TikTok and YouTube API connections used by the VaultMind publishing pipeline. It does not apply to YouTube, TikTok, or any other third-party platform itself — their own privacy policies govern how they handle your data.</p>
+
+  <h2>Data the pipeline accesses</h2>
+  <p>When the operator authorizes VaultMind's TikTok app via OAuth, the pipeline receives:</p>
+  <ul>
+    <li>Basic public profile info for the connected account (username, display name, avatar) — used only to confirm which account a video is about to be posted to.</li>
+    <li>Permission to publish video posts to that same account via TikTok's Content Posting API.</li>
+  </ul>
+  <p>The pipeline does not read direct messages, contacts, analytics, or any other TikTok data, and does not access any TikTok account other than the one the operator explicitly connects.</p>
+
+  <h2>What we don't collect</h2>
+  <p>This site does not use cookies, analytics scripts, or advertising trackers, and does not have a login, comment system, or form that collects visitor information. Standard web server access logs may be kept temporarily by our hosting provider (GitHub Pages) as part of their own infrastructure — see <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub's privacy statement</a>.</p>
+
+  <h2>How authorization data is stored</h2>
+  <p>The OAuth refresh token used to publish videos is stored as an encrypted secret in the pipeline's GitHub Actions configuration. It is never logged, displayed, committed to source control, or shared with any third party. It is used solely to obtain short-lived access tokens for publishing to the connected account.</p>
+
+  <h2>Data retention &amp; revocation</h2>
+  <p>Authorization data is kept only as long as the pipeline remains active. The account holder can revoke VaultMind's access at any time from TikTok's app-permissions settings (Profile &rarr; Settings &rarr; Security &rarr; Manage apps) or the equivalent YouTube/Google account permissions page, which immediately invalidates the pipeline's ability to post.</p>
+
+  <h2>Third-party services</h2>
+  <p>Generating a video involves calling third-party APIs (for script generation, text-to-speech, stock footage, and music) in addition to YouTube's and TikTok's publishing APIs. These calls process the video's generated content, not personal data about site visitors.</p>
+
+  <h2>Children's privacy</h2>
+  <p>This site and the VaultMind pipeline are not directed at children and do not knowingly collect data from anyone under the age required by TikTok's and YouTube's own terms.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If this policy changes, the "Last updated" date above will change accordingly.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy: <code>contact@[your-domain-or-email]</code></p>
+</div>
+</body>
+</html>
