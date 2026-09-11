@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Reddit Poll Turns Town Park Into a Hamster Wheel & Makes a Cat Mayor",
+      "url": "https://youtu.be/rH4soDRuEy4",
+      "video_id": "rH4soDRuEy4",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-11T14:27:52.724049"
+    },
+    {
       "niche": "fact",
       "title": "The Amazon Isn't the Earth's Lungs\u2014Here's the Real Deal",
       "url": "https://youtu.be/hHM6sdtluSQ",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-08-14T11:12:20.970459"
-    },
-    {
-      "niche": "scary",
-      "title": "The Terrifying Truth About Your Reflection",
-      "url": "https://youtu.be/TziknAw_NTE",
-      "video_id": "TziknAw_NTE",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-08-14T05:59:55.987109"
     }
   ],
   "stats": {
