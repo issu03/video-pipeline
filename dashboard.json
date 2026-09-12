@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Secret Legal Psychedelic in Your Energy Drink That Gives 30\u2011Second Super\u2011Focus",
+      "url": "https://youtu.be/KtTuJIrHwDk",
+      "video_id": "KtTuJIrHwDk",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-12T08:47:38.147227"
+    },
+    {
       "niche": "reddit",
       "title": "Reddit Poll Turns Town Park Into a Hamster Wheel & Makes a Cat Mayor",
       "url": "https://youtu.be/rH4soDRuEy4",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-15T04:51:00.911057"
-    },
-    {
-      "niche": "scary",
-      "title": "Your Mirror Is Watching You",
-      "url": "https://youtu.be/XBcqp_itVxE",
-      "video_id": "XBcqp_itVxE",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-08-14T11:12:20.970459"
     }
   ],
   "stats": {
