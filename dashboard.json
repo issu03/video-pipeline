@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Reddit Voted to Ban Pizza Forever\u2014What Happened Next?",
+      "url": "https://youtu.be/H8N_DesHd-g",
+      "video_id": "H8N_DesHd-g",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-12T13:42:38.447365"
+    },
+    {
       "niche": "fact",
       "title": "The Secret Legal Psychedelic in Your Energy Drink That Gives 30\u2011Second Super\u2011Focus",
       "url": "https://youtu.be/KtTuJIrHwDk",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-08-15T10:37:24.584189"
-    },
-    {
-      "niche": "fact",
-      "title": "The Shocking Truth About Your Brain",
-      "url": "https://youtu.be/AycTDlFcTlU",
-      "video_id": "AycTDlFcTlU",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-15T04:51:00.911057"
     }
   ],
   "stats": {
