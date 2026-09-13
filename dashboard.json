@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "scary",
+      "title": "The Haunted Phone Call That Broke the Internet",
+      "url": "https://youtu.be/UCABo1KVUXI",
+      "video_id": "UCABo1KVUXI",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-13T14:28:53.451591"
+    },
+    {
+      "niche": "scary",
       "title": "The Nightlight That Became a Horror Set",
       "url": "https://youtu.be/0vE5AchG_uk",
       "video_id": "0vE5AchG_uk",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-16T10:42:56.675761"
-    },
-    {
-      "niche": "reddit",
-      "title": "The Ridiculous Reason Why You're Still Single",
-      "url": "https://youtu.be/qwFDC1pV7KU",
-      "video_id": "qwFDC1pV7KU",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-16T05:02:44.351836"
     }
   ],
   "stats": {
