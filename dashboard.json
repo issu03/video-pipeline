@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Nightlight That Became a Horror Set",
+      "url": "https://youtu.be/0vE5AchG_uk",
+      "video_id": "0vE5AchG_uk",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-13T09:31:12.604082"
+    },
+    {
       "niche": "reddit",
       "title": "Reddit Voted to Ban Pizza Forever\u2014What Happened Next?",
       "url": "https://youtu.be/H8N_DesHd-g",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-16T05:02:44.351836"
-    },
-    {
-      "niche": "scary",
-      "title": "The One Thing You Should Never Do Before Bed",
-      "url": "https://youtu.be/49aKw2jq7dE",
-      "video_id": "49aKw2jq7dE",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-08-15T10:37:24.584189"
     }
   ],
   "stats": {
