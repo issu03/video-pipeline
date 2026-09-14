@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "When a Selfie Erased My Living Room (And It Was My Cousin\u2019s Idea)",
+      "url": "https://youtu.be/tI4AYmnTBGI",
+      "video_id": "tI4AYmnTBGI",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-14T16:26:49.425115"
+    },
+    {
       "niche": "lifehack",
       "title": "Freeze Your Drink in 2 Minutes with a Sponge Hack",
       "url": "https://youtu.be/rpP9u7Zu1d4",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-08-21T05:01:52.010225"
-    },
-    {
-      "niche": "scary",
-      "title": "The Creepy Reason Your House Wants You Dead",
-      "url": "https://youtu.be/l4xeKKOhqyE",
-      "video_id": "l4xeKKOhqyE",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-08-17T04:59:21.546776"
     }
   ],
   "stats": {
