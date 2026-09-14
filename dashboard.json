@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "Freeze Your Drink in 2 Minutes with a Sponge Hack",
+      "url": "https://youtu.be/rpP9u7Zu1d4",
+      "video_id": "rpP9u7Zu1d4",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-14T09:55:56.467860"
+    },
+    {
       "niche": "scary",
       "title": "The Haunted Phone Call That Broke the Internet",
       "url": "https://youtu.be/UCABo1KVUXI",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-08-17T04:59:21.546776"
-    },
-    {
-      "niche": "reddit",
-      "title": "The Insane Reason Why Your Worst Dates Are Actually Good for You",
-      "url": "https://youtu.be/FnPFkKoUd88",
-      "video_id": "FnPFkKoUd88",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-16T10:42:56.675761"
     }
   ],
   "stats": {
