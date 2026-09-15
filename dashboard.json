@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "fact",
+      "title": "Zombie Ants: The Real Mind\u2011Control Weapon Hidden in Nature",
+      "url": "https://youtu.be/08pYSp0BqYg",
+      "video_id": "08pYSp0BqYg",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-15T15:05:07.356127"
+    },
+    {
+      "niche": "fact",
       "title": "The Poop Brew: Why the Priciest Coffee Is Made From Animal Droppings",
       "url": "https://youtu.be/g7ZoiwnOYjk",
       "video_id": "g7ZoiwnOYjk",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-22T04:50:18.513272"
-    },
-    {
-      "niche": "motivation",
-      "title": "From Zero to Hero in 30 Days: The Secret No One Talks About",
-      "url": "https://youtu.be/2kWW0Jr06CI",
-      "video_id": "2kWW0Jr06CI",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-21T10:46:29.505345"
     }
   ],
   "stats": {
