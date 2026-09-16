@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "fact",
+      "title": "Your Coffee Is More Radioactive Than a Dental X\u2011Ray",
+      "url": "https://youtu.be/bOlzcpEGsjc",
+      "video_id": "bOlzcpEGsjc",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-16T09:25:45.578076"
+    },
+    {
+      "niche": "fact",
       "title": "Zombie Ants: The Real Mind\u2011Control Weapon Hidden in Nature",
       "url": "https://youtu.be/08pYSp0BqYg",
       "video_id": "08pYSp0BqYg",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-08-22T10:43:40.227926"
-    },
-    {
-      "niche": "reddit",
-      "title": "How a Reddit Poll Bulldozed a Town Park (and Made a Cat Famous)",
-      "url": "https://youtu.be/oe5SauhCwQQ",
-      "video_id": "oe5SauhCwQQ",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-22T04:50:18.513272"
     }
   ],
   "stats": {
