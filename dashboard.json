@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "When My Bedroom Went Silent and the Walls Started Talking",
+      "url": "https://youtu.be/aNTtts7SJDs",
+      "video_id": "aNTtts7SJDs",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-16T14:55:27.946186"
+    },
+    {
       "niche": "fact",
       "title": "Your Coffee Is More Radioactive Than a Dental X\u2011Ray",
       "url": "https://youtu.be/bOlzcpEGsjc",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-08-23T04:58:21.518121"
-    },
-    {
-      "niche": "fact",
-      "title": "The Hidden Ingredient in Diet Coke That Europe Banned",
-      "url": "https://youtu.be/L98vlLOgvnw",
-      "video_id": "L98vlLOgvnw",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-08-22T10:43:40.227926"
     }
   ],
   "stats": {
