@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "conspiracy",
+      "title": "The Fry Conspiracy Fast Food Doesn't Want You to Know",
+      "url": "https://youtu.be/9BUEM5fHESQ",
+      "video_id": "9BUEM5fHESQ",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-18T09:08:22.202215"
+    },
+    {
       "niche": "fact",
       "title": "The $400 Water Scam You Never Knew About",
       "url": "https://youtu.be/oJnwfxrvobc",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-08-24T10:55:34.231309"
-    },
-    {
-      "niche": "scary",
-      "title": "When Your Closet Starts a Reality Show",
-      "url": "https://youtu.be/eyJ-aMccXS4",
-      "video_id": "eyJ-aMccXS4",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-24T05:07:23.034959"
     }
   ],
   "stats": {
