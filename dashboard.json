@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "dating",
+      "title": "The Dating Myth That\u2019s Killing Your Love Life",
+      "url": "https://youtu.be/sQ-qFOcweFE",
+      "video_id": "sQ-qFOcweFE",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-18T14:29:26.403998"
+    },
+    {
       "niche": "conspiracy",
       "title": "The Fry Conspiracy Fast Food Doesn't Want You to Know",
       "url": "https://youtu.be/9BUEM5fHESQ",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-25T04:55:43.005004"
-    },
-    {
-      "niche": "dating",
-      "title": "The Secret Reason 90% of First Dates End Awkwardly",
-      "url": "https://youtu.be/wEJCYEO_bcM",
-      "video_id": "wEJCYEO_bcM",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-08-24T10:55:34.231309"
     }
   ],
   "stats": {
