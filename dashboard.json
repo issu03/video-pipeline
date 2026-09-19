@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Mirror That Refuses Your Reflection",
+      "url": "https://youtu.be/qUN3voKlyv8",
+      "video_id": "qUN3voKlyv8",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-19T13:58:05.807113"
+    },
+    {
       "niche": "reddit",
       "title": "Reddit Votes to Ban Emojis \u2013 The Chaos That Followed",
       "url": "https://youtu.be/qAGBbILxpaE",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-08-26T05:03:15.039536"
-    },
-    {
-      "niche": "motivation",
-      "title": "From Coffee Stains to Cash Stacks: 90-Day Shock",
-      "url": "https://youtu.be/dL-lj2EfnAY",
-      "video_id": "dL-lj2EfnAY",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-08-25T10:53:39.190929"
     }
   ],
   "stats": {
