@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Reddit Votes to Ban Emojis \u2013 The Chaos That Followed",
+      "url": "https://youtu.be/qAGBbILxpaE",
+      "video_id": "qAGBbILxpaE",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-19T08:55:44.947889"
+    },
+    {
       "niche": "dating",
       "title": "The Dating Myth That\u2019s Killing Your Love Life",
       "url": "https://youtu.be/sQ-qFOcweFE",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-08-25T10:53:39.190929"
-    },
-    {
-      "niche": "dating",
-      "title": "The Silent Killer of First Dates",
-      "url": "https://youtu.be/uXpBidbPigQ",
-      "video_id": "uXpBidbPigQ",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-25T04:55:43.005004"
     }
   ],
   "stats": {
