@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "Your Brain Uses More Power At Night Than A Small Town",
+      "url": "https://youtu.be/SZ2QtXzunuo",
+      "video_id": "SZ2QtXzunuo",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-20T09:22:56.240308"
+    },
+    {
       "niche": "scary",
       "title": "The Mirror That Refuses Your Reflection",
       "url": "https://youtu.be/qUN3voKlyv8",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-08-26T10:55:18.278288"
-    },
-    {
-      "niche": "reddit",
-      "title": "How One Reddit Comment Got the FBI to Police a Meme",
-      "url": "https://youtu.be/rOi35oGTNZc",
-      "video_id": "rOi35oGTNZc",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-08-26T05:03:15.039536"
     }
   ],
   "stats": {
