@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The 10% Brain Myth: Why You're Actually Using 100%",
+      "url": "https://youtu.be/Y1PW_UZkJeo",
+      "video_id": "Y1PW_UZkJeo",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-21T16:35:17.535453"
+    },
+    {
       "niche": "conspiracy",
       "title": "The Cereal Signal They Don't Want You to Know",
       "url": "https://youtu.be/PqQp521RKAA",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-08-28T16:39:43.991354"
-    },
-    {
-      "niche": "motivation",
-      "title": "From Dumpster to Dream: The 90\u2011Day Billionaire Flip",
-      "url": "https://youtu.be/ru_kDdcw6I8",
-      "video_id": "ru_kDdcw6I8",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-08-27T20:28:41.531378"
     }
   ],
   "stats": {
