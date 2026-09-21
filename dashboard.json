@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "conspiracy",
+      "title": "The Cereal Signal They Don't Want You to Know",
+      "url": "https://youtu.be/PqQp521RKAA",
+      "video_id": "PqQp521RKAA",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-21T10:01:22.683837"
+    },
+    {
       "niche": "fact",
       "title": "Why the Great Wall Isn't Visible From Space",
       "url": "https://youtu.be/TWrLORqWYxo",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-08-27T20:28:41.531378"
-    },
-    {
-      "niche": "scary",
-      "title": "The Baby Monitor That Screamed Before Anyone Entered",
-      "url": "https://youtu.be/ImJC9yS_SdA",
-      "video_id": "ImJC9yS_SdA",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-08-27T15:19:36.794229"
     }
   ],
   "stats": {
