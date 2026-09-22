@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "Why Your Body Starts with 300 Bones and Ends with 206",
+      "url": "https://youtu.be/fbvGrOfFkfk",
+      "video_id": "fbvGrOfFkfk",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-22T14:47:26.418320"
+    },
+    {
       "niche": "conspiracy",
       "title": "The 5\u2011Second Brain Hack Hidden in Every TV Ad",
       "url": "https://youtu.be/bPJaxznyncs",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-08-29T11:10:37.293745"
-    },
-    {
-      "niche": "scary",
-      "title": "Smart Speaker Told My Darkest Thought\u2014Then Went Full Horror",
-      "url": "https://youtu.be/-8AAlrsydfs",
-      "video_id": "-8AAlrsydfs",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-08-28T21:23:54.764284"
     }
   ],
   "stats": {
