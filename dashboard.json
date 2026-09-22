@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "conspiracy",
+      "title": "The 5\u2011Second Brain Hack Hidden in Every TV Ad",
+      "url": "https://youtu.be/bPJaxznyncs",
+      "video_id": "bPJaxznyncs",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-22T09:23:50.136785"
+    },
+    {
       "niche": "fact",
       "title": "The 10% Brain Myth: Why You're Actually Using 100%",
       "url": "https://youtu.be/Y1PW_UZkJeo",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-08-28T21:23:54.764284"
-    },
-    {
-      "niche": "rich",
-      "title": "How $0 Apps Are Stealing $1,200 From Your Wallet Every Year",
-      "url": "https://youtu.be/spW1y-EsHto",
-      "video_id": "spW1y-EsHto",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-08-28T16:39:43.991354"
     }
   ],
   "stats": {
