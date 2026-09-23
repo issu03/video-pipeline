@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "Multitasking Is Killing Your Brain (Surprising Truth)",
+      "url": "https://youtu.be/mnRfCLoFSug",
+      "video_id": "mnRfCLoFSug",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-23T09:23:18.225335"
+    },
+    {
       "niche": "fact",
       "title": "Why Your Body Starts with 300 Bones and Ends with 206",
       "url": "https://youtu.be/fbvGrOfFkfk",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-29T15:12:40.966954"
-    },
-    {
-      "niche": "rich",
-      "title": "The $0.01 Trick That\u2019s Draining Your Wallet",
-      "url": "https://youtu.be/aG3obgmZAew",
-      "video_id": "aG3obgmZAew",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-08-29T11:10:37.293745"
     }
   ],
   "stats": {
