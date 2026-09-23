@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "conspiracy",
+      "title": "The Ketchup Packet Conspiracy They Don't Want You to Know",
+      "url": "https://youtu.be/QNpn8voycpA",
+      "video_id": "QNpn8voycpA",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-23T15:02:54.086993"
+    },
+    {
       "niche": "learn",
       "title": "Multitasking Is Killing Your Brain (Surprising Truth)",
       "url": "https://youtu.be/mnRfCLoFSug",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-08-30T10:02:18.670233"
-    },
-    {
-      "niche": "lifehack",
-      "title": "Bend a Paperclip, Keep Coffee Hot \u2013 10\u2011Minute Miracle Hack",
-      "url": "https://youtu.be/9k-nJTBSxZU",
-      "video_id": "9k-nJTBSxZU",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-29T15:12:40.966954"
     }
   ],
   "stats": {
