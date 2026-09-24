@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Night the Closet Whispered Back",
+      "url": "https://youtu.be/2WwdhMUlncQ",
+      "video_id": "2WwdhMUlncQ",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-24T15:00:25.954564"
+    },
+    {
       "niche": "rich",
       "title": "The $5,000/Day Secret No One Talks About",
       "url": "https://youtu.be/elPZNOkvLFc",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-31T10:57:26.543021"
-    },
-    {
-      "niche": "learn",
-      "title": "The 8\u2011Glass Water Lie That\u2019s Killing Your Kidneys",
-      "url": "https://youtu.be/KoCaZhpupK4",
-      "video_id": "KoCaZhpupK4",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-30T14:58:56.183711"
     }
   ],
   "stats": {
