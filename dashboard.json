@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "The $5,000/Day Secret No One Talks About",
+      "url": "https://youtu.be/elPZNOkvLFc",
+      "video_id": "elPZNOkvLFc",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-24T09:24:49.205245"
+    },
+    {
       "niche": "conspiracy",
       "title": "The Ketchup Packet Conspiracy They Don't Want You to Know",
       "url": "https://youtu.be/QNpn8voycpA",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-30T14:58:56.183711"
-    },
-    {
-      "niche": "scary",
-      "title": "The Airbnb That Trapped Guests in a Time Loop",
-      "url": "https://youtu.be/IY-ueW7CUDw",
-      "video_id": "IY-ueW7CUDw",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-08-30T10:02:18.670233"
     }
   ],
   "stats": {
