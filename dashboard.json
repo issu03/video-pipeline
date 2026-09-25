@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "Why $5 Bottled Water Is Just Fancy Tap",
+      "url": "https://youtu.be/t-VpFo2S9jg",
+      "video_id": "t-VpFo2S9jg",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-25T09:43:44.286956"
+    },
+    {
       "niche": "scary",
       "title": "The Night the Closet Whispered Back",
       "url": "https://youtu.be/2WwdhMUlncQ",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-08-31T17:43:08.122133"
-    },
-    {
-      "niche": "learn",
-      "title": "The Brain Hack That Makes You Smarter Instantly",
-      "url": "https://youtu.be/afm8tqRgA1c",
-      "video_id": "afm8tqRgA1c",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-31T10:57:26.543021"
     }
   ],
   "stats": {
