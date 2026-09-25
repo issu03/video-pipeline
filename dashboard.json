@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Haunted Call That Turned His Phone Into a Haunted Comedy Club",
+      "url": "https://youtu.be/CY6vmLOECI0",
+      "video_id": "CY6vmLOECI0",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-25T15:23:37.985910"
+    },
+    {
       "niche": "fact",
       "title": "Why $5 Bottled Water Is Just Fancy Tap",
       "url": "https://youtu.be/t-VpFo2S9jg",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-01T09:30:08.522041"
-    },
-    {
-      "niche": "fact",
-      "title": "The Biggest Desert Is Actually a Frozen Wasteland",
-      "url": "https://youtu.be/UbtpIcRETcY",
-      "video_id": "UbtpIcRETcY",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-08-31T17:43:08.122133"
     }
   ],
   "stats": {
