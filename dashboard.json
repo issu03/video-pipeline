@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "From Barista to Billionaire in 30 Days",
+      "url": "https://youtu.be/LEAjvaJ1IV8",
+      "video_id": "LEAjvaJ1IV8",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-26T09:26:11.938505"
+    },
+    {
       "niche": "scary",
       "title": "The Haunted Call That Turned His Phone Into a Haunted Comedy Club",
       "url": "https://youtu.be/CY6vmLOECI0",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-01T14:54:06.565689"
-    },
-    {
-      "niche": "scary",
-      "title": "The Haunted Mirror That Hates You",
-      "url": "https://youtu.be/sor1yQ6wHeE",
-      "video_id": "sor1yQ6wHeE",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-01T09:30:08.522041"
     }
   ],
   "stats": {
