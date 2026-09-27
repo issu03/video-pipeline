@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "conspiracy",
+      "title": "The Smiley Box Conspiracy They Don't Want You to Know",
+      "url": "https://youtu.be/O7DECSBbiDE",
+      "video_id": "O7DECSBbiDE",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-27T15:17:44.400268"
+    },
+    {
       "niche": "scary",
       "title": "The Night My Closet Started Screaming (and Then Made a Joke)",
       "url": "https://youtu.be/qPidWjzJAgc",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-03T09:00:08.709310"
-    },
-    {
-      "niche": "scary",
-      "title": "The Closet That Talked Back and Said \"Finally\"",
-      "url": "https://youtu.be/qSym6vggdVg",
-      "video_id": "qSym6vggdVg",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-02T14:30:40.616847"
     }
   ],
   "stats": {
