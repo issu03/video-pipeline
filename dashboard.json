@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "scary",
+      "title": "The Night My Closet Started Screaming (and Then Made a Joke)",
+      "url": "https://youtu.be/qPidWjzJAgc",
+      "video_id": "qPidWjzJAgc",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-27T10:07:16.532645"
+    },
+    {
+      "niche": "scary",
       "title": "When Your Mirror Starts Acting Like a Bad Reality TV Show",
       "url": "https://youtu.be/2Q2CFnipxsk",
       "video_id": "2Q2CFnipxsk",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-02T14:30:40.616847"
-    },
-    {
-      "niche": "lifehack",
-      "title": "Freeze Any Drink in 2 Minutes with a Wet Towel \u2013 Mind\u2011Blowing Hack",
-      "url": "https://youtu.be/Qjp3AvNJJcA",
-      "video_id": "Qjp3AvNJJcA",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-02T08:51:13.287789"
     }
   ],
   "stats": {
