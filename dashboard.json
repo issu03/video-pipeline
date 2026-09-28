@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "scary",
+      "title": "The Baby Monitor That Knew My Secrets",
+      "url": "https://youtu.be/qRf0FlT6sI0",
+      "video_id": "qRf0FlT6sI0",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-09-28T18:12:08.862196"
+    },
+    {
+      "niche": "scary",
       "title": "The Midnight Door That Won't Stop Laughing",
       "url": "https://youtu.be/qfI16nidBhI",
       "video_id": "qfI16nidBhI",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-04T08:56:22.728424"
-    },
-    {
-      "niche": "dating",
-      "title": "The Swipe Mistake That's Killing Your Love Life",
-      "url": "https://youtu.be/UiTvKLSVN4A",
-      "video_id": "UiTvKLSVN4A",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-03T14:31:19.162536"
     }
   ],
   "stats": {
