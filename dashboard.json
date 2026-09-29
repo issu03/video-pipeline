@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "Freeze Coffee Instantly With a Sponge \u2014 No Freezer Needed",
+      "url": "https://youtu.be/tASJTy1zgGw",
+      "video_id": "tASJTy1zgGw",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-09-29T10:40:59.980416"
+    },
+    {
       "niche": "scary",
       "title": "The Baby Monitor That Knew My Secrets",
       "url": "https://youtu.be/qRf0FlT6sI0",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-04T14:22:36.817493"
-    },
-    {
-      "niche": "motivation",
-      "title": "Zero to Marathon: The Lazy Hack That Actually Works",
-      "url": "https://youtu.be/O4nE_olTJZI",
-      "video_id": "O4nE_olTJZI",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-04T08:56:22.728424"
     }
   ],
   "stats": {
