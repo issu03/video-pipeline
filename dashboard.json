@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "dating",
+      "title": "Why Ghosting Is the Best Dating Strategy (And Why You're Doing It Wrong)",
+      "url": "https://youtu.be/UdScDfm5Vvg",
+      "video_id": "UdScDfm5Vvg",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-09-30T16:35:28.537278"
+    },
+    {
       "niche": "scary",
       "title": "The Haunted Wi\u2011Fi That Screamed \u2018Buffering\u2026\u2019",
       "url": "https://youtu.be/GuMUIa6jDQs",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-06T08:46:55.136684"
-    },
-    {
-      "niche": "conspiracy",
-      "title": "The Sweet Secret Big Pharma Hides",
-      "url": "https://youtu.be/dB2cFtcr4Nk",
-      "video_id": "dB2cFtcr4Nk",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-05T13:36:48.981649"
     }
   ],
   "stats": {
