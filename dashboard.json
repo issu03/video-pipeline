@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Plastic Straw That Outlived the Dinosaurs",
+      "url": "https://youtu.be/RB1fv-op6Ow",
+      "video_id": "RB1fv-op6Ow",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-10-01T11:03:31.195305"
+    },
+    {
       "niche": "dating",
       "title": "Why Ghosting Is the Best Dating Strategy (And Why You're Doing It Wrong)",
       "url": "https://youtu.be/UdScDfm5Vvg",
@@ -440,15 +449,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-06T13:45:28.371770"
-    },
-    {
-      "niche": "fact",
-      "title": "The Oxygen Lie: Why the Amazon Isn't Saving Your Breath",
-      "url": "https://youtu.be/uaW9hMgnWdw",
-      "video_id": "uaW9hMgnWdw",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-06T08:46:55.136684"
     }
   ],
   "stats": {
