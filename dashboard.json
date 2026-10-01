@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "fact",
+      "title": "Why Your Brain Is a Night\u2011Owl Superhero",
+      "url": "https://youtu.be/yr6T7UWbiyU",
+      "video_id": "yr6T7UWbiyU",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-10-01T17:26:53.648107"
+    },
+    {
+      "niche": "fact",
       "title": "The Plastic Straw That Outlived the Dinosaurs",
       "url": "https://youtu.be/RB1fv-op6Ow",
       "video_id": "RB1fv-op6Ow",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-09-07T09:23:57.295109"
-    },
-    {
-      "niche": "fact",
-      "title": "Your Body Is a Hidden Supermachine: Iron Nails, Sun\u2011Spanning DNA & More",
-      "url": "https://youtu.be/yE9dQ50FmeE",
-      "video_id": "yE9dQ50FmeE",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-06T13:45:28.371770"
     }
   ],
   "stats": {
