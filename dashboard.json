@@ -2,6 +2,15 @@
   "videos": [
     {
       "niche": "fact",
+      "title": "The Berry Truth About Bananas & Strawberries",
+      "url": "https://youtu.be/XbAx3Mw7nVg",
+      "video_id": "XbAx3Mw7nVg",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-10-02T10:31:52.671496"
+    },
+    {
+      "niche": "fact",
       "title": "Why Your Brain Is a Night\u2011Owl Superhero",
       "url": "https://youtu.be/yr6T7UWbiyU",
       "video_id": "yr6T7UWbiyU",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-07T15:57:38.078085"
-    },
-    {
-      "niche": "fact",
-      "title": "The Secret Mushroom That Runs the Forest",
-      "url": "https://youtu.be/z4N9Hv8FiiA",
-      "video_id": "z4N9Hv8FiiA",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-07T09:23:57.295109"
     }
   ],
   "stats": {
