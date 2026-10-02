@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "Instant Drink Chiller Hack \u2013 No Ice Needed",
+      "url": "https://youtu.be/IoDRw6VfUWY",
+      "video_id": "IoDRw6VfUWY",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-10-02T16:22:35.251868"
+    },
+    {
       "niche": "fact",
       "title": "The Berry Truth About Bananas & Strawberries",
       "url": "https://youtu.be/XbAx3Mw7nVg",
@@ -440,15 +449,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-09-08T08:58:25.190942"
-    },
-    {
-      "niche": "motivation",
-      "title": "From Zero to Six\u2011Figure: The $0 Myth Busted",
-      "url": "https://youtu.be/_mpG64hqTu4",
-      "video_id": "_mpG64hqTu4",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-07T15:57:38.078085"
     }
   ],
   "stats": {
