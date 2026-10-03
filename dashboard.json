@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Zombie-Ant Fungus That Turns Insects Into Murder-Bots",
+      "url": "https://youtu.be/npQFJa-QLpg",
+      "video_id": "npQFJa-QLpg",
+      "hook_style": "question_why_how",
+      "ok": true,
+      "ts": "2026-10-03T09:57:59.687536"
+    },
+    {
       "niche": "lifehack",
       "title": "Instant Drink Chiller Hack \u2013 No Ice Needed",
       "url": "https://youtu.be/IoDRw6VfUWY",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-08T14:30:46.147970"
-    },
-    {
-      "niche": "fact",
-      "title": "The Immortal Jellyfish: Nature\u2019s Real\u2011Life Benjamin Button",
-      "url": "https://youtu.be/8tOz_KyGJMo",
-      "video_id": "8tOz_KyGJMo",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-08T08:58:25.190942"
     }
   ],
   "stats": {
