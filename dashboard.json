@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "Charge Your Phone in 5 Seconds With a Paperclip",
+      "url": "https://youtu.be/Xa1XgfSrsak",
+      "video_id": "Xa1XgfSrsak",
+      "hook_style": "outcome_first",
+      "ok": true,
+      "ts": "2026-10-03T14:51:09.172509"
+    },
+    {
       "niche": "fact",
       "title": "The Zombie-Ant Fungus That Turns Insects Into Murder-Bots",
       "url": "https://youtu.be/npQFJa-QLpg",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-09T09:03:27.185308"
-    },
-    {
-      "niche": "motivation",
-      "title": "From Zero to $100K: The 90-Day Shock",
-      "url": "https://youtu.be/CrY5-TFznXo",
-      "video_id": "CrY5-TFznXo",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-08T14:30:46.147970"
     }
   ],
   "stats": {
