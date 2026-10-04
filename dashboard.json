@@ -1,6 +1,15 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Deadliest Creature You\u2019ve Never Heard Of",
+      "url": "https://youtu.be/gPVwDm1wzjU",
+      "video_id": "gPVwDm1wzjU",
+      "hook_style": "contrarian",
+      "ok": true,
+      "ts": "2026-10-04T10:43:31.015348"
+    },
+    {
       "niche": "lifehack",
       "title": "Charge Your Phone in 5 Seconds With a Paperclip",
       "url": "https://youtu.be/Xa1XgfSrsak",
@@ -440,15 +449,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-09T14:34:26.107135"
-    },
-    {
-      "niche": "motivation",
-      "title": "Why Success Isn\u2019t About Hustle: The Shocking Truth",
-      "url": "https://youtu.be/hM4n4Jofrbc",
-      "video_id": "hM4n4Jofrbc",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-09T09:03:27.185308"
     }
   ],
   "stats": {
