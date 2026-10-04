@@ -88,6 +88,25 @@ PIXABAY_KEY   = os.getenv("PIXABAY_KEY", "")
 JAMENDO_CLIENT_ID = os.getenv("JAMENDO_CLIENT_ID", "")
 FONT_PATH     = "font_bold.ttf"
 
+# ── TikTok upload — Content Posting API (official, kept for reference) ─
+# 2026-09: TikTok rejected this app for production — "does not support
+# personal or internal company use." Stays SELF_ONLY forever for this
+# account, so it's not called by run_pipeline() anymore. See
+# upload_tiktok() further down for the active path (cookie-based).
+# Same "refresh token stored as a secret" shape as YOUTUBE_TOKEN_B64, but
+# TikTok's access_token only lives 24h so it's refreshed on every run
+# (see _tiktok_refresh_access_token). One-time setup: run
+# tiktok_oauth_setup.py locally once to obtain these three values.
+# IMPORTANT: until this API client passes TikTok's own audit, every post
+# is forced to SELF_ONLY (private) — upload_tiktok_official() reads whatever
+# privacy level TikTok's creator_info/query actually allows right now and
+# uses that, so it starts posting PUBLIC_TO_EVERYONE automatically the
+# moment the audit clears, with no code change needed.
+TIKTOK_CLIENT_KEY    = os.getenv("TIKTOK_CLIENT_KEY", "")
+TIKTOK_CLIENT_SECRET = os.getenv("TIKTOK_CLIENT_SECRET", "")
+TIKTOK_REFRESH_TOKEN = os.getenv("TIKTOK_REFRESH_TOKEN", "")
+TIKTOK_CHUNK_SIZE    = 10_000_000   # bytes/chunk — inside TikTok's 5-64MB rule
+
 # ── Self-learning feedback loop (own video performance) ────────────────
 # Simple public API key (Google Cloud Console → APIs & Services →
 # Credentials → "API key", YouTube Data API v3 enabled), NOT the OAuth
@@ -408,7 +427,7 @@ def generate_script(niche: str) -> dict:
                 # eliminates the "Expecting ',' delimiter" parse failures
                 # that used to cost 1-2 wasted retries on most runs.
                 resp = client.chat.completions.create(
-                    model="openai/gpt-oss-120b",  # migrated from decommissioned llama-3.3-70b-versatile (Aug 2026)
+                    model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": system},
                               {"role": "user",   "content": prompt}],
                     temperature=0.78, max_tokens=3000,
@@ -418,7 +437,7 @@ def generate_script(niche: str) -> dict:
                 # Some Groq models/versions may reject response_format —
                 # fall back to the plain call so this never hard-fails.
                 resp = client.chat.completions.create(
-                    model="openai/gpt-oss-120b",  # migrated from decommissioned llama-3.3-70b-versatile (Aug 2026)
+                    model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": system},
                               {"role": "user",   "content": prompt}],
                     temperature=0.78, max_tokens=3000,
@@ -802,7 +821,7 @@ def smart_pexels_query(scene_text: str, niche: str,
     try:
         client = Groq(api_key=groq_key)
         resp = client.chat.completions.create(
-            model="openai/gpt-oss-120b",  # migrated from decommissioned llama-3.3-70b-versatile (Aug 2026)
+            model="llama-3.3-70b-versatile",
             messages=[{
                 "role": "system",
                 "content": (
@@ -2034,15 +2053,299 @@ def upload_youtube(video_path: str, title: str, description: str,
 
 
 # ══════════════════════════════════════════════════════════════════════
+# STEP 9b — TIKTOK UPLOAD (Content Posting API — Direct Post)
+#
+#  Mirrors upload_youtube()'s contract (returns a URL or None) but is
+#  wrapped in its own try/except so a TikTok-side problem can never take
+#  the rest of the pipeline down — the YouTube upload has already
+#  succeeded by the time this runs.
+#
+#  Flow (see https://developers.tiktok.com/doc/content-posting-api-get-started):
+#   1. refresh_token → 24h access_token       (own endpoint, no rate cap)
+#   2. creator_info/query   → allowed privacy levels for THIS account
+#   3. video/init            → publish_id + upload_url, chunked per TikTok's
+#                               5-64MB/chunk rule (last chunk absorbs the
+#                               remainder, exactly like TikTok's own example)
+#   4. PUT the file to upload_url in those chunks
+#   5. status/fetch, polled  → PUBLISH_COMPLETE (or FAILED)
+# ══════════════════════════════════════════════════════════════════════
+
+def _tiktok_refresh_access_token() -> Optional[str]:
+    """Exchange the long-lived refresh_token for a fresh access_token.
+    TikTok's refresh_token is valid ~1 year and CAN be reissued on refresh
+    — if that happens we only log it (updating the GitHub secret is a
+    manual step; see tiktok_oauth_setup.py / setup notes)."""
+    if not (TIKTOK_CLIENT_KEY and TIKTOK_CLIENT_SECRET and TIKTOK_REFRESH_TOKEN):
+        log.warning("TikTok secrets not set (TIKTOK_CLIENT_KEY/_SECRET/_REFRESH_TOKEN) — skipping TikTok upload")
+        return None
+    try:
+        r = requests.post(
+            "https://open.tiktokapis.com/v2/oauth/token/",
+            headers={"Content-Type": "application/x-www-form-urlencoded",
+                     "Cache-Control": "no-cache"},
+            data={"client_key": TIKTOK_CLIENT_KEY,
+                  "client_secret": TIKTOK_CLIENT_SECRET,
+                  "grant_type": "refresh_token",
+                  "refresh_token": TIKTOK_REFRESH_TOKEN},
+            timeout=20,
+        )
+        data = r.json()
+        if "access_token" not in data:
+            log.warning("TikTok token refresh failed: %s", data)
+            return None
+        new_rt = data.get("refresh_token")
+        if new_rt and new_rt != TIKTOK_REFRESH_TOKEN:
+            log.warning("TikTok issued a NEW refresh_token — update the "
+                        "TIKTOK_REFRESH_TOKEN GitHub secret to this value "
+                        "or TikTok uploads will eventually start failing: %s", new_rt)
+        return data["access_token"]
+    except Exception as e:
+        log.warning("TikTok token refresh error: %s", e)
+        return None
+
+
+def _tiktok_creator_info(access_token: str) -> Optional[dict]:
+    """Required before every Direct Post — tells us which privacy levels
+    and features (duet/stitch/comment) TikTok currently allows for this
+    account, per TikTok's UX guidelines."""
+    try:
+        r = requests.post(
+            "https://open.tiktokapis.com/v2/post/publish/creator_info/query/",
+            headers={"Authorization": f"Bearer {access_token}",
+                     "Content-Type": "application/json; charset=UTF-8"},
+            timeout=20,
+        )
+        data = r.json()
+        if data.get("error", {}).get("code") != "ok":
+            log.warning("TikTok creator_info failed: %s", data.get("error"))
+            return None
+        return data["data"]
+    except Exception as e:
+        log.warning("TikTok creator_info error: %s", e)
+        return None
+
+
+def upload_tiktok_official(video_path: str, title: str) -> Optional[str]:
+    """Direct Post to TikTok via the official API. Returns the post URL
+    on success, or None — never raises. Not called by run_pipeline() —
+    see upload_tiktok() below."""
+    try:
+        access_token = _tiktok_refresh_access_token()
+        if not access_token:
+            return None
+
+        creator = _tiktok_creator_info(access_token)
+        if not creator:
+            return None
+
+        options = creator.get("privacy_level_options", [])
+        privacy = "PUBLIC_TO_EVERYONE" if "PUBLIC_TO_EVERYONE" in options \
+                  else (options[0] if options else "SELF_ONLY")
+        if privacy != "PUBLIC_TO_EVERYONE":
+            log.info("TikTok client not yet audited (or account private) — "
+                     "posting as %s. Will switch to public automatically "
+                     "once TikTok approves the app — no code change needed.", privacy)
+
+        video_size = Path(video_path).stat().st_size
+        if video_size <= TIKTOK_CHUNK_SIZE:
+            chunk_size, total_chunks = video_size, 1
+        else:
+            chunk_size   = TIKTOK_CHUNK_SIZE
+            total_chunks = video_size // chunk_size   # floor — last chunk absorbs
+                                                        # the remainder (TikTok's own formula)
+
+        init_body = {
+            "post_info": {
+                "title": title[:2200],       # TikTok's own cap (UTF-16 runes)
+                "privacy_level": privacy,
+                "disable_duet": False,
+                "disable_stitch": False,
+                "disable_comment": False,    # channel wants MORE engagement, not less
+                "is_aigc": True,             # script + voice are AI-generated —
+                                              # TikTok's own required disclosure field
+            },
+            "source_info": {
+                "source": "FILE_UPLOAD",
+                "video_size": video_size,
+                "chunk_size": chunk_size,
+                "total_chunk_count": total_chunks,
+            },
+        }
+        r = requests.post(
+            "https://open.tiktokapis.com/v2/post/publish/video/init/",
+            headers={"Authorization": f"Bearer {access_token}",
+                     "Content-Type": "application/json; charset=UTF-8"},
+            json=init_body, timeout=20,
+        )
+        resp = r.json()
+        if resp.get("error", {}).get("code") != "ok":
+            log.warning("TikTok init failed: %s", resp.get("error"))
+            return None
+        publish_id = resp["data"]["publish_id"]
+        upload_url = resp["data"]["upload_url"]
+
+        with open(video_path, "rb") as f:
+            for i in range(total_chunks):
+                start = i * chunk_size
+                end   = video_size - 1 if i == total_chunks - 1 else start + chunk_size - 1
+                f.seek(start)
+                chunk = f.read(end - start + 1)
+                pr = requests.put(
+                    upload_url,
+                    headers={"Content-Type": "video/mp4",
+                             "Content-Length": str(len(chunk)),
+                             "Content-Range": f"bytes {start}-{end}/{video_size}"},
+                    data=chunk, timeout=120,
+                )
+                if pr.status_code not in (200, 201, 206):
+                    log.warning("TikTok chunk %d/%d upload failed (%d): %s",
+                                i + 1, total_chunks, pr.status_code, pr.text[:300])
+                    return None
+
+        # Publishing is async — poll status/fetch. Paced at 1 call/12s to
+        # stay comfortably under TikTok's 6 requests/min per-token cap;
+        # typical completion is 30s-2min per TikTok's own docs.
+        for _ in range(15):   # up to 3 minutes
+            time.sleep(12)
+            sr = requests.post(
+                "https://open.tiktokapis.com/v2/post/publish/status/fetch/",
+                headers={"Authorization": f"Bearer {access_token}",
+                         "Content-Type": "application/json; charset=UTF-8"},
+                json={"publish_id": publish_id}, timeout=20,
+            )
+            status = sr.json().get("data", {})
+            if status.get("status") == "PUBLISH_COMPLETE":
+                post_ids = status.get("publicaly_available_post_id") or []  # [sic] — TikTok's own field name
+                username = creator.get("creator_username", "")
+                tt_url = (f"https://www.tiktok.com/@{username}/video/{post_ids[0]}"
+                          if post_ids and username else "posted (private — no public link yet)")
+                log.info("TikTok upload: %s", tt_url)
+                return tt_url
+            if status.get("status") == "FAILED":
+                log.warning("TikTok publish failed: %s", status.get("fail_reason"))
+                return None
+
+        log.warning("TikTok still processing after 3min — check TikTok Studio manually (publish_id: %s)", publish_id)
+        return None
+    except Exception as e:
+        log.warning("TikTok upload error (non-fatal, pipeline continues): %s", e)
+        return None
+
+
+# ══════════════════════════════════════════════════════════════════════
+# STEP 9c — TIKTOK UPLOAD (active path — via Zernio)
+#
+#  TikTok rejected the official app for production (see note above).
+#  Zernio (zernio.com, formerly "Late") already holds TikTok's own
+#  approval for ITS app, so connecting VaultMind's TikTok account through
+#  Zernio posts via TikTok's real Content Posting API — no audit, no
+#  cookies, no browser automation, no ToS/ban risk on our side. Free for
+#  up to 2 connected accounts with no post-count cap (checked 2026-09
+#  against several independent reviews, not just Zernio's own site) —
+#  unlike Upload-Post/Postproxy/Bundle.social, whose free tiers cap at
+#  10-20 posts/month, too low for this pipeline's ~60/month.
+#
+#  One-time setup (do this once in Zernio's dashboard, not scriptable):
+#   1. Sign up at zernio.com, connect VaultMind's TikTok account.
+#   2. Store ZERNIO_API_KEY as a repo secret. That's it — accountId is
+#      looked up automatically below (_zernio_tiktok_account_id) as long
+#      as exactly one TikTok account is connected. Set the optional
+#      ZERNIO_TIKTOK_ACCOUNT_ID secret only if a second TikTok account
+#      ever gets connected to the same Zernio account, to disambiguate.
+#
+#  Uses the official `zernio` Python SDK. The exact import/method names
+#  below match their GitHub README as of 2026-09 — if upload_large() or
+#  the Zernio() constructor errors, check docs.zernio.com/sdks/python,
+#  the SDK surface is young and has moved before. Same for "is_aigc" in
+#  tiktokSettings below — plausible since Zernio passes this through to
+#  TikTok's own API field of the same name, but not directly confirmed
+#  against Zernio's own schema; verify before relying on it for compliance.
+# ══════════════════════════════════════════════════════════════════════
+TIKTOK_HANDLE            = "vaultmindss"   # https://www.tiktok.com/@vaultmindss
+ZERNIO_API_KEY           = os.getenv("ZERNIO_API_KEY", "")
+ZERNIO_TIKTOK_ACCOUNT_ID = os.getenv("ZERNIO_TIKTOK_ACCOUNT_ID", "")   # optional override
+
+
+def _zernio_tiktok_account_id(api_key: str) -> Optional[str]:
+    """Looks up the connected TikTok account's id via GET /v1/accounts so
+    nobody has to find and paste it by hand. Endpoint path is confirmed
+    (seen in a working third-party integration); the exact response
+    field names (id/platform) are a reasonable guess from the rest of
+    Zernio's API, not independently confirmed — adjust below if this
+    logs a warning instead of finding the account."""
+    try:
+        r = requests.get("https://zernio.com/api/v1/accounts",
+                          headers={"Authorization": f"Bearer {api_key}"}, timeout=15)
+        data = r.json()
+        accounts = data.get("data", data) if isinstance(data, dict) else data
+        tiktok = [a for a in accounts if a.get("platform") == "tiktok"]
+        if len(tiktok) == 1:
+            return tiktok[0]["id"]
+        log.warning("Zernio: expected exactly 1 connected TikTok account, found %d — "
+                    "set ZERNIO_TIKTOK_ACCOUNT_ID explicitly", len(tiktok))
+        return None
+    except Exception as e:
+        log.warning("Zernio account lookup failed: %s", e)
+        return None
+
+
+def upload_tiktok(video_path: str, title: str) -> Optional[str]:
+    """Posts to TikTok via Zernio (TikTok's real Content Posting API,
+    under Zernio's own approved app). Returns the account's profile URL
+    on apparent success, or None on failure — never raises, so a
+    TikTok-side problem can't break the rest of the run."""
+    if not ZERNIO_API_KEY:
+        log.warning("ZERNIO_API_KEY not set — skipping TikTok upload")
+        return None
+    try:
+        account_id = ZERNIO_TIKTOK_ACCOUNT_ID or _zernio_tiktok_account_id(ZERNIO_API_KEY)
+        if not account_id:
+            return None
+
+        from zernio import Zernio
+
+        client = Zernio(api_key=ZERNIO_API_KEY)
+
+        uploaded = client.media.upload_large(video_path)
+        media_url = uploaded["publicUrl"]
+
+        client.posts.create(
+            content=title[:2200],
+            media_urls=[media_url],
+            platforms=[{
+                "platform": "tiktok",
+                "accountId": account_id,
+                "platformSpecificData": {
+                    "tiktokSettings": {
+                        "privacy_level": "PUBLIC_TO_EVERYONE",
+                        "allow_comment": True,
+                        "allow_duet": True,
+                        "allow_stitch": True,
+                        "is_aigc": True,   # see note above — verify key name
+                    }
+                }
+            }],
+            publish_now=True,
+        )
+        profile_url = f"https://www.tiktok.com/@{TIKTOK_HANDLE}"
+        log.info("TikTok upload via Zernio: submitted — check %s", profile_url)
+        return profile_url
+    except Exception as e:
+        log.warning("TikTok upload via Zernio failed (non-fatal, pipeline continues): %s", e)
+        return None
+
+
+# ══════════════════════════════════════════════════════════════════════
 # STEP 12 — DASHBOARD
 # ══════════════════════════════════════════════════════════════════════
 
-def update_dashboard(niche, title, url, ok, hook_style=None):
+def update_dashboard(niche, title, url, ok, hook_style=None, tiktok_url=None):
     p    = Path("dashboard.json")
     data = json.loads(p.read_text()) if p.exists() else {"videos":[]}
     video_id = url.rstrip("/").split("/")[-1] if url else None
     data["videos"].insert(0,{"niche":niche,"title":title,"url":url,
                               "video_id":video_id,"hook_style":hook_style,
+                              "tiktok_url":tiktok_url,
                               "ok":ok,"ts":datetime.utcnow().isoformat()})
     data["videos"] = data["videos"][:50]
     p.write_text(json.dumps(data,indent=2))
@@ -2661,7 +2964,7 @@ def backup_to_drive(video_path: str, srt_path: str, title: str) -> Optional[str]
 #  Uses only FREE tools:
 #    • yt-dlp   → download captions (no Whisper needed for YouTube)
 #    • ffmpeg   → extract keyframes
-#    • Groq Vision (qwen3.6-27b) → analyze frames (free tier, 1000 RPD)
+#    • Groq Vision (llama-4-scout) → analyze frames (free tier, 1000 RPD)
 #
 #  Result: viral_patterns.json committed to repo.
 #  Script generator reads it and adapts prompts automatically.
@@ -2771,7 +3074,7 @@ def _extract_frames(url: str, out_dir: str, n_frames: int = 8) -> list[str]:
 def _analyze_frames_groq(frames: list[str], transcript: str,
                           niche: str) -> Optional[dict]:
     """
-    Send frames + transcript to Groq Vision (qwen3.6-27b, free).
+    Send frames + transcript to Groq Vision (llama-4-scout, free).
     Returns structured analysis dict or None on failure.
     """
     key = os.getenv("GROQ_API_KEY")
@@ -2808,7 +3111,7 @@ def _analyze_frames_groq(frames: list[str], transcript: str,
         )
 
         resp = client.chat.completions.create(
-            model="qwen/qwen3.6-27b",  # migrated from decommissioned llama-4-scout (Aug 2026) — current Groq vision model
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[{
                 "role": "user",
                 "content": image_blocks + [{"type": "text", "text": prompt}]
@@ -3017,16 +3320,19 @@ def run_pipeline(niche: Optional[str] = None) -> None:
         tag_line  = " ".join(h if h.startswith("#") else f"#{h}" for h in hashtags) \
                     or f"#shorts #{niche} #viral #fyp"
         desc      = f"{title}\n\n{tag_line}"
-        video_url = upload_youtube(final_video, title, desc, srt_path, tags=hashtags)
+        video_url  = upload_youtube(final_video, title, desc, srt_path, tags=hashtags)
+        tiktok_url = upload_tiktok(final_video, desc)
 
         # 10. Google Drive backup
         backup_to_drive(final_video, srt_path, title)
 
         # 11. Dashboard
         update_dashboard(niche, title, video_url, ok=True,
-                          hook_style=script.get("hook_style_used"))
+                          hook_style=script.get("hook_style_used"),
+                          tiktok_url=tiktok_url)
 
-    log.info("═══ v4 complete: %s ═══", video_url or "no URL")
+    log.info("═══ v4 complete — YouTube: %s | TikTok: %s ═══",
+              video_url or "no URL", tiktok_url or "no URL")
 
 
 if __name__ == "__main__":
