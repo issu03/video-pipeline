@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "The 2\u2011Second Toothpaste Squeeze Hack",
+      "url": "https://youtu.be/rN0bUVSy8Rk",
+      "video_id": "rN0bUVSy8Rk",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-19T17:03:19.509947"
+    },
+    {
       "niche": "reddit",
       "title": "Reddit Users Banned for Calling Their Cat a \u2018Roommate\u2019\u2014The Fallout",
       "url": "https://youtu.be/SMls26OGWEk",
@@ -442,15 +452,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-11T09:00:10.967155"
-    },
-    {
-      "niche": "rich",
-      "title": "The Free App That Rakes In $2,500 From Your Wallet Every Year",
-      "url": "https://youtu.be/7FsGzLiHnaE",
-      "video_id": "7FsGzLiHnaE",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-10T14:24:16.697053"
     }
   ],
   "stats": {
