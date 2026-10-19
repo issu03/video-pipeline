@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Reddit Users Banned for Calling Their Cat a \u2018Roommate\u2019\u2014The Fallout",
+      "url": "https://youtu.be/SMls26OGWEk",
+      "video_id": "SMls26OGWEk",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-19T10:37:36.705135"
+    },
+    {
       "niche": "scary",
       "title": "The Closet That Laughed at Me",
       "url": "https://youtu.be/rPzbUlWl78k",
@@ -441,15 +451,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-10T14:24:16.697053"
-    },
-    {
-      "niche": "rich",
-      "title": "The $5 Trick Banks Hate: $10K Hidden Income",
-      "url": "https://youtu.be/4l8rvNOCNRk",
-      "video_id": "4l8rvNOCNRk",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-10T09:07:08.287821"
     }
   ],
   "stats": {
