@@ -2041,9 +2041,20 @@ def export_srt(aai_data: dict, out_path: str) -> None:
 # STEP 11 — YOUTUBE UPLOAD
 # ══════════════════════════════════════════════════════════════════════
 
+def publish_target_utc() -> datetime:
+    """The moment a video goes live on EVERY platform: tomorrow at
+    PUBLISH_HOUR_UTC:00 UTC — a fixed audience window instead of "whenever the
+    cron happened to fire" (see PUBLISH_HOUR_UTC in CONFIG). run_pipeline()
+    computes it once and hands it to both uploads, so YouTube and TikTok
+    publish together. Naive datetime, UTC."""
+    return (datetime.utcnow() + timedelta(days=1)).replace(
+        hour=PUBLISH_HOUR_UTC, minute=0, second=0, microsecond=0)
+
+
 def upload_youtube(video_path: str, title: str, description: str,
                    srt_path: Optional[str] = None,
-                   tags: Optional[list[str]] = None) -> Optional[str]:
+                   tags: Optional[list[str]] = None,
+                   publish_at: Optional[datetime] = None) -> Optional[str]:
     token_b64 = os.getenv("YOUTUBE_TOKEN_B64")
     if not token_b64:
         log.warning("YOUTUBE_TOKEN_B64 not set")
@@ -2059,9 +2070,8 @@ def upload_youtube(video_path: str, title: str, description: str,
     yt        = build("youtube","v3",credentials=creds,cache_discovery=False)
     # Fixed target hour instead of "whenever the cron happened to fire + 24h"
     # — lands content during a deliberately chosen audience window instead
-    # of a random time of day (see PUBLISH_HOUR_UTC in CONFIG).
-    _target = (datetime.utcnow() + timedelta(days=1)).replace(
-        hour=PUBLISH_HOUR_UTC, minute=0, second=0, microsecond=0)
+    # of a random time of day (see publish_target_utc / PUBLISH_HOUR_UTC).
+    _target = publish_at or publish_target_utc()
     pub_at    = _target.strftime("%Y-%m-%dT%H:%M:%S.000Z")
     tag_list  = [t.lstrip("#") for t in (tags or ["shorts", "viral"])][:15]
     body      = {"snippet":  {"title": title[:100], "description": description,
@@ -2311,6 +2321,17 @@ def upload_tiktok_official(video_path: str, title: str) -> Optional[str]:
 #   - The whole path was run end-to-end against a local mock server.
 #   NOT verified: Zernio's real server responses. If the first live run logs
 #   a "Zernio ..." warning, it carries the API's own error text.
+#
+#  Timing: YouTube gets publishAt = tomorrow at PUBLISH_HOUR_UTC (see
+#  upload_youtube). upload_tiktok() receives the SAME publish_at and creates
+#  a SCHEDULED Zernio post (scheduledFor, explicit UTC "Z" — "taken as-is"
+#  per docs.zernio.com/posts/create-post), so both platforms go live together.
+#  Zernio copies the uploaded file to permanent storage when the post is
+#  created ("A post scheduled or queued weeks or months ahead still publishes
+#  with its media" — docs.zernio.com/guides/media-uploads). Without a
+#  publish_at the post goes out immediately (publishNow). Scheduled posts have
+#  no TikTok URL yet — the response only carries one for immediate posts — so
+#  the dashboard link then points at the profile.
 # ══════════════════════════════════════════════════════════════════════
 TIKTOK_HANDLE            = "vaultmindss"   # https://www.tiktok.com/@vaultmindss
 ZERNIO_API_KEY           = os.getenv("ZERNIO_API_KEY", "")
@@ -2389,13 +2410,17 @@ def _zernio_upload_video(client, video_path: str) -> str:
     return public_url
 
 
-def upload_tiktok(video_path: str, title: str) -> Optional[str]:
+def upload_tiktok(video_path: str, title: str,
+                  publish_at: Optional[datetime] = None) -> Optional[str]:
     """Posts to TikTok via Zernio (TikTok's real Content Posting API, under
-    Zernio's own approved app). Returns the post URL when Zernio reports it,
-    otherwise the account's profile URL once the post was accepted, or None
-    on failure — never raises, so a TikTok-side problem can't break the run.
-    The SDK deliberately does not retry a timed-out publish POST (it may have
-    gone through), so a failure here can't create a duplicate post."""
+    Zernio's own approved app). With publish_at (naive UTC datetime — pass the
+    same one as upload_youtube) the post is SCHEDULED and Zernio publishes it
+    then; without it, it goes out immediately. Returns the post URL when Zernio
+    already has one (immediate posts), otherwise the account's profile URL once
+    the post was accepted, or None on failure — never raises, so a TikTok-side
+    problem can't break the run. The SDK deliberately does not retry a
+    timed-out publish POST (it may have gone through), so a failure here can't
+    create a duplicate post."""
     if not ZERNIO_API_KEY:
         log.warning("ZERNIO_API_KEY not set — skipping TikTok upload")
         return None
@@ -2410,12 +2435,16 @@ def upload_tiktok(video_path: str, title: str) -> Optional[str]:
         public_url = _zernio_upload_video(client, video_path)
         log.info("Zernio: video uploaded, creating TikTok post …")
 
+        # Same moment as YouTube: scheduledFor with an explicit "Z" is taken
+        # as-is; publishNow would override it, so only one of the two is sent.
+        when = ({"scheduled_for": publish_at.strftime("%Y-%m-%dT%H:%M:%SZ")}
+                if publish_at else {"publish_now": True})
         resp = client.posts.create(
             content=title[:2200],   # TikTok caption cap
             platforms=[{"platform": "tiktok", "accountId": account_id}],
             media_items=[{"type": "video", "url": public_url}],
             tiktok_settings=ZERNIO_TIKTOK_SETTINGS,
-            publish_now=True,
+            **when,
         )
         for w in (resp.warnings or []):
             log.warning("Zernio warning: %s", w)
@@ -2432,8 +2461,13 @@ def upload_tiktok(video_path: str, title: str) -> Optional[str]:
         if status == "published" and t.platformPostUrl:
             log.info("TikTok upload via Zernio: published — %s", t.platformPostUrl)
             return t.platformPostUrl
-        log.info("TikTok upload via Zernio: accepted (status=%s) — check %s",
-                 status or "unknown", profile_url)
+        if publish_at:
+            log.info("TikTok post scheduled via Zernio for %s UTC (platform status=%s) — "
+                     "it appears on %s then", publish_at.strftime("%Y-%m-%d %H:%M"),
+                     status or "unknown", profile_url)
+        else:
+            log.info("TikTok upload via Zernio: accepted (status=%s) — check %s",
+                     status or "unknown", profile_url)
         return profile_url
     except Exception as e:
         log.warning("TikTok upload via Zernio failed (non-fatal, pipeline continues): %s: %s",
@@ -3432,8 +3466,10 @@ def run_pipeline(niche: Optional[str] = None) -> None:
         tag_line  = " ".join(h if h.startswith("#") else f"#{h}" for h in hashtags) \
                     or f"#shorts #{niche} #viral #fyp"
         desc      = f"{title}\n\n{tag_line}"
-        video_url  = upload_youtube(final_video, title, desc, srt_path, tags=hashtags)
-        tiktok_url = upload_tiktok(final_video, desc)
+        publish_at = publish_target_utc()   # ONE go-live moment for both platforms
+        video_url  = upload_youtube(final_video, title, desc, srt_path, tags=hashtags,
+                                    publish_at=publish_at)
+        tiktok_url = upload_tiktok(final_video, desc, publish_at=publish_at)
 
         # 10. Google Drive backup
         backup_to_drive(final_video, srt_path, title)
