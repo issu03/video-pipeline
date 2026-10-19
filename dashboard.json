@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Closet That Laughed at Me",
+      "url": "https://youtu.be/rPzbUlWl78k",
+      "video_id": "rPzbUlWl78k",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-19T10:09:32.475033"
+    },
+    {
       "niche": "fact",
       "title": "The Deadliest Creature You\u2019ve Never Heard Of",
       "url": "https://youtu.be/gPVwDm1wzjU",
@@ -440,15 +450,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-10T09:07:08.287821"
-    },
-    {
-      "niche": "motivation",
-      "title": "The Nap That Made a Millionaire",
-      "url": "https://youtu.be/W9X4o60FeC0",
-      "video_id": "W9X4o60FeC0",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-09T14:34:26.107135"
     }
   ],
   "stats": {
