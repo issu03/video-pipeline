@@ -88,11 +88,28 @@ PIXABAY_KEY   = os.getenv("PIXABAY_KEY", "")
 JAMENDO_CLIENT_ID = os.getenv("JAMENDO_CLIENT_ID", "")
 FONT_PATH     = "font_bold.ttf"
 
+# ── Groq models (free tier) ────────────────────────────────────────────
+# Groq retired the models this pipeline used before — llama-3.3-70b-versatile
+# (08/16/26), meta-llama/llama-4-scout-17b-16e-instruct (07/17/26) and even
+# their suggested vision stand-in qwen/qwen3.6-27b (09/14/26); see
+# console.groq.com/docs/deprecations. Current replacements:
+#  - GROQ_TEXT_MODEL: reasoning model. Its thinking tokens count against
+#    max_completion_tokens, so every call below sets reasoning_effort="low"
+#    (valid: low/medium/high — there is no "none") and a generous token cap.
+#  - GROQ_FAST_MODEL: the small sibling for the per-scene Pexels query —
+#    faster/cheaper for a 4-word answer, and Groq lists rate limits per model.
+#  - GROQ_VISION_MODEL: Groq's only vision model; max 3 images per request.
+#    reasoning_effort="none" = instruct mode, no thinking tokens.
+# Free tier for all three: 30 RPM / 1K RPD / 8K TPM / 200K TPD.
+GROQ_TEXT_MODEL   = "openai/gpt-oss-120b"
+GROQ_FAST_MODEL   = "openai/gpt-oss-20b"
+GROQ_VISION_MODEL = "qwen/qwen3.8-27b"
+
 # ── TikTok upload — Content Posting API (official, kept for reference) ─
 # 2026-09: TikTok rejected this app for production — "does not support
 # personal or internal company use." Stays SELF_ONLY forever for this
 # account, so it's not called by run_pipeline() anymore. See
-# upload_tiktok() further down for the active path (cookie-based).
+# upload_tiktok() further down for the active path (via Zernio).
 # Same "refresh token stored as a secret" shape as YOUTUBE_TOKEN_B64, but
 # TikTok's access_token only lives 24h so it's refreshed on every run
 # (see _tiktok_refresh_access_token). One-time setup: run
@@ -314,6 +331,19 @@ def recent_titles(n: int = 15) -> list[str]:
     return [v["title"] for v in data.get("videos", [])[:n] if v.get("title")]
 
 
+def _json_from_llm(raw: Optional[str]) -> dict:
+    """Parses the JSON object out of an LLM reply. Tolerates ```json fences or
+    a stray sentence around the object — more likely with a reasoning model
+    than with the llama models this pipeline used before. Raises ValueError
+    (json.JSONDecodeError is one) when there is nothing parsable, e.g. an
+    empty reply because the thinking tokens used up the whole token cap."""
+    raw = (raw or "").strip()
+    i, j = raw.find("{"), raw.rfind("}")
+    if i != -1 and j > i:
+        raw = raw[i:j + 1]
+    return json.loads(raw)
+
+
 # Labels the model must never echo into a title/hook — safety net in case it
 # still leaks one despite the STYLE LEAK RULE in the system prompt below.
 _HOOK_LABEL_LEAK_PATTERNS = ("OUTCOME-FIRST", "QUESTION/WHY-HOW", "CONTRARIAN")
@@ -420,6 +450,19 @@ def generate_script(niche: str) -> dict:
         + (f"\n\n{dedup_hint}" if dedup_hint else "")
     )
 
+    # gpt-oss is a reasoning model: its thinking tokens are drawn from
+    # max_completion_tokens too, so the cap must cover thinking (kept short
+    # with effort "low") plus the ~1.5K-token JSON script. Input is ~1.5-2K
+    # tokens, so 4500 keeps input + cap under the free tier's 8K tokens/minute.
+    llm_kwargs = dict(
+        model=GROQ_TEXT_MODEL,
+        messages=[{"role": "system", "content": system},
+                  {"role": "user",   "content": prompt}],
+        temperature=0.78,
+        reasoning_effort="low",
+        max_completion_tokens=4500,
+    )
+
     for attempt in range(5):
         try:
             try:
@@ -427,24 +470,15 @@ def generate_script(niche: str) -> dict:
                 # eliminates the "Expecting ',' delimiter" parse failures
                 # that used to cost 1-2 wasted retries on most runs.
                 resp = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=[{"role": "system", "content": system},
-                              {"role": "user",   "content": prompt}],
-                    temperature=0.78, max_tokens=3000,
-                    response_format={"type": "json_object"},
-                )
+                    **llm_kwargs, response_format={"type": "json_object"})
             except Exception:
                 # Some Groq models/versions may reject response_format —
                 # fall back to the plain call so this never hard-fails.
-                resp = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=[{"role": "system", "content": system},
-                              {"role": "user",   "content": prompt}],
-                    temperature=0.78, max_tokens=3000,
-                )
-            raw  = resp.choices[0].message.content.strip()
-            raw  = raw.strip("```json").strip("```").strip()
-            data = json.loads(raw)
+                resp = client.chat.completions.create(**llm_kwargs)
+            choice = resp.choices[0]
+            if choice.finish_reason == "length":
+                raise ValueError("reply cut off at the token cap (thinking + JSON too long)")
+            data = _json_from_llm(choice.message.content)
 
             n_scenes  = len(data.get("scenes", []))
             total_dur = sum(float(s.get("duration", 0)) for s in data.get("scenes", []))
@@ -798,6 +832,7 @@ _pexels_video_cache: dict = {}
 # ══════════════════════════════════════════════════════════════════════
 
 _groq_query_cache: dict = {}
+_groq_query_warned: list = []
 
 def smart_pexels_query(scene_text: str, niche: str,
                        fallback_query: str = "") -> str:
@@ -819,9 +854,11 @@ def smart_pexels_query(scene_text: str, niche: str,
         return niche_fallback
 
     try:
-        client = Groq(api_key=groq_key)
+        # max_retries=0: a rate-limited or failed call must drop to the pool
+        # fallback at once, not let the SDK sleep through a retry-after.
+        client = Groq(api_key=groq_key, max_retries=0, timeout=20)
         resp = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=GROQ_FAST_MODEL,
             messages=[{
                 "role": "system",
                 "content": (
@@ -836,15 +873,25 @@ def smart_pexels_query(scene_text: str, niche: str,
                 "content": f"Niche: {niche}\nLine: {scene_text}\nQuery:"
             }],
             temperature=0.7,
-            max_tokens=20,
+            reasoning_effort="low",
+            max_completion_tokens=300,   # thinking tokens count too; the answer is ~6
         )
-        query = resp.choices[0].message.content.strip().strip('"').strip("'")
+        choice = resp.choices[0]
+        query  = (choice.message.content or "").strip().strip('"').strip("'")
         if 2 <= len(query.split()) <= 6:
             _groq_query_cache[cache_key] = query
             log.info("Smart query: '%s' → '%s'", scene_text[:40], query)
             return query
+        log.info("Smart query unusable (%r, finish_reason=%s) — using pool fallback",
+                 query[:60], choice.finish_reason)
     except Exception as e:
-        log.debug("Smart query failed: %s — using pool fallback", e)
+        if not _groq_query_warned:     # first failure of a run is visible, the rest stay quiet
+            _groq_query_warned.append(True)
+            log.warning("Smart query via Groq failed (%s: %s) — using the niche pool; "
+                        "further failures this run are only logged at debug level",
+                        type(e).__name__, e)
+        else:
+            log.debug("Smart query failed: %s — using pool fallback", e)
 
     _groq_query_cache[cache_key] = niche_fallback
     return niche_fallback
@@ -2246,92 +2293,151 @@ def upload_tiktok_official(video_path: str, title: str) -> Optional[str]:
 #  10-20 posts/month, too low for this pipeline's ~60/month.
 #
 #  One-time setup (do this once in Zernio's dashboard, not scriptable):
-#   1. Sign up at zernio.com, connect VaultMind's TikTok account.
-#   2. Store ZERNIO_API_KEY as a repo secret. That's it — accountId is
-#      looked up automatically below (_zernio_tiktok_account_id) as long
-#      as exactly one TikTok account is connected. Set the optional
-#      ZERNIO_TIKTOK_ACCOUNT_ID secret only if a second TikTok account
-#      ever gets connected to the same Zernio account, to disambiguate.
+#   1. Sign up at zernio.com, connect VaultMind's TikTok account (@vaultmindss).
+#   2. Store ZERNIO_API_KEY as a repo secret. That's it — the account id is
+#      looked up by username (TIKTOK_HANDLE) in _zernio_tiktok_account_id(),
+#      so a second connected TikTok account (e.g. Ball Fight, on the free
+#      2-account tier) can never receive this channel's videos by mistake.
+#      ZERNIO_TIKTOK_ACCOUNT_ID stays as an optional hard override.
 #
-#  Uses the official `zernio` Python SDK. The exact import/method names
-#  below match their GitHub README as of 2026-09 — if upload_large() or
-#  the Zernio() constructor errors, check docs.zernio.com/sdks/python,
-#  the SDK surface is young and has moved before. Same for "is_aigc" in
-#  tiktokSettings below — plausible since Zernio passes this through to
-#  TikTok's own API field of the same name, but not directly confirmed
-#  against Zernio's own schema; verify before relying on it for compliance.
+#  How this was verified (2026-10, no live API key was available):
+#   - Method names/signatures were read from the installed zernio-sdk
+#     (PyPI package "zernio-sdk", import name "zernio"):
+#     media.get_media_presigned_url(), posts.create(), accounts.list_accounts(),
+#     and the SDK's TikTokPlatformData model for the tiktok_settings keys.
+#   - Videos here are ~15-60MB. media.upload() caps at 4MB and upload_large()
+#     needs a separate Vercel Blob token, so this uses the presigned-URL flow
+#     from docs.zernio.com/guides/media-uploads: presign -> PUT -> post.
+#   - The whole path was run end-to-end against a local mock server.
+#   NOT verified: Zernio's real server responses. If the first live run logs
+#   a "Zernio ..." warning, it carries the API's own error text.
 # ══════════════════════════════════════════════════════════════════════
 TIKTOK_HANDLE            = "vaultmindss"   # https://www.tiktok.com/@vaultmindss
 ZERNIO_API_KEY           = os.getenv("ZERNIO_API_KEY", "")
 ZERNIO_TIKTOK_ACCOUNT_ID = os.getenv("ZERNIO_TIKTOK_ACCOUNT_ID", "")   # optional override
 
+# Required by Zernio for every TikTok post. Key names are the SDK's
+# TikTokPlatformData fields (nested keys are NOT auto-converted by the SDK,
+# so they must be camelCase exactly like this).
+#  - videoMadeWithAi: TikTok's "AI-generated content" label — script, voice
+#    and editing are all machine-made (matches the site's privacy policy).
+#  - contentPreviewConfirmed / expressConsentGiven: TikTok's UX-compliance
+#    declarations; by running this automation the account owner makes them.
+ZERNIO_TIKTOK_SETTINGS = {
+    "privacyLevel":            "PUBLIC_TO_EVERYONE",
+    "allowComment":            True,
+    "allowDuet":               True,
+    "allowStitch":             True,
+    "videoMadeWithAi":         True,
+    "contentPreviewConfirmed": True,
+    "expressConsentGiven":     True,
+}
 
-def _zernio_tiktok_account_id(api_key: str) -> Optional[str]:
-    """Looks up the connected TikTok account's id via GET /v1/accounts so
-    nobody has to find and paste it by hand. Endpoint path is confirmed
-    (seen in a working third-party integration); the exact response
-    field names (id/platform) are a reasonable guess from the rest of
-    Zernio's API, not independently confirmed — adjust below if this
-    logs a warning instead of finding the account."""
-    try:
-        r = requests.get("https://zernio.com/api/v1/accounts",
-                          headers={"Authorization": f"Bearer {api_key}"}, timeout=15)
-        data = r.json()
-        accounts = data.get("data", data) if isinstance(data, dict) else data
-        tiktok = [a for a in accounts if a.get("platform") == "tiktok"]
-        if len(tiktok) == 1:
-            return tiktok[0]["id"]
-        log.warning("Zernio: expected exactly 1 connected TikTok account, found %d — "
-                    "set ZERNIO_TIKTOK_ACCOUNT_ID explicitly", len(tiktok))
+
+def _zernio_tiktok_account_id(client) -> Optional[str]:
+    """Returns the Zernio account id of the VaultMind TikTok account, or None.
+    accounts.list_accounts(platform="tiktok") returns {"accounts": [{"_id",
+    "platform", "username", "isActive", "needsReconnection", ...}]} (keys per
+    the SDK's SocialAccount model). Matches on username so another connected
+    TikTok account can't be picked by accident."""
+    if ZERNIO_TIKTOK_ACCOUNT_ID:
+        return ZERNIO_TIKTOK_ACCOUNT_ID
+    data   = client.accounts.list_accounts(platform="tiktok")
+    tiktok = [a for a in (data.get("accounts") or []) if a.get("platform") == "tiktok"]
+    want   = TIKTOK_HANDLE.lower().lstrip("@")
+
+    def name(a):
+        return (a.get("username") or "").lower().lstrip("@")
+
+    match = [a for a in tiktok if name(a) == want]
+    if not match and len(tiktok) == 1 and not name(tiktok[0]):
+        match = tiktok   # a single account without a username must be ours
+    if not match:
+        log.warning("Zernio: no connected TikTok account named @%s (found: %s) — connect "
+                    "it in the Zernio dashboard or set ZERNIO_TIKTOK_ACCOUNT_ID",
+                    want, [name(a) or "?" for a in tiktok] or "none")
         return None
-    except Exception as e:
-        log.warning("Zernio account lookup failed: %s", e)
+    acc = match[0]
+    if acc.get("isActive") is False or acc.get("needsReconnection"):
+        log.warning("Zernio: TikTok account @%s must be reconnected in the Zernio dashboard "
+                    "(token expired or revoked) — skipping TikTok upload", want)
         return None
+    return acc.get("_id") or acc.get("id")
+
+
+def _zernio_upload_video(client, video_path: str) -> str:
+    """Presigned-URL upload (docs.zernio.com/guides/media-uploads):
+    POST /v1/media/presign -> PUT the raw file to uploadUrl (no auth header,
+    Content-Type must match) -> use publicUrl in the post. Returns publicUrl."""
+    import re
+    p            = Path(video_path)
+    content_type = "video/quicktime" if p.suffix.lower() == ".mov" else "video/mp4"
+    safe_name    = re.sub(r"[^A-Za-z0-9._-]", "_", p.name)
+
+    pre        = client.media.get_media_presigned_url(safe_name, content_type,
+                                                       size=p.stat().st_size)
+    upload_url = pre.get("uploadUrl")
+    public_url = pre.get("publicUrl")
+    if not (upload_url and public_url):
+        raise RuntimeError(f"unexpected presign response, keys: {sorted(pre)}")
+
+    with open(p, "rb") as f:   # file object -> requests sends Content-Length, streamed
+        r = requests.put(upload_url, data=f, headers={"Content-Type": content_type},
+                         timeout=(15, 900))
+    if r.status_code != 200:   # docs: success is an empty 200 with an ETag
+        raise RuntimeError(f"storage upload failed: HTTP {r.status_code} {r.text[:200]}")
+    return public_url
 
 
 def upload_tiktok(video_path: str, title: str) -> Optional[str]:
-    """Posts to TikTok via Zernio (TikTok's real Content Posting API,
-    under Zernio's own approved app). Returns the account's profile URL
-    on apparent success, or None on failure — never raises, so a
-    TikTok-side problem can't break the rest of the run."""
+    """Posts to TikTok via Zernio (TikTok's real Content Posting API, under
+    Zernio's own approved app). Returns the post URL when Zernio reports it,
+    otherwise the account's profile URL once the post was accepted, or None
+    on failure — never raises, so a TikTok-side problem can't break the run.
+    The SDK deliberately does not retry a timed-out publish POST (it may have
+    gone through), so a failure here can't create a duplicate post."""
     if not ZERNIO_API_KEY:
         log.warning("ZERNIO_API_KEY not set — skipping TikTok upload")
         return None
     try:
-        account_id = ZERNIO_TIKTOK_ACCOUNT_ID or _zernio_tiktok_account_id(ZERNIO_API_KEY)
+        from zernio import Zernio
+
+        client     = Zernio(api_key=ZERNIO_API_KEY)
+        account_id = _zernio_tiktok_account_id(client)
         if not account_id:
             return None
 
-        from zernio import Zernio
+        public_url = _zernio_upload_video(client, video_path)
+        log.info("Zernio: video uploaded, creating TikTok post …")
 
-        client = Zernio(api_key=ZERNIO_API_KEY)
-
-        uploaded = client.media.upload_large(video_path)
-        media_url = uploaded["publicUrl"]
-
-        client.posts.create(
-            content=title[:2200],
-            media_urls=[media_url],
-            platforms=[{
-                "platform": "tiktok",
-                "accountId": account_id,
-                "platformSpecificData": {
-                    "tiktokSettings": {
-                        "privacy_level": "PUBLIC_TO_EVERYONE",
-                        "allow_comment": True,
-                        "allow_duet": True,
-                        "allow_stitch": True,
-                        "is_aigc": True,   # see note above — verify key name
-                    }
-                }
-            }],
+        resp = client.posts.create(
+            content=title[:2200],   # TikTok caption cap
+            platforms=[{"platform": "tiktok", "accountId": account_id}],
+            media_items=[{"type": "video", "url": public_url}],
+            tiktok_settings=ZERNIO_TIKTOK_SETTINGS,
             publish_now=True,
         )
+        for w in (resp.warnings or []):
+            log.warning("Zernio warning: %s", w)
+
         profile_url = f"https://www.tiktok.com/@{TIKTOK_HANDLE}"
-        log.info("TikTok upload via Zernio: submitted — check %s", profile_url)
+        targets     = (resp.post.platforms if resp.post else None) or []
+        t           = targets[0] if targets else None
+        status      = ((t.status if t else None) or "").lower()
+
+        if status == "failed":
+            log.warning("TikTok post via Zernio FAILED: %s",
+                        (t.errorMessage if t else None) or "no error text returned")
+            return None
+        if status == "published" and t.platformPostUrl:
+            log.info("TikTok upload via Zernio: published — %s", t.platformPostUrl)
+            return t.platformPostUrl
+        log.info("TikTok upload via Zernio: accepted (status=%s) — check %s",
+                 status or "unknown", profile_url)
         return profile_url
     except Exception as e:
-        log.warning("TikTok upload via Zernio failed (non-fatal, pipeline continues): %s", e)
+        log.warning("TikTok upload via Zernio failed (non-fatal, pipeline continues): %s: %s",
+                    type(e).__name__, e)
         return None
 
 
@@ -2964,7 +3070,7 @@ def backup_to_drive(video_path: str, srt_path: str, title: str) -> Optional[str]
 #  Uses only FREE tools:
 #    • yt-dlp   → download captions (no Whisper needed for YouTube)
 #    • ffmpeg   → extract keyframes
-#    • Groq Vision (llama-4-scout) → analyze frames (free tier, 1000 RPD)
+#    • Groq Vision (qwen3.8-27b) → analyze frames (free tier, 1000 RPD)
 #
 #  Result: viral_patterns.json committed to repo.
 #  Script generator reads it and adapts prompts automatically.
@@ -3074,7 +3180,7 @@ def _extract_frames(url: str, out_dir: str, n_frames: int = 8) -> list[str]:
 def _analyze_frames_groq(frames: list[str], transcript: str,
                           niche: str) -> Optional[dict]:
     """
-    Send frames + transcript to Groq Vision (llama-4-scout, free).
+    Send frames + transcript to Groq Vision (qwen3.8-27b, free).
     Returns structured analysis dict or None on failure.
     """
     key = os.getenv("GROQ_API_KEY")
@@ -3084,9 +3190,14 @@ def _analyze_frames_groq(frames: list[str], transcript: str,
         import base64
         client = Groq(api_key=key)
 
-        # Build image content blocks (max 6 to save tokens)
+        # Build image content blocks. Groq accepts max 3 images per request
+        # (2048 input tokens each) — take first / middle / last of the frames
+        # so the 3 still span the whole video. 3 images + prompt + 600 output
+        # tokens ≈ 7.2K, just under the free tier's 8K tokens/minute.
+        step  = (len(frames) - 1) / 2 if len(frames) > 3 else 1
+        picks = [frames[round(k * step)] for k in range(min(3, len(frames)))]
         image_blocks = []
-        for fp in frames[:6]:
+        for fp in picks:
             with open(fp, "rb") as f:
                 b64 = base64.b64encode(f.read()).decode()
             image_blocks.append({
@@ -3111,16 +3222,17 @@ def _analyze_frames_groq(frames: list[str], transcript: str,
         )
 
         resp = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            model=GROQ_VISION_MODEL,
             messages=[{
                 "role": "user",
                 "content": image_blocks + [{"type": "text", "text": prompt}]
             }],
             response_format={"type": "json_object"},
-            max_tokens=500,
+            reasoning_effort="none",     # instruct mode: no thinking tokens eating the cap
+            max_completion_tokens=600,
             temperature=0.3,
         )
-        return json.loads(resp.choices[0].message.content)
+        return _json_from_llm(resp.choices[0].message.content)
     except Exception as e:
         log.warning("Groq Vision analysis failed: %s", e)
         return None

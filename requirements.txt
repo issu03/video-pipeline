@@ -1,5 +1,5 @@
 # ── Core ──────────────────────────────────────────────────────────────
-groq>=0.4.0
+groq>=0.31.0                # 0.31+ has reasoning_effort / max_completion_tokens (gpt-oss, qwen3.8)
 requests>=2.31.0
 Pillow>=10.0.0
 numpy>=1.24.0
@@ -24,4 +24,9 @@ google-auth-httplib2>=0.1.1
 google-api-python-client>=2.100.0
 
 # ── TikTok (via Zernio, official API rejected for production) ──────────
-zernio>=0.0.140              # zernio.com — posts via TikTok's real API using Zernio's pre-approved app
+# PyPI package is "zernio-sdk" (import name stays "zernio") — confirmed
+# 2026-10-04 against pypi.org/project/zernio-sdk after the first CI run
+# failed on a wrong guessed package name ("zernio"), see pipeline.py.
+zernio-sdk>=1.0.0            # zernio.com — posts via TikTok's real API using Zernio's pre-approved app
+email-validator>=2.0.0       # zernio-sdk's pydantic models need it but it doesn't declare it:
+                             # without this line `import zernio` fails with "email-validator is not installed"
