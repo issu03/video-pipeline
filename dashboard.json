@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Night Your Closet Became a Serial Killer (and It\u2019s Hilariously Wrong)",
+      "url": "https://youtu.be/zjWciVqMPhM",
+      "video_id": "zjWciVqMPhM",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-20T09:35:22.624294"
+    },
+    {
       "niche": "lifehack",
       "title": "The 2\u2011Second Toothpaste Squeeze Hack",
       "url": "https://youtu.be/rN0bUVSy8Rk",
@@ -443,15 +453,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-09-11T14:27:52.724049"
-    },
-    {
-      "niche": "fact",
-      "title": "The Amazon Isn't the Earth's Lungs\u2014Here's the Real Deal",
-      "url": "https://youtu.be/hHM6sdtluSQ",
-      "video_id": "hHM6sdtluSQ",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-11T09:00:10.967155"
     }
   ],
   "stats": {
