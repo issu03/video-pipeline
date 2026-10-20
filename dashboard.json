@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "From Zero to Hero in 30 Seconds: The Secret Nobody Told You",
+      "url": "https://youtu.be/H-NVw1nuedw",
+      "video_id": "H-NVw1nuedw",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-20T15:07:14.358820"
+    },
+    {
       "niche": "scary",
       "title": "The Night Your Closet Became a Serial Killer (and It\u2019s Hilariously Wrong)",
       "url": "https://youtu.be/zjWciVqMPhM",
@@ -444,15 +454,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-12T08:47:38.147227"
-    },
-    {
-      "niche": "reddit",
-      "title": "Reddit Poll Turns Town Park Into a Hamster Wheel & Makes a Cat Mayor",
-      "url": "https://youtu.be/rH4soDRuEy4",
-      "video_id": "rH4soDRuEy4",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-11T14:27:52.724049"
     }
   ],
   "stats": {
