@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "Why does your bedroom mirror stare back?",
+      "url": "https://youtu.be/ZCxzdisdkGE",
+      "video_id": "ZCxzdisdkGE",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-21T09:22:17.480914"
+    },
+    {
       "niche": "motivation",
       "title": "From Zero to Hero in 30 Seconds: The Secret Nobody Told You",
       "url": "https://youtu.be/H-NVw1nuedw",
@@ -445,15 +455,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-12T13:42:38.447365"
-    },
-    {
-      "niche": "fact",
-      "title": "The Secret Legal Psychedelic in Your Energy Drink That Gives 30\u2011Second Super\u2011Focus",
-      "url": "https://youtu.be/KtTuJIrHwDk",
-      "video_id": "KtTuJIrHwDk",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-12T08:47:38.147227"
     }
   ],
   "stats": {
