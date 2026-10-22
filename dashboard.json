@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Reddit Decided to Ban Mondays\u2014And It Got Weird",
+      "url": "https://youtu.be/EyYnSTZHZOg",
+      "video_id": "EyYnSTZHZOg",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-22T09:28:05.312761"
+    },
+    {
       "niche": "motivation",
       "title": "From Zero to Hero: The Secret No One Told You",
       "url": "https://youtu.be/FlV75_JruRE",
@@ -447,15 +457,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-13T14:28:53.451591"
-    },
-    {
-      "niche": "scary",
-      "title": "The Nightlight That Became a Horror Set",
-      "url": "https://youtu.be/0vE5AchG_uk",
-      "video_id": "0vE5AchG_uk",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-13T09:31:12.604082"
     }
   ],
   "stats": {
