@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "reddit",
+      "title": "Redditors Banned for Declaring Their Plant a \u201cRoommate\u201d \u2013 Chaos Ensues",
+      "url": "https://youtu.be/HZtI4LYRaCA",
+      "video_id": "HZtI4LYRaCA",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-22T15:11:21.515736"
+    },
+    {
+      "niche": "reddit",
       "title": "Reddit Decided to Ban Mondays\u2014And It Got Weird",
       "url": "https://youtu.be/EyYnSTZHZOg",
       "video_id": "EyYnSTZHZOg",
@@ -448,15 +458,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-14T09:55:56.467860"
-    },
-    {
-      "niche": "scary",
-      "title": "The Haunted Phone Call That Broke the Internet",
-      "url": "https://youtu.be/UCABo1KVUXI",
-      "video_id": "UCABo1KVUXI",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-13T14:28:53.451591"
     }
   ],
   "stats": {
