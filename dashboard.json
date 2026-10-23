@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "reddit",
+      "title": "Redditors Banned for Declaring Their Wi\u2011Fi is a \u2018Living Being\u2019",
+      "url": "https://youtu.be/ucZW3v0pKD0",
+      "video_id": "ucZW3v0pKD0",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-23T09:25:59.090925"
+    },
+    {
+      "niche": "reddit",
       "title": "Redditors Banned for Declaring Their Plant a \u201cRoommate\u201d \u2013 Chaos Ensues",
       "url": "https://youtu.be/HZtI4LYRaCA",
       "video_id": "HZtI4LYRaCA",
@@ -449,15 +459,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-14T16:26:49.425115"
-    },
-    {
-      "niche": "lifehack",
-      "title": "Freeze Your Drink in 2 Minutes with a Sponge Hack",
-      "url": "https://youtu.be/rpP9u7Zu1d4",
-      "video_id": "rpP9u7Zu1d4",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-14T09:55:56.467860"
     }
   ],
   "stats": {
