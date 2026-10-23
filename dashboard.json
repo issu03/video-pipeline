@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Secret Sauce That Makes Pizza Invisible",
+      "url": "https://youtu.be/hJgbqz2PI20",
+      "video_id": "hJgbqz2PI20",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-23T15:24:17.305322"
+    },
+    {
       "niche": "reddit",
       "title": "Redditors Banned for Declaring Their Wi\u2011Fi is a \u2018Living Being\u2019",
       "url": "https://youtu.be/ucZW3v0pKD0",
@@ -450,15 +460,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-09-15T09:30:29.224129"
-    },
-    {
-      "niche": "scary",
-      "title": "When a Selfie Erased My Living Room (And It Was My Cousin\u2019s Idea)",
-      "url": "https://youtu.be/tI4AYmnTBGI",
-      "video_id": "tI4AYmnTBGI",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-14T16:26:49.425115"
     }
   ],
   "stats": {
