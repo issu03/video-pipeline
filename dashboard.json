@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "scary",
+      "title": "Why does the nightstand whisper your secrets?",
+      "url": "https://youtu.be/2GCbMQz4Nlg",
+      "video_id": "2GCbMQz4Nlg",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-24T14:06:59.466505"
+    },
+    {
+      "niche": "scary",
       "title": "The Haunted Mirror That Hates Your Reflection",
       "url": "https://youtu.be/mU8bt4RKRIY",
       "video_id": "mU8bt4RKRIY",
@@ -452,15 +462,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-16T09:25:45.578076"
-    },
-    {
-      "niche": "fact",
-      "title": "Zombie Ants: The Real Mind\u2011Control Weapon Hidden in Nature",
-      "url": "https://youtu.be/08pYSp0BqYg",
-      "video_id": "08pYSp0BqYg",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-15T15:05:07.356127"
     }
   ],
   "stats": {
