@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Haunted Mirror That Hates Your Reflection",
+      "url": "https://youtu.be/mU8bt4RKRIY",
+      "video_id": "mU8bt4RKRIY",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-24T08:58:44.189877"
+    },
+    {
       "niche": "fact",
       "title": "The Secret Sauce That Makes Pizza Invisible",
       "url": "https://youtu.be/hJgbqz2PI20",
@@ -451,15 +461,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-09-15T15:05:07.356127"
-    },
-    {
-      "niche": "fact",
-      "title": "The Poop Brew: Why the Priciest Coffee Is Made From Animal Droppings",
-      "url": "https://youtu.be/g7ZoiwnOYjk",
-      "video_id": "g7ZoiwnOYjk",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-15T09:30:29.224129"
     }
   ],
   "stats": {
