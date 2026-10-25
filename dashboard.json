@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Truth About Your Morning Coffee",
+      "url": "https://youtu.be/PuCebcmkUBw",
+      "video_id": "PuCebcmkUBw",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-25T09:16:14.438938"
+    },
+    {
       "niche": "scary",
       "title": "Why does the nightstand whisper your secrets?",
       "url": "https://youtu.be/2GCbMQz4Nlg",
@@ -453,15 +463,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-16T14:55:27.946186"
-    },
-    {
-      "niche": "fact",
-      "title": "Your Coffee Is More Radioactive Than a Dental X\u2011Ray",
-      "url": "https://youtu.be/bOlzcpEGsjc",
-      "video_id": "bOlzcpEGsjc",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-16T09:25:45.578076"
     }
   ],
   "stats": {
