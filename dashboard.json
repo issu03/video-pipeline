@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "conspiracy",
+      "title": "The Government\u2019s Secret Pizza\u2011Shaping Satellites",
+      "url": "https://youtu.be/avcAFb0ShXU",
+      "video_id": "avcAFb0ShXU",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-26T10:39:09.664152"
+    },
+    {
       "niche": "scary",
       "title": "The Night My Closet Whispered Back (And It Was Hilariously Deadly)",
       "url": "https://youtu.be/UJYLast0w-I",
@@ -455,15 +465,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-09-17T15:02:07.323742"
-    },
-    {
-      "niche": "motivation",
-      "title": "From Couch to Million-Dollar Deal in 90 Days",
-      "url": "https://youtu.be/UeVjsTc3Cc0",
-      "video_id": "UeVjsTc3Cc0",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-17T09:29:49.457205"
     }
   ],
   "stats": {
