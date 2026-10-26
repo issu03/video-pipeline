@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "conspiracy",
+      "title": "The Hidden Signal in Your Smartphone That\u2019s Controlling Your Snacks",
+      "url": "https://youtu.be/23tQYWOgUAc",
+      "video_id": "23tQYWOgUAc",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-26T16:55:00.065768"
+    },
+    {
+      "niche": "conspiracy",
       "title": "The Government\u2019s Secret Pizza\u2011Shaping Satellites",
       "url": "https://youtu.be/avcAFb0ShXU",
       "video_id": "avcAFb0ShXU",
@@ -456,15 +466,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-18T09:08:22.202215"
-    },
-    {
-      "niche": "fact",
-      "title": "The $400 Water Scam You Never Knew About",
-      "url": "https://youtu.be/oJnwfxrvobc",
-      "video_id": "oJnwfxrvobc",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-17T15:02:07.323742"
     }
   ],
   "stats": {
