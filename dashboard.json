@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "reddit",
+      "title": "Redditors Banned for Treating Their Fridge Like a Therapist",
+      "url": "https://youtu.be/UNaJep9kvnA",
+      "video_id": "UNaJep9kvnA",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-27T16:01:56.961640"
+    },
+    {
+      "niche": "reddit",
       "title": "Redditors Banned for Declaring Their Toaster a \u2018Roommate\u2019 \u2013 The Chaos",
       "url": "https://youtu.be/ZlEAeXpP2-Y",
       "video_id": "ZlEAeXpP2-Y",
@@ -458,15 +468,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-19T08:55:44.947889"
-    },
-    {
-      "niche": "dating",
-      "title": "The Dating Myth That\u2019s Killing Your Love Life",
-      "url": "https://youtu.be/sQ-qFOcweFE",
-      "video_id": "sQ-qFOcweFE",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-18T14:29:26.403998"
     }
   ],
   "stats": {
