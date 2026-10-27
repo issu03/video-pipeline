@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Redditors Banned for Declaring Their Toaster a \u2018Roommate\u2019 \u2013 The Chaos",
+      "url": "https://youtu.be/ZlEAeXpP2-Y",
+      "video_id": "ZlEAeXpP2-Y",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-27T10:16:11.772937"
+    },
+    {
       "niche": "conspiracy",
       "title": "The Hidden Signal in Your Smartphone That\u2019s Controlling Your Snacks",
       "url": "https://youtu.be/23tQYWOgUAc",
@@ -457,15 +467,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-18T14:29:26.403998"
-    },
-    {
-      "niche": "conspiracy",
-      "title": "The Fry Conspiracy Fast Food Doesn't Want You to Know",
-      "url": "https://youtu.be/9BUEM5fHESQ",
-      "video_id": "9BUEM5fHESQ",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-18T09:08:22.202215"
     }
   ],
   "stats": {
