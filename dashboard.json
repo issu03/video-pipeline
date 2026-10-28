@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Closet That Ate My Socks (And Other Nighttime Lies)",
+      "url": "https://youtu.be/LpDPMDie7wU",
+      "video_id": "LpDPMDie7wU",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-28T16:44:47.112740"
+    },
+    {
       "niche": "dating",
       "title": "Why Ghosting Is the Worst Dating Hack Ever",
       "url": "https://youtu.be/CqBVTlgiqdk",
@@ -460,15 +470,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-20T09:22:56.240308"
-    },
-    {
-      "niche": "scary",
-      "title": "The Mirror That Refuses Your Reflection",
-      "url": "https://youtu.be/qUN3voKlyv8",
-      "video_id": "qUN3voKlyv8",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-19T13:58:05.807113"
     }
   ],
   "stats": {
