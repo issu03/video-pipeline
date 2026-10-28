@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "dating",
+      "title": "Why Ghosting Is the Worst Dating Hack Ever",
+      "url": "https://youtu.be/CqBVTlgiqdk",
+      "video_id": "CqBVTlgiqdk",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-28T10:41:50.539667"
+    },
+    {
       "niche": "reddit",
       "title": "Redditors Banned for Treating Their Fridge Like a Therapist",
       "url": "https://youtu.be/UNaJep9kvnA",
@@ -459,15 +469,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-09-19T13:58:05.807113"
-    },
-    {
-      "niche": "reddit",
-      "title": "Reddit Votes to Ban Emojis \u2013 The Chaos That Followed",
-      "url": "https://youtu.be/qAGBbILxpaE",
-      "video_id": "qAGBbILxpaE",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-19T08:55:44.947889"
     }
   ],
   "stats": {
