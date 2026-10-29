@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "How $37 a Day Can Turn Your Couch into a Cash Machine",
+      "url": "https://youtu.be/_qVoqDlJElk",
+      "video_id": "_qVoqDlJElk",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-29T17:06:11.243269"
+    },
+    {
       "niche": "conspiracy",
       "title": "The Hidden Code in Your Grocery Store That Makes You Buy More",
       "url": "https://youtu.be/S3GBCXU6aRw",
@@ -462,15 +472,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-21T10:01:22.683837"
-    },
-    {
-      "niche": "fact",
-      "title": "Why the Great Wall Isn't Visible From Space",
-      "url": "https://youtu.be/TWrLORqWYxo",
-      "video_id": "TWrLORqWYxo",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-20T14:19:58.524497"
     }
   ],
   "stats": {
