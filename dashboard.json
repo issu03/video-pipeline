@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Shocking Truth About Your Favorite Snack",
+      "url": "https://youtu.be/qeOEixV1Ouw",
+      "video_id": "qeOEixV1Ouw",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-30T16:51:29.077563"
+    },
+    {
       "niche": "learn",
       "title": "Your Phone Is the Best Therapist You Never Knew You Had",
       "url": "https://youtu.be/lpEqwYXaooc",
@@ -464,15 +474,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-22T09:23:50.136785"
-    },
-    {
-      "niche": "fact",
-      "title": "The 10% Brain Myth: Why You're Actually Using 100%",
-      "url": "https://youtu.be/Y1PW_UZkJeo",
-      "video_id": "Y1PW_UZkJeo",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-21T16:35:17.535453"
     }
   ],
   "stats": {
