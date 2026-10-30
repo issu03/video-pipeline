@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "Your Phone Is the Best Therapist You Never Knew You Had",
+      "url": "https://youtu.be/lpEqwYXaooc",
+      "video_id": "lpEqwYXaooc",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-30T11:00:21.814371"
+    },
+    {
       "niche": "rich",
       "title": "How $37 a Day Can Turn Your Couch into a Cash Machine",
       "url": "https://youtu.be/_qVoqDlJElk",
@@ -463,15 +473,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-21T16:35:17.535453"
-    },
-    {
-      "niche": "conspiracy",
-      "title": "The Cereal Signal They Don't Want You to Know",
-      "url": "https://youtu.be/PqQp521RKAA",
-      "video_id": "PqQp521RKAA",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-21T10:01:22.683837"
     }
   ],
   "stats": {
