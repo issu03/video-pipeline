@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "dating",
+      "title": "Why Swiping Right Is the Biggest Lie You've Been Told",
+      "url": "https://youtu.be/RPDhMju6yoQ",
+      "video_id": "RPDhMju6yoQ",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-31T15:56:27.610174"
+    },
+    {
       "niche": "learn",
       "title": "Why Your Brain Loves Boredom More Than You Think",
       "url": "https://youtu.be/7gj_9SqnPsk",
@@ -466,15 +476,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-23T09:23:18.225335"
-    },
-    {
-      "niche": "fact",
-      "title": "Why Your Body Starts with 300 Bones and Ends with 206",
-      "url": "https://youtu.be/fbvGrOfFkfk",
-      "video_id": "fbvGrOfFkfk",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-22T14:47:26.418320"
     }
   ],
   "stats": {
