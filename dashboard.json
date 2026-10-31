@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "Why Your Brain Loves Boredom More Than You Think",
+      "url": "https://youtu.be/7gj_9SqnPsk",
+      "video_id": "7gj_9SqnPsk",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-10-31T10:30:57.178758"
+    },
+    {
       "niche": "fact",
       "title": "The Shocking Truth About Your Favorite Snack",
       "url": "https://youtu.be/qeOEixV1Ouw",
@@ -465,15 +475,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-22T14:47:26.418320"
-    },
-    {
-      "niche": "conspiracy",
-      "title": "The 5\u2011Second Brain Hack Hidden in Every TV Ad",
-      "url": "https://youtu.be/bPJaxznyncs",
-      "video_id": "bPJaxznyncs",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-22T09:23:50.136785"
     }
   ],
   "stats": {
