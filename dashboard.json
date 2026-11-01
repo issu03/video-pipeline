@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Redditors Got Banned for Pretending Their Post Was a Miracle Cure",
+      "url": "https://youtu.be/BD4EGYuVqf0",
+      "video_id": "BD4EGYuVqf0",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-01T16:55:57.036007"
+    },
+    {
       "niche": "motivation",
       "title": "From Zero to Hero in 30 Seconds",
       "url": "https://youtu.be/ln5qHORSvKw",
@@ -469,15 +479,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-24T15:00:25.954564"
-    },
-    {
-      "niche": "rich",
-      "title": "The $5,000/Day Secret No One Talks About",
-      "url": "https://youtu.be/elPZNOkvLFc",
-      "video_id": "elPZNOkvLFc",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-24T09:24:49.205245"
     }
   ],
   "stats": {
