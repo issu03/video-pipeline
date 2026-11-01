@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "From Zero to Hero in 30 Seconds",
+      "url": "https://youtu.be/ln5qHORSvKw",
+      "video_id": "ln5qHORSvKw",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-01T14:45:06.746800"
+    },
+    {
       "niche": "scary",
       "title": "The Haunted Smart Mirror That Outsmarted Its Owner",
       "url": "https://youtu.be/XGKm6HD8Fuo",
@@ -468,15 +478,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-24T09:24:49.205245"
-    },
-    {
-      "niche": "conspiracy",
-      "title": "The Ketchup Packet Conspiracy They Don't Want You to Know",
-      "url": "https://youtu.be/QNpn8voycpA",
-      "video_id": "QNpn8voycpA",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-23T15:02:54.086993"
     }
   ],
   "stats": {
