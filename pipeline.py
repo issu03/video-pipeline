@@ -11,7 +11,7 @@ Major upgrades over v3:
   └─────────────────────────────────────────────────────────┘
 """
 
-import os, json, time, base64, pickle, random, logging, tempfile, textwrap
+import os, re, json, time, base64, pickle, random, logging, tempfile, textwrap
 import subprocess, shutil, resource
 from io import BytesIO
 from pathlib import Path
@@ -20,7 +20,7 @@ from typing import Optional
 
 import requests
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 import scipy.signal
 from pydub import AudioSegment
 from pydub.silence import detect_silence
@@ -30,7 +30,7 @@ from moviepy import (
     CompositeVideoClip, concatenate_videoclips,
     CompositeAudioClip, concatenate_audioclips,
 )
-from moviepy.video.fx import FadeIn, FadeOut, CrossFadeIn
+from moviepy.video.fx import FadeIn, FadeOut, CrossFadeIn, CrossFadeOut
 # ── Beautiful Captions (animated viral-style subtitles) ────────────────
 try:
     from beautiful_captions import Video as BCVideo, CaptionConfig
@@ -67,15 +67,18 @@ PUBLISH_HOUR_UTC   = int(os.getenv("PUBLISH_HOUR_UTC", "22"))
 TRANSITION_DUR     = 0.22      # snappier cuts — matches faster viral edit rhythm
 FADE_IN_DUR        = 0.3
 FADE_OUT_DUR       = 0.5
-MUSIC_DUCK_DB      = -16
+MUSIC_DUCK_DB      = -12      # background-music gain in the mix. Was -16: the music is now 4 dB
+                              # louder (a Jamendo track sits at about -32 dBFS instead of -36)
 CAPTION_WORDS      = 3        # words shown per caption chunk
 CAPTION_FONT_SIZE  = 95       # big & punchy
 
 GAMEPLAY_PATH = os.getenv("GAMEPLAY_PATH", "gameplay_bg.mp4")
 MUSIC_PATH    = os.getenv("MUSIC_PATH",    "bg_music.mp3")
-SFX_WHOOSH    = "sfx_whoosh.mp3"
-SFX_IMPACT    = "sfx_impact.mp3"
-SFX_POP       = "sfx_pop.mp3"
+# Cuts get NO sound effect any more. The "Piep" came from the whoosh (a sine
+# sweeping 3200 -> 180 Hz = a beep) and the pop that were laid on every cut.
+# Only a soft thud under the very first frame is left. New file name, so a
+# stale committed sfx_impact.mp3 from an older version can't come back.
+SFX_IMPACT    = "sfx_impact_v2.mp3"
 PIXABAY_KEY   = os.getenv("PIXABAY_KEY", "")
 
 # CORRECTION: Pixabay has no public API for its music library at all — only
@@ -382,7 +385,12 @@ def generate_script(niche: str) -> dict:
         "You are a viral YouTube Shorts / TikTok scriptwriter optimized for "
         "2026 platform research data. Return ONLY valid JSON, no markdown, "
         "no preamble. "
-        "Format: {title, hook, hashtags: [string], scenes: [{text, duration, pexels_query}]} "
+        "Format: {title, hook, tone, hashtags: [string], scenes: [{text, duration, pexels_query}]} "
+        ""
+        "TONE RULE: tone = how the narrator should SOUND for this script, exactly "
+        "one of: " + ", ".join(VOICE_TONES) + ". "
+        + " ".join(f"{name} = {t['about']}." for name, t in VOICE_TONES.items()) +
+        " Pick the one that fits this script's topic and mood. "
         ""
         "HOOK RULE — the opening line must follow this instruction: "
         f"{chosen_hook_instruction} "
@@ -490,9 +498,10 @@ def generate_script(niche: str) -> dict:
 
             if n_scenes >= MIN_SCENES and 40 <= total_dur <= 95 and not leaked and not duped:
                 data["hook_style_used"] = chosen_hook_name   # short name — for performance tracking
+                data["tone"] = pick_voice_tone(data.get("tone"), niche)   # model's pick, niche default if invalid
                 log.info(
-                    "Script OK: %d scenes, %.0fs, %d hashtags — \"%s\"",
-                    n_scenes, total_dur, len(hashtags), title
+                    "Script OK: %d scenes, %.0fs, %d hashtags, voice tone '%s' — \"%s\"",
+                    n_scenes, total_dur, len(hashtags), data["tone"], title
                 )
                 return data
             log.warning(
@@ -509,7 +518,88 @@ def generate_script(niche: str) -> dict:
 # STEP 2 — VOICEOVER (ElevenLabs → OpenAI → edge-tts)
 # ══════════════════════════════════════════════════════════════════════
 
-def _elevenlabs_tts(text: str, path: str) -> bool:
+# ── Voice delivery per topic ───────────────────────────────────────────
+# One narrator setting for every video sounded the same whether the topic was
+# a horror story or a money tip. Now every video has a TONE: the script writer
+# picks one of these for the topic (NICHE_TONE is the fallback), and the tone
+# sets how each TTS provider delivers the text:
+#   eleven : voice_settings — lower `stability` = broader emotional range,
+#            `style` = exaggeration, `speed` (docs: elevenlabs.io/docs/api-
+#            reference/text-to-speech/convert).
+#   openai : tts-1-hd voice + speed.
+#   edge   : voices tried in order + rate/pitch.
+# (OpenAI announced that tts-1-hd is removed on 2027-01-06 — after that this
+#  chain simply continues with edge-tts.)
+VOICE_TONES = {
+    "ominous": {
+        "about":  "slow, low, hushed and suspenseful",
+        "eleven": dict(stability=0.22, similarity_boost=0.82, style=0.70, speed=0.92),
+        "openai": dict(voice="onyx", speed=0.94),
+        "edge":   dict(voices=["en-US-ChristopherNeural", "en-US-GuyNeural", "en-US-EricNeural"],
+                       rate="-8%", pitch="-6Hz"),
+    },
+    "mysterious": {
+        "about":  "quiet, intrigued, conspiratorial",
+        "eleven": dict(stability=0.30, similarity_boost=0.82, style=0.60, speed=0.95),
+        "openai": dict(voice="echo", speed=0.97),
+        "edge":   dict(voices=["en-US-GuyNeural", "en-US-ChristopherNeural", "en-US-EricNeural"],
+                       rate="-4%", pitch="-3Hz"),
+    },
+    "energetic": {
+        "about":  "fast, punchy, pumped up",
+        "eleven": dict(stability=0.28, similarity_boost=0.82, style=0.65, speed=1.10),
+        "openai": dict(voice="ash", speed=1.14),
+        "edge":   dict(voices=["en-US-GuyNeural", "en-US-ChristopherNeural", "en-US-EricNeural"],
+                       rate="+14%", pitch="+2Hz"),
+    },
+    "warm": {
+        "about":  "friendly, intimate, soft",
+        "eleven": dict(stability=0.45, similarity_boost=0.82, style=0.45, speed=0.98),
+        "openai": dict(voice="nova", speed=1.02),
+        "edge":   dict(voices=["en-US-JennyNeural", "en-US-AriaNeural", "en-US-GuyNeural"],
+                       rate="+2%", pitch="+0Hz"),
+    },
+    "authoritative": {
+        "about":  "confident, steady, deep",
+        "eleven": dict(stability=0.50, similarity_boost=0.82, style=0.35, speed=1.00),
+        "openai": dict(voice="onyx", speed=1.04),
+        "edge":   dict(voices=["en-US-ChristopherNeural", "en-US-EricNeural", "en-US-GuyNeural"],
+                       rate="+2%", pitch="-2Hz"),
+    },
+    "curious": {
+        "about":  "bright, engaged, clear",
+        "eleven": dict(stability=0.38, similarity_boost=0.82, style=0.50, speed=1.05),
+        "openai": dict(voice="alloy", speed=1.08),
+        "edge":   dict(voices=["en-US-GuyNeural", "en-US-EricNeural", "en-US-ChristopherNeural"],
+                       rate="+8%", pitch="+0Hz"),
+    },
+    "storyteller": {
+        "about":  "natural, expressive, conversational",
+        "eleven": dict(stability=0.32, similarity_boost=0.82, style=0.55, speed=1.00),
+        "openai": dict(voice="fable", speed=1.04),
+        "edge":   dict(voices=["en-US-GuyNeural", "en-US-ChristopherNeural", "en-US-EricNeural"],
+                       rate="+4%", pitch="+0Hz"),
+    },
+}
+NICHE_TONE = {        # used when the script gives no (valid) tone
+    "reddit": "storyteller", "dating": "warm", "rich": "authoritative",
+    "lifehack": "energetic", "fact": "curious", "scary": "ominous",
+    "motivation": "energetic", "conspiracy": "mysterious", "learn": "curious",
+}
+
+
+def pick_voice_tone(tone, niche: Optional[str] = None) -> str:
+    """The script's tone if it is one of VOICE_TONES, else the niche default."""
+    t = str(tone or "").strip().lower()
+    return t if t in VOICE_TONES else NICHE_TONE.get(niche or "", "curious")
+
+
+def _voice_profile(tone, niche: Optional[str] = None) -> dict:
+    name = pick_voice_tone(tone, niche)
+    return {"name": name, **VOICE_TONES[name]}
+
+
+def _elevenlabs_tts(text: str, path: str, profile: Optional[dict] = None) -> bool:
     key = os.getenv("ELEVENLABS_KEY")
     if not key:
         log.info("ElevenLabs: no key set, skipping")
@@ -538,70 +628,95 @@ def _elevenlabs_tts(text: str, path: str) -> bool:
             log.warning("ElevenLabs: voice discovery error: %s", e)
             return False
 
+    settings = {"stability": 0.30, "similarity_boost": 0.82, "style": 0.55, "use_speaker_boost": True}
+    if profile:
+        settings.update(profile["eleven"])
     try:
         r = requests.post(
             f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
             headers={"xi-api-key": key, "Content-Type": "application/json"},
-            json={"text": text, "model_id": "eleven_turbo_v2_5",
-                  "voice_settings": {"stability": 0.30, "similarity_boost": 0.82,
-                                     "style": 0.55, "use_speaker_boost": True}},
+            json={"text": text, "model_id": "eleven_turbo_v2_5", "voice_settings": settings},
             timeout=90,
         )
+        if r.status_code in (400, 422) and "speed" in settings:
+            # in case the API rejects the speed setting, still deliver the tone via stability/style
+            log.warning("ElevenLabs rejected the speed setting (%d) — retrying without it", r.status_code)
+            settings = {k: v for k, v in settings.items() if k != "speed"}
+            r = requests.post(
+                f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+                headers={"xi-api-key": key, "Content-Type": "application/json"},
+                json={"text": text, "model_id": "eleven_turbo_v2_5", "voice_settings": settings},
+                timeout=90,
+            )
     except Exception as e:
         log.warning("ElevenLabs: request error: %s", e)
         return False
 
     if r.status_code == 200:
         Path(path).write_bytes(r.content)
-        log.info("ElevenLabs TTS OK (%d bytes)", len(r.content))
+        log.info("ElevenLabs TTS OK (%d bytes, tone=%s)", len(r.content), profile["name"] if profile else "default")
         return True
     # Surface the actual reason — quota, invalid key, etc.
     log.warning("ElevenLabs failed (%d): %s", r.status_code, r.text[:200])
     return False
 
 
-def _openai_tts(text: str, path: str) -> bool:
+def _openai_tts(text: str, path: str, profile: Optional[dict] = None) -> bool:
     key = os.getenv("OPENAI_API_KEY")
     if not key:
         log.info("OpenAI TTS: no key set, skipping")
         return False
-    try:
-        r = requests.post(
-            "https://api.openai.com/v1/audio/speech",
-            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-            json={"model": "tts-1-hd", "voice": "onyx", "input": text, "speed": 1.08},
-            timeout=90,
-        )
-    except Exception as e:
-        log.warning("OpenAI TTS: request error: %s", e)
-        return False
-
-    if r.status_code == 200:
-        Path(path).write_bytes(r.content)
-        log.info("OpenAI TTS OK (%d bytes)", len(r.content))
-        return True
+    cfg = {"voice": "onyx", "speed": 1.08}
+    if profile:
+        cfg.update(profile["openai"])
+    r = None
+    for voice in dict.fromkeys([cfg["voice"], "onyx"]):        # the tone's voice, then the proven default
+        try:
+            r = requests.post(
+                "https://api.openai.com/v1/audio/speech",
+                headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                json={"model": "tts-1-hd", "voice": voice, "input": text, "speed": cfg["speed"]},
+                timeout=90,
+            )
+        except Exception as e:
+            log.warning("OpenAI TTS: request error: %s", e)
+            return False
+        if r.status_code == 200:
+            Path(path).write_bytes(r.content)
+            log.info("OpenAI TTS OK (%d bytes, voice=%s, speed=%.2f)", len(r.content), voice, cfg["speed"])
+            return True
+        if r.status_code != 400:          # 400 = e.g. voice not offered for this model -> try the default voice
+            break
     log.warning("OpenAI TTS failed (%d): %s", r.status_code, r.text[:200])
     return False
 
 
-def _edgetts_tts(text: str, path: str) -> bool:
+def _edgetts_tts(text: str, path: str, profile: Optional[dict] = None) -> bool:
     """
-    edge-tts fallback. Uses a standard (non-multilingual) voice, since
+    edge-tts fallback. Uses standard (non-multilingual) voices, since
     multilingual variants are more prone to 'NoAudioReceived' errors in
     CI environments. Retries up to 3 times with backoff — Microsoft's
     endpoint occasionally rate-limits/blocks datacenter IPs (GitHub Actions).
+    The tone picks the voice order, rate and pitch; the three voices that
+    have always worked here stay as the last resort.
     """
-    voices_to_try = ["en-US-GuyNeural", "en-US-ChristopherNeural", "en-US-EricNeural"]
+    cfg = {"voices": [], "rate": "+8%", "pitch": "+0Hz"}
+    if profile:
+        cfg.update(profile["edge"])
+    voices_to_try = list(dict.fromkeys(
+        cfg["voices"] + ["en-US-GuyNeural", "en-US-ChristopherNeural", "en-US-EricNeural"]))
 
     for voice in voices_to_try:
         for attempt in range(3):
             try:
                 async def _run():
-                    comm = edge_tts.Communicate(text, voice, rate="+8%", volume="+10%")
+                    comm = edge_tts.Communicate(text, voice, rate=cfg["rate"], volume="+10%",
+                                                pitch=cfg["pitch"])
                     await comm.save(path)
                 asyncio.run(_run())
                 if Path(path).exists() and Path(path).stat().st_size > 1000:
-                    log.info("edge-tts OK (voice=%s, attempt=%d)", voice, attempt + 1)
+                    log.info("edge-tts OK (voice=%s, rate=%s, pitch=%s, attempt=%d)",
+                             voice, cfg["rate"], cfg["pitch"], attempt + 1)
                     return True
             except Exception as e:
                 log.warning("edge-tts failed (voice=%s, attempt=%d): %s",
@@ -629,17 +744,21 @@ def _gtts_fallback(text: str, path: str) -> bool:
     return False
 
 
-def generate_voiceover(text: str, path: str) -> None:
+def generate_voiceover(text: str, path: str, niche: Optional[str] = None,
+                       tone: Optional[str] = None) -> None:
     """
     Voice fallback chain (first success wins):
-    ElevenLabs → OpenAI TTS → edge-tts (3 voices × 3 retries) → gTTS
-    Raises RuntimeError only if every single option fails.
+    ElevenLabs → OpenAI TTS → edge-tts (3+ voices × 3 retries) → gTTS
+    The delivery follows the video's tone (see VOICE_TONES). Raises
+    RuntimeError only if every single option fails.
     """
-    if _elevenlabs_tts(text, path):
+    profile = _voice_profile(tone, niche)
+    log.info("Voice tone '%s' (%s) for niche '%s'", profile["name"], profile["about"], niche)
+    if _elevenlabs_tts(text, path, profile):
         return
-    if _openai_tts(text, path):
+    if _openai_tts(text, path, profile):
         return
-    if _edgetts_tts(text, path):
+    if _edgetts_tts(text, path, profile):
         return
     if _gtts_fallback(text, path):
         return
@@ -1063,17 +1182,10 @@ def build_caption_clips(aai_data: dict, niche: str, total_dur: float) -> list:
 # STEP 7 — SFX & MUSIC BOOTSTRAP
 # ══════════════════════════════════════════════════════════════════════
 
-def _synth_whoosh(path: str) -> None:
-    sr, dur = 44100, 0.28
-    n = int(sr*dur)
-    t = np.linspace(0,dur,n)
-    freq = np.exp(np.linspace(np.log(3200),np.log(180),n))
-    phase = np.cumsum(2*np.pi*freq/sr)
-    env = np.exp(-4*t/dur)
-    wave = (np.sin(phase)*env*26000).astype(np.int16)
-    AudioSegment(wave.tobytes(),frame_rate=sr,sample_width=2,channels=1).fade_out(60).export(path,format="mp3")
-
 def _synth_impact(path: str) -> None:
+    """Soft low thud (low-passed noise, 120 ms) — the only sound effect left,
+    played once under the first frame. (The whoosh and pop that used to sit on
+    every cut are gone: the whoosh was a swept sine tone, i.e. a beep.)"""
     sr,n = 44100, int(44100*0.12)
     noise = np.random.uniform(-1,1,n)
     b,a = scipy.signal.butter(4,700/(sr/2),btype="low")
@@ -1081,21 +1193,6 @@ def _synth_impact(path: str) -> None:
     dec = np.exp(-np.linspace(0,9,n))
     wave = (f*dec*30000).astype(np.int16)
     AudioSegment(wave.tobytes(),frame_rate=sr,sample_width=2,channels=1).fade_out(40).export(path,format="mp3")
-
-def _synth_pop(path: str) -> None:
-    """A short, broadband percussive 'pop' — a filtered noise click, NOT a
-    pure tone. (The previous version used a single 1400Hz sine wave, which
-    is acoustically a beep, not a pop — that's the rhythmic 'beep' sound
-    reported at every other cut point. Real pops/clicks are broadband
-    transients, closer to the impact SFX than to whoosh.)"""
-    sr, dur = 44100, 0.09
-    n = int(sr*dur)
-    noise = np.random.uniform(-1, 1, n)
-    b, a  = scipy.signal.butter(4, 2500/(sr/2), btype="low")
-    f     = scipy.signal.lfilter(b, a, noise)
-    dec   = np.exp(-np.linspace(0, 18, n))
-    wave  = (f*dec*27000).astype(np.int16)
-    AudioSegment(wave.tobytes(),frame_rate=sr,sample_width=2,channels=1).fade_out(20).export(path,format="mp3")
 
 def _synth_ambient(path: str, dur_s: float = 120) -> None:
     sr = 44100; n = int(sr*dur_s); t = np.linspace(0,dur_s,n)
@@ -1193,11 +1290,12 @@ def ensure_music(niche: str = "fact", duration_s: float = 120) -> str:
     _synth_ambient(niche_music_path, duration_s + 10)
     return niche_music_path
 
-def ensure_sfx() -> tuple[str,str,str]:
-    if not Path(SFX_WHOOSH).exists(): _synth_whoosh(SFX_WHOOSH)
-    if not Path(SFX_IMPACT).exists(): _synth_impact(SFX_IMPACT)
-    if not Path(SFX_POP).exists():    _synth_pop(SFX_POP)
-    return SFX_WHOOSH, SFX_IMPACT, SFX_POP
+def ensure_sfx() -> str:
+    """Path of the soft opening thud (synthesised on first use). Cuts get no
+    sound effects — see the note at SFX_IMPACT."""
+    if not Path(SFX_IMPACT).exists():
+        _synth_impact(SFX_IMPACT)
+    return SFX_IMPACT
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -1805,8 +1903,314 @@ def shotstack_render(
 
 
 # ══════════════════════════════════════════════════════════════════════
+# STEP 8e — PICTURE INSERTS (photo cards that fade in over the footage)
+#
+#  Besides the stock footage in the background, a matching photo now fades
+#  in every few seconds — as a rounded card in the upper middle of the frame,
+#  never full screen — while the narrator talks about exactly that thing.
+#   1. plan   : Groq picks 4-7 lines of the SPOKEN text that name something
+#               concrete and gives a photo search for each. The lines come from
+#               the real word timestamps, so the photo appears when the thing
+#               is mentioned (scene boundaries only roughly follow the script).
+#   2. fetch  : Pexels photos (Pixabay as backup); a photo is only used if its
+#               description/tags contain the words of the search.
+#   3. render : rounded card with white frame and shadow, alpha fade + small
+#               slide, composited on top of the finished footage.
+#  Every step is non-fatal: no key / no match / an error just skips that
+#  insert, and the video renders without it.
+# ══════════════════════════════════════════════════════════════════════
+IMG_MAX_INSERTS    = 7        # per video
+IMG_MIN_GAP_S      = 4.5      # min distance between the starts of two inserts
+IMG_SHOW_MIN_S     = 1.8      # on-screen time, fades included
+IMG_SHOW_MAX_S     = 3.2
+IMG_START_SAFE_S   = 1.0      # nothing during the opening second ...
+IMG_END_SAFE_S     = 1.4      # ... or over the closing fade-out
+IMG_CARD_W         = 860      # px of 1080: the card never takes the whole screen
+IMG_CARD_MIN_AR    = 1.39     # card aspect ratio (w/h) limits -> card height 483..619 px
+IMG_CARD_MAX_AR    = 1.78
+IMG_CARD_CENTER_Y  = 700      # px from the top: clear of the Shorts UI at the top and far
+                              # above the captions (which start at about y=1400)
+IMG_FADE_S         = 0.28
+IMG_SLIDE_PX       = 26
+IMG_MIN_RELEVANCE  = 0.5      # share of the search words that must appear in the photo's text
+
+_INSERT_STOP = frozenset("a an the of in on at with and or for to from by up close closeup "
+                         "view photo picture image stock".split())
+
+
+def _clean_query(q) -> str:
+    """1-5 plain words, or '' if the model's search term is unusable."""
+    words = re.sub(r"[^A-Za-z0-9 \-]", " ", str(q or "")).lower().split()
+    return " ".join(words) if 1 <= len(words) <= 5 else ""
+
+
+def _transcript_lines(aai_data: dict) -> list[dict]:
+    """The spoken text as sentence-like lines with their real start/end times
+    (a sentence end, a pause of 450 ms+, or 16 words close a line)."""
+    lines: list[dict] = []
+    cur: list[dict] = []
+
+    def flush() -> None:
+        if cur:
+            lines.append({"text": " ".join(str(w["text"]) for w in cur),
+                          "start_s": cur[0]["start_ms"] / 1000.0,
+                          "end_s":   cur[-1]["end_ms"] / 1000.0})
+            cur.clear()
+
+    for w in aai_data.get("words", []):
+        if cur and (w["start_ms"] - cur[-1]["end_ms"] >= 450 or len(cur) >= 16):
+            flush()
+        cur.append(w)
+        if str(w["text"]).rstrip().endswith((".", "!", "?")):
+            flush()
+    flush()
+    return lines
+
+
+def _groq_pick_inserts(lines: list[dict], niche: str, title: str = "") -> list[dict]:
+    """[{line, query}] — which spoken lines deserve a photo, and which one."""
+    key = os.getenv("GROQ_API_KEY")
+    if not key or len(lines) < 4:
+        return []
+    listing = "\n".join(f"{i} [{ln['start_s']:.1f}s] {ln['text']}" for i, ln in enumerate(lines))
+    system = (
+        "You choose photo inserts for a vertical short video (YouTube Shorts / TikTok). "
+        "You get the narration split into numbered lines with their start times. Pick 4 to 7 "
+        "lines, spread over the whole video and at least 5 seconds apart, where the narrator names "
+        "something concrete that can be PHOTOGRAPHED — an animal, a place, a landmark, a building, an "
+        "object, food, a vehicle, a plant, a natural phenomenon, a planet, a machine or tool. For each "
+        "give a plain English stock-photo search of 2-4 words that shows exactly that main thing "
+        "(e.g. 'anglerfish deep sea', 'eiffel tower night', 'rusty old key'). "
+        "NEVER pick: abstract ideas or feelings, named real people or celebrities, brands, logos, text, "
+        "screenshots, charts, the first line or the last line. Avoid generic 'person smiling' stock shots. "
+        "Return ONLY JSON: {\"inserts\": [{\"line\": <line number>, \"query\": \"<search>\"}]}"
+    )
+    user = f"Niche: {niche}\nTitle: {title}\nLines:\n{listing}"
+    try:
+        client = Groq(api_key=key, max_retries=1, timeout=30)
+        kwargs = dict(
+            model=GROQ_TEXT_MODEL,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+            temperature=0.4,
+            reasoning_effort="low",
+            max_completion_tokens=2500,        # thinking tokens count against this too
+        )
+        try:
+            resp = client.chat.completions.create(**kwargs, response_format={"type": "json_object"})
+        except Exception:
+            resp = client.chat.completions.create(**kwargs)
+        data = _json_from_llm(resp.choices[0].message.content)
+    except Exception as e:
+        log.warning("Picture inserts: Groq planning failed (%s: %s)", type(e).__name__, e)
+        return []
+    picks, seen_q, seen_l = [], set(), set()
+    for it in (data.get("inserts") or []):
+        try:
+            idx = int(it["line"])
+        except Exception:
+            continue
+        q = _clean_query(it.get("query") if isinstance(it, dict) else "")
+        if not q or not (0 <= idx < len(lines)) or q in seen_q or idx in seen_l:
+            continue
+        seen_q.add(q); seen_l.add(idx)
+        picks.append({"line": idx, "query": q})
+    return picks
+
+
+def _fallback_insert_picks(lines: list[dict], scenes: list[dict], cut_points_s: list[float]) -> list[dict]:
+    """No usable Groq answer: use the script's own 3-word visual search term of
+    every second scene, placed at the line that is spoken when that scene starts."""
+    bounds, picks = [0.0] + list(cut_points_s), []
+    for i, sc in enumerate(scenes[: len(bounds)]):
+        q = _clean_query(sc.get("pexels_query"))
+        li = next((k for k, ln in enumerate(lines) if ln["end_s"] >= bounds[i]), None)
+        if q and li is not None:
+            picks.append({"line": li, "query": q})
+    return picks[1::2]
+
+
+def _schedule_inserts(picks: list[dict], lines: list[dict], total_s: float) -> list[dict]:
+    """picks -> [{query, start_s, dur_s}]: in time order, spaced, inside the safe zones."""
+    out, last_start = [], -1e9
+    for p in sorted(picks, key=lambda p: lines[p["line"]]["start_s"]):
+        ln    = lines[p["line"]]
+        start = ln["start_s"] + 0.10
+        dur   = max(IMG_SHOW_MIN_S, min(IMG_SHOW_MAX_S, (ln["end_s"] - ln["start_s"]) + 0.6))
+        dur   = min(dur, total_s - IMG_END_SAFE_S - start)
+        if start < IMG_START_SAFE_S or dur < IMG_SHOW_MIN_S - 0.3:
+            continue
+        if start - last_start < IMG_MIN_GAP_S:
+            continue
+        out.append({"query": p["query"], "start_s": round(start, 2), "dur_s": round(dur, 2)})
+        last_start = start
+        if len(out) >= IMG_MAX_INSERTS:
+            break
+    return out
+
+
+def plan_picture_inserts(aai_data: dict, scenes: list[dict], cut_points_s: list[float],
+                         niche: str, title: str = "") -> list[dict]:
+    lines   = _transcript_lines(aai_data)
+    total_s = aai_data["total_ms"] / 1000.0
+    picks   = _groq_pick_inserts(lines, niche, title)
+    plan    = _schedule_inserts(picks, lines, total_s) if picks else []
+    if not plan:
+        plan = _schedule_inserts(_fallback_insert_picks(lines, scenes, cut_points_s), lines, total_s)
+    return plan
+
+
+def _stem_words(s: str) -> set:
+    out = set()
+    for w in re.findall(r"[a-z0-9]+", str(s).lower()):
+        if w in _INSERT_STOP:
+            continue
+        if len(w) > 3 and w.endswith("s") and not w.endswith("ss"):
+            w = w[:-1]
+        out.add(w)
+    return out
+
+
+def _relevance(query: str, text: str) -> float:
+    """Share of the query's words that appear in the photo's description/tags."""
+    q = _stem_words(query)
+    return len(q & _stem_words(text)) / len(q) if q else 0.0
+
+
+def _pexels_photo(query: str, used: set) -> Optional[tuple]:
+    """Best Pexels photo for the query: (relevance, rank, url, uid) or None."""
+    key = os.getenv("PEXELS_KEY")
+    if not key:
+        return None
+    r = requests.get("https://api.pexels.com/v1/search", headers={"Authorization": key},
+                     params={"query": query, "per_page": 15, "orientation": "landscape",
+                             "size": "medium"}, timeout=15)
+    r.raise_for_status()
+    best = None
+    for rank, p in enumerate(r.json().get("photos", [])):
+        uid = f"pexels:{p.get('id')}"
+        src = p.get("src") or {}
+        url = src.get("large2x") or src.get("large")
+        if uid in used or not url or (p.get("width") or 0) < 1000 or (p.get("height") or 0) < 600:
+            continue
+        slug = (p.get("url") or "").rstrip("/").rsplit("/", 1)[-1]        # e.g. brown-fox-on-snow-1234
+        rel  = _relevance(query, f"{p.get('alt') or ''} {slug}")
+        if best is None or (rel, -rank) > (best[0], -best[1]):
+            best = (rel, rank, url, uid)
+    return best
+
+
+def _pixabay_photo(query: str, used: set) -> Optional[tuple]:
+    if not PIXABAY_KEY:
+        return None
+    r = requests.get("https://pixabay.com/api/",
+                     params={"key": PIXABAY_KEY, "q": query, "image_type": "photo",
+                             "orientation": "horizontal", "safesearch": "true",
+                             "per_page": 20, "min_width": 1000}, timeout=15)
+    r.raise_for_status()
+    best = None
+    for rank, h in enumerate(r.json().get("hits", [])):
+        uid, url = f"pixabay:{h.get('id')}", h.get("largeImageURL")
+        if uid in used or not url:
+            continue
+        rel = _relevance(query, h.get("tags", ""))
+        if best is None or (rel, -rank) > (best[0], -best[1]):
+            best = (rel, rank, url, uid)
+    return best
+
+
+def _download_image(url: str) -> Image.Image:
+    r = requests.get(url, timeout=25)
+    r.raise_for_status()
+    if len(r.content) > 15_000_000:
+        raise ValueError("image too large")
+    img = Image.open(BytesIO(r.content))
+    img.load()
+    return ImageOps.exif_transpose(img).convert("RGB")
+
+
+def fetch_insert_image(query: str, used: set) -> Optional[tuple]:
+    """(PIL image, uid, relevance) of a photo that matches `query`, or None.
+    Tries the full search, then its first two words; Pexels, then Pixabay."""
+    tries = [query] + ([" ".join(query.split()[:2])] if len(query.split()) > 2 else [])
+    for q in tries:
+        for finder in (_pexels_photo, _pixabay_photo):
+            try:
+                hit = finder(q, used)
+                if hit and hit[0] >= IMG_MIN_RELEVANCE:
+                    img = _download_image(hit[2])
+                    used.add(hit[3])
+                    return img, hit[3], hit[0]
+            except Exception as e:
+                log.warning("Picture insert '%s' via %s: %s: %s",
+                            q, finder.__name__.strip("_"), type(e).__name__, e)
+    return None
+
+
+def _make_insert_card(img: Image.Image) -> np.ndarray:
+    """RGBA card: the photo with rounded corners, a white frame and a soft shadow."""
+    W   = IMG_CARD_W
+    ar  = min(max(img.width / float(img.height), IMG_CARD_MIN_AR), IMG_CARD_MAX_AR)
+    H   = int(round(W / ar))
+    pad, R, B = 46, 38, 8                                   # shadow room, corner radius, frame width
+    photo  = ImageOps.fit(img, (W - 2 * B, H - 2 * B), method=Image.LANCZOS,
+                          centering=(0.5, 0.42)).convert("RGBA")
+    canvas = Image.new("RGBA", (W + 2 * pad, H + 2 * pad), (0, 0, 0, 0))
+    shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).rounded_rectangle([pad, pad + 14, pad + W, pad + H + 14], R, fill=(0, 0, 0, 170))
+    canvas = Image.alpha_composite(canvas, shadow.filter(ImageFilter.GaussianBlur(20)))
+    ImageDraw.Draw(canvas).rounded_rectangle([pad, pad, pad + W, pad + H], R, fill=(255, 255, 255, 255))
+    mask = Image.new("L", photo.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, photo.width - 1, photo.height - 1], R - B, fill=255)
+    canvas.paste(photo, (pad + B, pad + B), mask)
+    return np.array(canvas)
+
+
+def _insert_clip(card: np.ndarray, start_s: float, dur_s: float) -> ImageClip:
+    """The card as a timed clip: alpha fade in/out and a small slide up on the way in."""
+    clip  = ImageClip(card).with_start(start_s).with_duration(dur_s)    # RGBA -> picture + alpha mask
+    x     = (VIDEO_W - clip.w) // 2
+    y_top = int(IMG_CARD_CENTER_Y - clip.h / 2)
+
+    def pos(t: float):
+        k = min(1.0, max(0.0, t / IMG_FADE_S))
+        k = 1.0 - (1.0 - k) ** 3                              # ease-out
+        return (x, int(round(y_top + IMG_SLIDE_PX * (1.0 - k))))
+
+    return clip.with_position(pos).with_effects([CrossFadeIn(IMG_FADE_S), CrossFadeOut(IMG_FADE_S)])
+
+
+def build_picture_inserts(aai_data: dict, scenes: list[dict], cut_points_s: list[float],
+                          niche: str, title: str = "") -> list:
+    """The timed photo-card clips for this video ([] if none could be made)."""
+    try:
+        plan = plan_picture_inserts(aai_data, scenes, cut_points_s, niche, title)
+    except Exception as e:
+        log.warning("Picture inserts: planning failed (%s: %s) — none in this video", type(e).__name__, e)
+        return []
+    if not plan:
+        log.info("Picture inserts: nothing planned")
+        return []
+    clips, used = [], set()
+    for it in plan:
+        try:
+            got = fetch_insert_image(it["query"], used)
+            if not got:
+                log.info("Picture insert '%s': no matching photo — skipped", it["query"])
+                continue
+            img, uid, rel = got
+            clips.append(_insert_clip(_make_insert_card(img), it["start_s"], it["dur_s"]))
+            log.info("Picture insert: '%s' at %.1fs for %.1fs (%s, relevance %.2f)",
+                     it["query"], it["start_s"], it["dur_s"], uid, rel)
+        except Exception as e:
+            log.warning("Picture insert '%s' failed (%s: %s) — skipped", it["query"], type(e).__name__, e)
+    log.info("Picture inserts: %d of %d planned", len(clips), len(plan))
+    return clips
+
+
+# ══════════════════════════════════════════════════════════════════════
 # STEP 9 — MOVIEPY VIDEO ASSEMBLY (local render)
-#   Scene video clips with Ken Burns + caption overlays + SFX at cuts
+#   Scene footage + crossfades + photo inserts + voice/music mix
+#   (captions are burned in afterwards by apply_beautiful_captions)
 # ══════════════════════════════════════════════════════════════════════
 
 def _trim_video_clip(path: str, duration: float) -> VideoFileClip:
@@ -1863,9 +2267,8 @@ def build_video_moviepy(
     cut_points_s:    list[float],
     output_path:     str,
     music_path:      str = "",
-    sfx_whoosh_path: str = "",
     sfx_impact_path: str = "",
-    sfx_pop_path:    str = "",
+    title:           str = "",
 ) -> str:
     log.info("▶ MoviePy v4 render — %d scenes, %dx%d", len(scenes), VIDEO_W, VIDEO_H)
     cfg = NICHES[niche]
@@ -1882,6 +2285,13 @@ def build_video_moviepy(
     scene_clips = []
     for idx, (scene, dur) in enumerate(zip(scenes, durations)):
         dur = max(dur, 0.5)
+        # Every crossfade below overlaps two scenes by TRANSITION_DUR
+        # (padding=-TRANSITION_DUR), which pulled each following scene that much
+        # earlier than its cut point: by the last scene the picture ran ~0.2s per
+        # cut (up to ~4s) ahead of the narration, and the video ended that much
+        # before the voice did. Building every scene but the last TRANSITION_DUR
+        # longer puts each scene start exactly on its cut point again.
+        build_dur = dur + (TRANSITION_DUR if idx < n - 1 else 0.0)
         q   = scene.get("pexels_query", scene["text"][:40])
         # Groq generates a more visually specific search query per scene
         q   = smart_pexels_query(scene.get("text",""), niche, fallback_query=q)
@@ -1891,10 +2301,10 @@ def build_video_moviepy(
         # remote CDN URL (meant for cloud render), and Path(url).exists()
         # is always False, so every scene silently fell back to the near-
         # black solid-color background even when Pexels had good results.
-        vid_path = fetch_pexels_video(q, min_dur=dur, download=True)
+        vid_path = fetch_pexels_video(q, min_dur=build_dur, download=True)
         if vid_path and Path(vid_path).exists():
             try:
-                bg = _trim_video_clip(vid_path, dur)
+                bg = _trim_video_clip(vid_path, build_dur)
                 # DISABLED: _ken_burns() re-processes every single output
                 # frame through a Python/PIL callback (clip.transform()).
                 # For a ~90s/24-scene video at 30fps that's 2000+ frames run
@@ -1909,16 +2319,16 @@ def build_video_moviepy(
                 # bg = _ken_burns(bg)
             except Exception as e:
                 log.warning("Video clip error (%s), using solid BG", e)
-                bg = make_solid_bg_clip(cfg["bg"], dur)
+                bg = make_solid_bg_clip(cfg["bg"], build_dur)
         else:
-            bg = make_solid_bg_clip(cfg["bg"], dur)
+            bg = make_solid_bg_clip(cfg["bg"], build_dur)
 
         # Dark vignette overlay (ImageClip)
-        vig_arr  = _make_vignette(dur)
-        vig_clip = ImageClip(vig_arr).with_duration(dur).with_fps(FPS)
+        vig_arr  = _make_vignette(build_dur)
+        vig_clip = ImageClip(vig_arr).with_duration(build_dur).with_fps(FPS)
 
         scene_comp = CompositeVideoClip([bg, vig_clip],
-                                        size=(VIDEO_W, VIDEO_H)).with_duration(dur)
+                                        size=(VIDEO_W, VIDEO_H)).with_duration(build_dur)
         scene_clips.append(scene_comp)
         rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
         log.info("  Scene %d/%d (%.1fs) — %s [rss=%.0fMB]",
@@ -1929,9 +2339,29 @@ def build_video_moviepy(
     for c in scene_clips[1:]:
         trans.append(c.with_effects([CrossFadeIn(TRANSITION_DUR)]))
     final = concatenate_videoclips(trans, method="compose", padding=-TRANSITION_DUR)
+    log.info("Crossfades done, %d scenes concatenated (%.1fs total, voice %.1fs)",
+             len(scene_clips), final.duration, total_s)
+
+    # ── Picture inserts: matching photos fade in over the footage ─────
+    # Cards in the upper middle of the frame (never full screen), timed to
+    # the moment the narrator mentions the thing. Added before the global
+    # fade in/out so they fade with the rest. Any problem = no inserts.
+    try:
+        inserts = build_picture_inserts(aai_data, scenes, cut_points_s, niche, title)
+        if inserts:
+            # The base is the already-composed scene track. Dropping its
+            # (all-opaque) mask and using it as the background clip keeps
+            # the outer composite cheap: a nested composite with a mask
+            # would otherwise be alpha-composited at full resolution for
+            # every single frame (+50 % render time, measured), and the
+            # CI job has a hard time limit. Pixel output is identical.
+            base = final.copy()
+            base.mask = None
+            final = CompositeVideoClip([base] + inserts, size=(VIDEO_W, VIDEO_H),
+                                       use_bgclip=True).with_duration(final.duration)
+    except Exception as e:
+        log.warning("Picture inserts skipped: %s: %s", type(e).__name__, e)
     final = final.with_effects([FadeIn(FADE_IN_DUR), FadeOut(FADE_OUT_DUR)])
-    log.info("Crossfades done, %d scenes concatenated (%.1fs total)",
-             len(scene_clips), final.duration)
 
     # ── Caption overlays (word-by-word animated) ──────────────────────
     # DISABLED: this baked a full word-by-word caption layer into raw.mp4
@@ -1969,25 +2399,23 @@ def build_video_moviepy(
             mc = concatenate_audioclips(
                 [mc] * int(np.ceil(vid_dur / mc.duration)))
         tracks.append(mc.subclipped(0, vid_dur))
-        log.info("Music mixed (%ddB duck)", MUSIC_DUCK_DB)
+        try:
+            voice_db = AudioSegment.from_file(audio_path).dBFS
+        except Exception:
+            voice_db = float("nan")
+        # the levels go into the log, so "too quiet / too loud" can be judged by numbers
+        log.info("Music mixed (%+d dB): music %.1f dBFS, voice %.1f dBFS → music %.1f dB under the voice",
+                 MUSIC_DUCK_DB, music_raw.dBFS, voice_db, voice_db - music_raw.dBFS)
 
-    wp = sfx_whoosh_path or SFX_WHOOSH
+    # Only a soft thud under the first frame — NO sound effects at the cuts
+    # (the old whoosh/pop there were the recurring "Piep").
     ip = sfx_impact_path or SFX_IMPACT
-    pp = sfx_pop_path or SFX_POP
-    if Path(wp).exists() and Path(ip).exists():
-        sfx_seg = AudioSegment.silent(duration=int(vid_dur*1000)+500)
-        whoosh  = AudioSegment.from_file(wp) - 2
-        impact  = AudioSegment.from_file(ip) - 1
-        pop     = AudioSegment.from_file(pp) - 3 if Path(pp).exists() else whoosh
-        sfx_seg = sfx_seg.overlay(impact, position=0)
-        for i, cs in enumerate(cut_points_s):
-            snd = whoosh if i % 2 == 0 else pop   # alternate for variety
-            sfx_seg = sfx_seg.overlay(snd, position=max(0,int(cs*1000)-130))
+    if Path(ip).exists():
         with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
             stmp = f.name
-        sfx_seg.export(stmp, format="mp3")
-        tracks.append(AudioFileClip(stmp).subclipped(0, vid_dur))
-        log.info("SFX mixed (%d cuts, whoosh/pop alternating)", len(cut_points_s))
+        (AudioSegment.from_file(ip) - 7).export(stmp, format="mp3")
+        tracks.append(AudioFileClip(stmp))
+        log.info("Opening thud mixed — no sound effects at the cuts")
 
     final = final.with_audio(CompositeAudioClip(tracks))
 
@@ -2751,32 +3179,32 @@ def apply_beautiful_captions(
     style = get_caption_style(niche)
     accent, anim_type = style["color"], style["animation"]
 
-    # ── Method 1: ffmpeg ASS karaoke subtitles (PRIMARY) ───────────────
+    # ── Method 1: ffmpeg ASS subtitles (PRIMARY) ────────────────────────
     # This is the primary method now, not the fallback: beautiful-captions
     # only animates how a caption CHUNK appears (bounce/pop/fade) — it has
     # no per-word "highlight the word being spoken right now" feature (its
     # own docs confirm "diarization" colors SPEAKERS, not the active word).
-    # The ASS karaoke path does real word-by-word highlighting.
+    # The ASS path highlights the spoken word (accent colour + pop) while
+    # every word keeps a FIXED position — see "Stable caption layout" below.
     try:
         ass_path = srt_path.replace(".srt", ".ass")
         if aai_data and aai_data.get("words"):
-            # Word-level timestamps available: real \k color-highlight
-            # PLUS a scale-bounce pulse on each word exactly while it's
-            # being spoken — not just a color change.
+            # Word-level timestamps available: the spoken word is coloured
+            # and pops exactly while it is being spoken; nothing else moves.
             _build_word_level_ass(aai_data, ass_path, accent)
-            method_desc = "word-highlight + bounce"
+            method_desc = "word highlight + pop, fixed layout"
         else:
-            # No word-level data (shouldn't normally happen) — color-only
-            # karaoke reconstructed from the coarser SRT chunks.
+            # No word-level data (shouldn't normally happen) — same layout
+            # and animation, word timing estimated from the coarser SRT.
             _srt_to_ass_karaoke(srt_path, ass_path, accent)
-            method_desc = "word-highlight (color only, no word timestamps)"
+            method_desc = "word highlight + pop, fixed layout, timing estimated from SRT"
         cmd = [
             "ffmpeg", "-y", "-i", video_path,
             "-vf", f"ass={ass_path}",
             "-c:a", "copy", "-preset", "fast", output_path,
         ]
         subprocess.run(cmd, check=True, capture_output=True)
-        log.info("ASS karaoke captions applied (%s) → %s", method_desc, output_path)
+        log.info("ASS captions applied (%s) → %s", method_desc, output_path)
         return output_path
     except Exception as e:
         log.warning("ASS karaoke failed (%s) — falling back to beautiful-captions", e)
@@ -2845,162 +3273,262 @@ def _group_words_into_chunks(words: list[dict], pause_ms: int = 300,
     return chunks
 
 
+# ── Stable caption layout ──────────────────────────────────────────────
+# Why captions used to flicker: a caption block was ONE auto-wrapping, centred
+# line, and the spoken word was scaled to 126% inside it. Every pulse made the
+# line wider, so libass re-centred the whole block and — whenever the line was
+# near the margin — re-wrapped it, jumping between 1 and 2 lines while it was
+# on screen. On top of that every block faded out while the next one faded in,
+# which dips the opacity at each block change. In a test render the block moved
+# up to 234px inside a single caption and 9 of 21 captions changed line count.
+# Same look (spoken word = accent colour + pop), different construction:
+#  1. Line breaks are decided ONCE, here, with the real font's metrics, and
+#     every word gets its own fixed position (\an5\pos). libass lays nothing
+#     out any more, so nothing can re-wrap or re-centre.
+#  2. The spoken word still pops, but around ITS OWN centre and in a layer
+#     above the others — the words around it stay exactly where they are.
+#  3. Events run back-to-back (end == next start), and a block only fades
+#     in/out where the screen is empty before/after it (a real pause), so
+#     there is never a dip between two blocks.
+CAP_FONT_NAME    = "Liberation Sans"   # the style is Bold -> LiberationSans-Bold
+CAP_FONT_SIZE    = 85                  # ASS Fontsize at PlayRes 1080x1920 (= line height, see _caption_width)
+CAP_MARGIN_V     = 340                 # bottom margin of the block, px
+CAP_MAX_LINE_W   = 880                 # px per line: 1080 - 2x60 margin, minus outline + metric slack
+CAP_MIN_STATE_MS = 80                  # a highlight state stays up for >= 2-3 frames
+CAP_HOLD_MS      = 140                 # last words stay up briefly after they are spoken
+CAP_BRIDGE_MS    = 260                 # gaps shorter than this are bridged -> no blank frame between blocks
+CAP_POP_SCALE    = 120                 # % the spoken word grows to at most (then settles back to 100%)
+CAP_POP_MIN      = 108                 # ... and at least, even next to a neighbour (long words pop less)
+CAP_WORD_GAP     = 8                   # extra px between words: room for the pop
+CAP_LINE_GAP     = 8                   # extra px between the two lines
+CAP_FADE_MS      = 70                  # fade in/out of a block, only next to a real pause
+
+_CAP_FONT_FILES = (
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+    "/usr/share/fonts/liberation/LiberationSans-Bold.ttf",
+    "/usr/share/fonts/liberation-sans/LiberationSans-Bold.ttf",
+    "/usr/share/fonts/TTF/LiberationSans-Bold.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",   # wider than Liberation -> errs on the safe side
+)
+_cap_font_cache: dict = {}
+
+
+def _caption_clean(text) -> str:
+    """Strips what would be read as ASS markup and collapses whitespace."""
+    return " ".join(str(text).replace("\\", "").replace("{", "").replace("}", "").split())
+
+
+def _caption_width(text: str) -> float:
+    """Width in px that libass gives `text` in the caption style. PIL measures
+    the font at 1000px and scales it: ASS "Fontsize" is the LINE HEIGHT
+    (ascent + descent), not the em size, so 85 means ~76px em for Liberation
+    Sans (checked against real libass output)."""
+    if "font" not in _cap_font_cache:
+        _cap_font_cache["font"] = None
+        for fp in _CAP_FONT_FILES:
+            if Path(fp).exists():
+                try:
+                    f = ImageFont.truetype(fp, 1000)
+                    asc, desc = f.getmetrics()
+                    _cap_font_cache["font"] = (f, CAP_FONT_SIZE / float(asc + desc))
+                    break
+                except Exception:
+                    continue
+    font = _cap_font_cache["font"]
+    if not font:                                   # no font file found: pessimistic estimate
+        return len(text) * CAP_FONT_SIZE * 0.58
+    f, scale = font
+    return f.getlength(text) * scale
+
+
+def _caption_lines(texts: list[str]) -> Optional[list[list[str]]]:
+    """Splits the words into 1-2 lines that each fit CAP_MAX_LINE_W: one line
+    if it fits, otherwise the most balanced two-line split. None = even two
+    lines are too wide (the caller then splits the block)."""
+    if _caption_width(" ".join(texts)) <= CAP_MAX_LINE_W:
+        return [texts]
+    best = None
+    for k in range(1, len(texts)):
+        wa = _caption_width(" ".join(texts[:k]))
+        wb = _caption_width(" ".join(texts[k:]))
+        if max(wa, wb) <= CAP_MAX_LINE_W and (best is None or abs(wa - wb) < best[0]):
+            best = (abs(wa - wb), [texts[:k], texts[k:]])
+    return best[1] if best else None
+
+
+def _plan_caption_chunks(words: list[dict]) -> list[tuple]:
+    """(chunk, lines, font_size) per caption block: the speech-pause grouping,
+    with every group that doesn't fit on two lines split further. A single word
+    wider than a line is shrunk once, statically."""
+    plan: list[tuple] = []
+
+    def place(chunk: list[dict]) -> None:
+        texts = [_caption_clean(w["text"]) for w in chunk]
+        lines = _caption_lines(texts)
+        if lines is not None:
+            plan.append((chunk, lines, CAP_FONT_SIZE))
+        elif len(chunk) == 1:
+            fs = max(40, int(CAP_FONT_SIZE * CAP_MAX_LINE_W / _caption_width(texts[0])))
+            plan.append((chunk, [texts], fs))
+        else:
+            mid = len(chunk) // 2
+            place(chunk[:mid])
+            place(chunk[mid:])
+
+    for ch in _group_words_into_chunks(words):
+        place(ch)
+    return plan
+
+
+def _caption_place(lines: list[list[str]], fs: int = CAP_FONT_SIZE) -> list[tuple]:
+    """(text, centre_x, centre_y, width, room) of every word of a block, in
+    reading order; `room` = free px to the neighbouring word (None if the word
+    is alone on its line). Each line is centred on the screen; the last line
+    sits on the bottom margin and earlier lines stack above it — where a
+    bottom-centred libass line would be, but decided here instead of by libass."""
+    k      = fs / float(CAP_FONT_SIZE)
+    gap    = (_caption_width(" ") + CAP_WORD_GAP) * k
+    pitch  = (CAP_FONT_SIZE + CAP_LINE_GAP) * k
+    bottom = VIDEO_H - CAP_MARGIN_V
+    placed: list[tuple] = []
+    for li, line in enumerate(lines):
+        widths = [_caption_width(w) * k for w in line]
+        x      = (VIDEO_W - (sum(widths) + gap * (len(line) - 1))) / 2.0
+        cy     = bottom - CAP_FONT_SIZE * k / 2.0 - pitch * (len(lines) - 1 - li)
+        for w, wd in zip(line, widths):
+            placed.append((w, x + wd / 2.0, cy, wd, gap if len(line) > 1 else None))
+            x += wd + gap
+    return placed
+
+
 def _build_word_level_ass(aai_data: dict, ass_path: str, accent: str) -> None:
     """
-    Builds ASS captions from exact word-level timestamps (not the coarser
-    SRT). Each word gets a color highlight AND a scale-bounce pulse, BOTH
-    implemented as \\t transforms scoped to that word's own time window —
-    not a static \\c override, which stays applied for the whole line and
-    was why multiple words lit up simultaneously in the previous version.
-    Only the currently-spoken word is colored at any given render time;
-    every other word in the chunk stays default white.
+    Builds ASS captions from exact word-level timestamps. The spoken word is
+    shown in the accent colour and pops (scales up, settles back) while it is
+    spoken; all other words of the block stay white and, above all, stay put:
+    every word is its own event at a fixed position (see "Stable caption
+    layout" above).
     """
-    words = aai_data.get("words", [])
+    words = [w for w in aai_data.get("words", []) if _caption_clean(w.get("text", ""))]
     if not words:
         raise ValueError("No word-level timestamps in aai_data")
 
-    def ms_to_ass(ms: int) -> str:
-        h  = ms // 3600000
-        m  = (ms % 3600000) // 60000
-        s  = (ms % 60000) // 1000
-        cs = (ms % 1000) // 10
-        return f"{h}:{m:02d}:{s:02d}.{cs:02d}"
+    BS       = chr(92)                               # backslash, kept out of the f-strings
+    r, g, b  = _hex(accent)
+    hi       = f"&H{b:02X}{g:02X}{r:02X}&"
 
-    def esc(text: str) -> str:
-        return text.replace("\\", "").replace("{", "").replace("}", "")
-
-    r, g, b = _hex(accent)
-    ass_col  = f"&H00{b:02X}{g:02X}{r:02X}&"
-    white    = "&H00FFFFFF&"
+    def stamp(c: int) -> str:                        # centiseconds -> H:MM:SS.cc
+        return f"{c // 360000}:{(c % 360000) // 6000:02d}:{(c % 6000) // 100:02d}.{c % 100:02d}"
 
     header = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {VIDEO_W}
 PlayResY: {VIDEO_H}
+WrapStyle: 2
 ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,ScaleX,ScaleY,Spacing,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV
-Style: Default,Liberation Sans Bold,85,&H00FFFFFF,&H00FFFFFF,&H00000000,&H99000000,-1,0,0,100,100,0,1,6,2,2,60,60,340
+Style: Default,{CAP_FONT_NAME},{CAP_FONT_SIZE},&H00FFFFFF,&H00FFFFFF,&H00000000,&H99000000,-1,0,0,100,100,0,1,6,2,2,60,60,{CAP_MARGIN_V}
 
 [Events]
 Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
 """
-    _t, _c, _r, _fx, _fy = (chr(92)+"t", chr(92)+"c", chr(92)+"r",
-                             chr(92)+"fscx", chr(92)+"fscy")
-    events = []
-    # Pause-based grouping (like CapCut/TikTok) instead of a fixed word
-    # count — a chunk only ever spans a continuous run of speech, so a
-    # real pause always falls BETWEEN two Dialogue events (nothing shown
-    # during it) rather than being swallowed inside one that stays on
-    # screen through the silence.
-    for chunk in _group_words_into_chunks(words):
-        chunk_start = chunk[0]["start_ms"]
-        chunk_end   = chunk[-1]["end_ms"]
-        # Fade the whole caption block in/out — like real CapCut templates,
-        # not a hard cut. Capped so it doesn't eat into very short chunks.
-        fade_ms = min(90, max(20, (chunk_end - chunk_start) // 6))
-        parts = [f"{{\\fad({fade_ms},{fade_ms})}}"]
-        for wi, w in enumerate(chunk):
-            w_start = max(0, w["start_ms"] - chunk_start)
-            # Stagger the very first word's highlight so it doesn't start
-            # at the exact same instant (t=0) as the block's own \fad
-            # fade-in — several \t transforms (color, scale) racing the
-            # \fad alpha animation on the same first frames was a likely
-            # source of the reported "glitch".
-            if wi == 0:
-                w_start = max(w_start, fade_ms)
-            w_end   = max(w_start + 80, w["end_ms"] - chunk_start)
-            w_dur   = w_end - w_start
-            # Snap to accent color almost instantly, hold, snap back to
-            # white almost instantly — a highlight, not a slow fade.
-            snap    = min(30, w_dur // 4)
-            # Bounce scale is proportional to word length so short, fast
-            # words still get a visible pop instead of a near-instant
-            # jump that reads as rigid/glitchy.
-            pop     = max(30, min(90, int(w_dur * 0.35)))
-            # IMPORTANT: \t time windows are relative to the LINE's start
-            # (chunk_start), not to each word — so every window below uses
-            # the word's actual chunk-relative offset, not a 0-based local
-            # clock. Getting this wrong makes every word animate at the
-            # same instant (line start) instead of when it's spoken.
-            override = (
-                f"{{{_t}({w_start},{w_start+snap},{_c}{ass_col})"
-                f"{_t}({w_end-snap},{w_end},{_c}{white})"
-                f"{_t}({w_start},{w_start+pop},{_fx}126{_fy}126)"
-                f"{_t}({w_start+pop},{w_end},{_fx}100{_fy}100)}}"
-            )
-            parts.append(f"{override}{esc(w['text'])}{{{_r}\\c{white}}}")
-        # Small explicit gap before the next block starts, so two
-        # consecutive Dialogue events can never overlap by a stray
-        # rounded frame at the boundary (a second possible glitch source).
-        events.append(
-            f"Dialogue: 0,{ms_to_ass(chunk_start)},{ms_to_ass(max(chunk_start+1, chunk_end-20))},"
-            f"Default,,0,0,0,,{' '.join(parts)}"
-        )
+    plan   = _plan_caption_chunks(words)
+    events: list[tuple] = []                         # (start_cs, layer, seq, dialogue line)
+    cursor = 0                                       # where the last block ended (ms)
+    for ci, (chunk, lines, fs) in enumerate(plan):
+        nxt  = plan[ci + 1][0][0]["start_ms"] if ci + 1 < len(plan) else None
+        t0   = max(chunk[0]["start_ms"], cursor)
+        t_end = chunk[-1]["end_ms"]
+        if nxt is not None and nxt - t_end < CAP_BRIDGE_MS:
+            t_end = nxt                              # close blocks: hold until the next one appears
+        else:
+            t_end += CAP_HOLD_MS                     # real pause: disappear shortly after the last word
+            if nxt is not None:
+                t_end = min(t_end, nxt)
+        fade_in  = ci == 0 or t0 - cursor >= 100                     # screen was empty before this block
+        fade_out = nxt is None or nxt - t_end >= 100                 # ... and stays empty after it
 
-    Path(ass_path).write_text(header + "\n".join(events), encoding="utf-8")
+        # highlight-state boundaries: state j = [bounds[j], bounds[j+1])
+        bounds = [t0]
+        for w in chunk[1:]:
+            bounds.append(max(w["start_ms"], bounds[-1] + CAP_MIN_STATE_MS))
+        bounds.append(max(t_end, bounds[-1] + CAP_MIN_STATE_MS))
+        cb = [int(round(x / 10.0)) for x in bounds]  # ASS clock = centiseconds
+        for j in range(1, len(cb)):
+            cb[j] = max(cb[j], cb[j - 1] + 1)        # strictly increasing, and end == next start
+        cursor = cb[-1] * 10
+
+        n      = len(chunk)
+        placed = _caption_place(lines, fs)
+
+        def emit(a: int, b: int, k: int, active: bool) -> None:
+            """Word k from boundary a to boundary b. Active word: accent colour
+            + pop in the layer above; others: plain white, never animated."""
+            text, cx, cy, wd, room = placed[k]
+            dur  = (cb[b] - cb[a]) * 10
+            tags = f"{BS}an5{BS}pos({cx:.1f},{cy:.1f})"
+            if fs != CAP_FONT_SIZE:
+                tags += f"{BS}fs{fs}"
+            fi = min(CAP_FADE_MS, dur // 2) if (a == 0 and fade_in) else 0
+            fo = min(CAP_FADE_MS, dur // 2) if (b == n and fade_out) else 0
+            if fi or fo:
+                tags += f"{BS}fad({fi},{fo})"
+            if active:
+                pop   = max(30, min(90, int(dur * 0.35)))      # fast grow, slow settle
+                if pop >= dur:
+                    pop = max(10, dur // 2)
+                # the word grows by (big-100)% of its width, half to each side: keep that
+                # inside the gap to its neighbour, so long words pop a bit less than short ones
+                big = CAP_POP_SCALE if room is None else \
+                      int(max(CAP_POP_MIN, min(CAP_POP_SCALE, 100 + 200.0 * (room - 8) / max(wd, 1.0))))
+                tags += (f"{BS}c{hi}{BS}fscx100{BS}fscy100"
+                         f"{BS}t(0,{pop},{BS}fscx{big}{BS}fscy{big})"
+                         f"{BS}t({pop},{dur},{BS}fscx100{BS}fscy100)")
+            layer = 1 if active else 0
+            events.append((cb[a], layer, len(events),
+                           f"Dialogue: {layer},{stamp(cb[a])},{stamp(cb[b])},Default,,0,0,0,,{{{tags}}}{text}"))
+
+        for k in range(n):
+            if k > 0:
+                emit(0, k, k, False)                 # not spoken yet
+            emit(k, k + 1, k, True)                  # being spoken
+            if k < n - 1:
+                emit(k + 1, n, k, False)             # already spoken
+
+    events.sort(key=lambda e: (e[0], e[1], e[2]))
+    Path(ass_path).write_text(header + "\n".join(e[3] for e in events), encoding="utf-8")
 
 
 def _srt_to_ass_karaoke(srt_path: str, ass_path: str, accent: str) -> None:
     """
-    Convert SRT to ASS with karaoke-style word highlighting.
-    Each word highlights in accent color as it is spoken.
+    No word timestamps (shouldn't normally happen): spread each SRT block's
+    words over the block by character count and reuse the stable builder, so
+    this path gets the same fixed layout and highlight instead of its own
+    auto-wrapping one.
     """
-    def ms_to_ass(ms: int) -> str:
-        h  = ms // 3600000
-        m  = (ms % 3600000) // 60000
-        s  = (ms % 60000) // 1000
-        cs = (ms % 1000) // 10
-        return f"{h}:{m:02d}:{s:02d}.{cs:02d}"
+    def parse_t(t: str) -> int:
+        h, m, s = t.strip().replace(",", ".").split(":")
+        return int((int(h) * 3600 + int(m) * 60 + float(s)) * 1000)
 
-    # Convert accent hex to ASS BGR
-    r, g, b  = _hex(accent)
-    ass_col  = f"&H00{b:02X}{g:02X}{r:02X}&"
-
-    header = f"""[Script Info]
-ScriptType: v4.00+
-PlayResX: {VIDEO_W}
-PlayResY: {VIDEO_H}
-ScaledBorderAndShadow: yes
-
-[V4+ Styles]
-Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,ScaleX,ScaleY,Spacing,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV
-Style: Default,Liberation Sans Bold,85,&H00FFFFFF,{ass_col},&H00000000,&H99000000,-1,0,0,100,100,0,1,6,2,2,60,60,340
-
-[Events]
-Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
-"""
-    lines = Path(srt_path).read_text().strip().split('\n\n')
-    events = []
-    for block in lines:
-        parts = block.strip().split('\n')
+    words = []
+    for block in Path(srt_path).read_text(encoding="utf-8", errors="ignore").strip().split("\n\n"):
+        parts = block.strip().split("\n")
         if len(parts) < 3:
             continue
-        # Parse timing line: 00:00:00,000 --> 00:00:02,500
         try:
-            timing = parts[1]
-            start_str, end_str = timing.split(" --> ")
-            def parse_t(t):
-                t = t.replace(",", ".")
-                h, m, s = t.split(":")
-                return int((int(h)*3600 + int(m)*60 + float(s)) * 1000)
-            start_ms  = parse_t(start_str.strip())
-            end_ms    = parse_t(end_str.strip())
-            text      = " ".join(parts[2:])
-            words     = text.split()
-            dur_ms    = end_ms - start_ms
-            word_dur  = dur_ms // max(len(words), 1)
-            # Build karaoke tags: {\k<centiseconds>}word
-            _k        = chr(92) + "k"
-            karaoke   = " ".join("{" + _k + str(word_dur // 10) + "}" + w for w in words)
-            events.append(
-                f"Dialogue: 0,{ms_to_ass(start_ms)},{ms_to_ass(end_ms)},"
-                f"Default,,0,0,0,,{karaoke}"
-            )
+            a, b = (parse_t(x) for x in parts[1].split(" --> "))
         except Exception:
             continue
-    Path(ass_path).write_text(header + '\n'.join(events), encoding='utf-8')
+        toks  = " ".join(parts[2:]).split()
+        total = sum(len(t) + 1 for t in toks) or 1
+        t     = float(a)
+        for tok in toks:
+            d = (b - a) * (len(tok) + 1) / total
+            words.append({"text": tok, "start_ms": int(t), "end_ms": int(t + d)})
+            t += d
+    _build_word_level_ass({"words": words}, ass_path, accent)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -3385,7 +3913,7 @@ def run_pipeline(niche: Optional[str] = None) -> None:
 
     ensure_font()
     music_path             = ensure_music(niche=niche, duration_s=120)
-    sfx_whoosh, sfx_impact, sfx_pop = ensure_sfx()
+    sfx_impact             = ensure_sfx()
 
     # Analyze curated viral videos (free, skips if <3 days old)
     analyze_viral_videos()
@@ -3400,9 +3928,9 @@ def run_pipeline(niche: Optional[str] = None) -> None:
         full_text = script.get("hook","") + " " + " ".join(s["text"] for s in scenes)
         log.info("Title: %s | %d scenes", title, len(scenes))
 
-        # 2. Voiceover
+        # 2. Voiceover — delivery follows the topic (script's tone, niche default)
         audio_path = str(tmp/"voice.mp3")
-        generate_voiceover(full_text, audio_path)
+        generate_voiceover(full_text, audio_path, niche=niche, tone=script.get("tone"))
 
         # 3. Transcription
         aai_data = transcribe_with_assemblyai(audio_path)
@@ -3436,9 +3964,8 @@ def run_pipeline(niche: Optional[str] = None) -> None:
                 audio_path=audio_path, aai_data=aai_data,
                 cut_points_s=cuts, output_path=raw_video,
                 music_path=music_path,
-                sfx_whoosh_path=sfx_whoosh,
                 sfx_impact_path=sfx_impact,
-                sfx_pop_path=sfx_pop,
+                title=title,
             )
 
         # 7. Animated captions — SKIP if Creatomate already burned in
