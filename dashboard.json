@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "Why Your Banana Is a Berry and Your Strawberry Isn\u2019t",
+      "url": "https://youtu.be/7WHFqupYk2Q",
+      "video_id": "7WHFqupYk2Q",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-02T20:24:10.487697"
+    },
+    {
       "niche": "scary",
       "title": "When My Nightlight Became a Screaming Baby",
       "url": "https://youtu.be/wySqxs3botM",
@@ -471,15 +481,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-25T15:23:37.985910"
-    },
-    {
-      "niche": "fact",
-      "title": "Why $5 Bottled Water Is Just Fancy Tap",
-      "url": "https://youtu.be/t-VpFo2S9jg",
-      "video_id": "t-VpFo2S9jg",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-25T09:43:44.286956"
     }
   ],
   "stats": {
