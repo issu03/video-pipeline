@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "When My Nightlight Became a Screaming Baby",
+      "url": "https://youtu.be/wySqxs3botM",
+      "video_id": "wySqxs3botM",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-02T12:21:33.455610"
+    },
+    {
       "niche": "reddit",
       "title": "Redditors Got Banned for Pretending Their Post Was a Miracle Cure",
       "url": "https://youtu.be/BD4EGYuVqf0",
@@ -470,15 +480,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-25T09:43:44.286956"
-    },
-    {
-      "niche": "scary",
-      "title": "The Night the Closet Whispered Back",
-      "url": "https://youtu.be/2WwdhMUlncQ",
-      "video_id": "2WwdhMUlncQ",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-09-24T15:00:25.954564"
     }
   ],
   "stats": {
