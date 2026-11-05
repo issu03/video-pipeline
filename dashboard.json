@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "scary",
+      "title": "Why does your nightstand suddenly scream?",
+      "url": "https://youtu.be/kADYCnyLenQ",
+      "video_id": "kADYCnyLenQ",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-05T18:08:02.808822"
+    },
+    {
+      "niche": "scary",
       "title": "Why does your closet whisper at night?",
       "url": "https://youtu.be/pFYPVdn7TWU",
       "video_id": "pFYPVdn7TWU",
@@ -477,15 +487,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-09-28T18:12:08.862196"
-    },
-    {
-      "niche": "scary",
-      "title": "The Midnight Door That Won't Stop Laughing",
-      "url": "https://youtu.be/qfI16nidBhI",
-      "video_id": "qfI16nidBhI",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-28T10:54:56.238957"
     }
   ],
   "stats": {
