@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "Why does your closet whisper at night?",
+      "url": "https://youtu.be/pFYPVdn7TWU",
+      "video_id": "pFYPVdn7TWU",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-05T12:14:00.791989"
+    },
+    {
       "niche": "motivation",
       "title": "From Zero to Hero: The 3\u2011Second Secret",
       "url": "https://youtu.be/s8ecH-XjbUk",
@@ -476,15 +486,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-09-28T10:54:56.238957"
-    },
-    {
-      "niche": "conspiracy",
-      "title": "The Smiley Box Conspiracy They Don't Want You to Know",
-      "url": "https://youtu.be/O7DECSBbiDE",
-      "video_id": "O7DECSBbiDE",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-27T15:17:44.400268"
     }
   ],
   "stats": {
