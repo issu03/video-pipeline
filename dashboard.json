@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "scary",
+      "title": "The Closet That Ate My Socks and Then Laughed",
+      "url": "https://youtu.be/CuBzBqR7n6Q",
+      "video_id": "CuBzBqR7n6Q",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-06T12:07:12.207704"
+    },
+    {
+      "niche": "scary",
       "title": "Why does your nightstand suddenly scream?",
       "url": "https://youtu.be/kADYCnyLenQ",
       "video_id": "kADYCnyLenQ",
@@ -478,15 +488,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-29T10:40:59.980416"
-    },
-    {
-      "niche": "scary",
-      "title": "The Baby Monitor That Knew My Secrets",
-      "url": "https://youtu.be/qRf0FlT6sI0",
-      "video_id": "qRf0FlT6sI0",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-09-28T18:12:08.862196"
     }
   ],
   "stats": {
