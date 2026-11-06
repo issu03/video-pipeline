@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "Your Phone Dies Faster When You Keep It Fully Charged",
+      "url": "https://youtu.be/0CUmRC_xtEc",
+      "video_id": "0CUmRC_xtEc",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-06T17:28:27.584085"
+    },
+    {
       "niche": "scary",
       "title": "The Closet That Ate My Socks and Then Laughed",
       "url": "https://youtu.be/CuBzBqR7n6Q",
@@ -479,15 +489,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-09-29T16:39:10.000558"
-    },
-    {
-      "niche": "lifehack",
-      "title": "Freeze Coffee Instantly With a Sponge \u2014 No Freezer Needed",
-      "url": "https://youtu.be/tASJTy1zgGw",
-      "video_id": "tASJTy1zgGw",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-29T10:40:59.980416"
     }
   ],
   "stats": {
