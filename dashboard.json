@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "rich",
+      "title": "Why $7,000 a Year Vanishes From Your Bank While You Sleep",
+      "url": "https://youtu.be/U7LzqZGov3A",
+      "video_id": "U7LzqZGov3A",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-07T16:29:14.036416"
+    },
+    {
+      "niche": "rich",
       "title": "Everyone thinks getting rich is about hustling nonstop. They're wrong.",
       "url": "https://youtu.be/R00cALulgUk",
       "video_id": "R00cALulgUk",
@@ -481,15 +491,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-09-30T16:35:28.537278"
-    },
-    {
-      "niche": "scary",
-      "title": "The Haunted Wi\u2011Fi That Screamed \u2018Buffering\u2026\u2019",
-      "url": "https://youtu.be/GuMUIa6jDQs",
-      "video_id": "GuMUIa6jDQs",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-09-30T10:31:28.825579"
     }
   ],
   "stats": {
