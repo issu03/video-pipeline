@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "Why Your Grandma\u2019s Secret Recipe Is Actually a Legal Loophole",
+      "url": "https://youtu.be/sKsXvz5-wqo",
+      "video_id": "sKsXvz5-wqo",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-08T16:48:39.698367"
+    },
+    {
       "niche": "rich",
       "title": "How $0.01 a Day Can Turn Into $10,000 Without Leaving Your Couch",
       "url": "https://youtu.be/ExbWG3RpWX4",
@@ -483,15 +493,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-10-01T17:26:53.648107"
-    },
-    {
-      "niche": "fact",
-      "title": "The Plastic Straw That Outlived the Dinosaurs",
-      "url": "https://youtu.be/RB1fv-op6Ow",
-      "video_id": "RB1fv-op6Ow",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-10-01T11:03:31.195305"
     }
   ],
   "stats": {
