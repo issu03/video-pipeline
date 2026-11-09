@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "The $0.01 Trick Banks Hate",
+      "url": "https://youtu.be/XVnWAMo1-Vg",
+      "video_id": "XVnWAMo1-Vg",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-09T20:51:13.488379"
+    },
+    {
       "niche": "dating",
       "title": "The Dating Myth That\u2019s Ruining Your Love Life",
       "url": "https://youtu.be/N_jvDYch8hk",
@@ -485,15 +495,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-10-02T16:22:35.251868"
-    },
-    {
-      "niche": "fact",
-      "title": "The Berry Truth About Bananas & Strawberries",
-      "url": "https://youtu.be/XbAx3Mw7nVg",
-      "video_id": "XbAx3Mw7nVg",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-10-02T10:31:52.671496"
     }
   ],
   "stats": {
