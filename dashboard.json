@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "dating",
+      "title": "The Dating Myth That\u2019s Ruining Your Love Life",
+      "url": "https://youtu.be/N_jvDYch8hk",
+      "video_id": "N_jvDYch8hk",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-09T12:54:39.600268"
+    },
+    {
       "niche": "fact",
       "title": "Why Your Grandma\u2019s Secret Recipe Is Actually a Legal Loophole",
       "url": "https://youtu.be/sKsXvz5-wqo",
@@ -484,15 +494,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-10-02T10:31:52.671496"
-    },
-    {
-      "niche": "fact",
-      "title": "Why Your Brain Is a Night\u2011Owl Superhero",
-      "url": "https://youtu.be/yr6T7UWbiyU",
-      "video_id": "yr6T7UWbiyU",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-10-01T17:26:53.648107"
     }
   ],
   "stats": {
