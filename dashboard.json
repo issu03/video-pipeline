@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "How a $5 App Is Quietly Robbing You of $500 a Year",
+      "url": "https://youtu.be/vShlgOe2QUg",
+      "video_id": "vShlgOe2QUg",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-10T17:50:47.058705"
+    },
+    {
       "niche": "scary",
       "title": "When My House Tried to Eat My Pizza (and Got a Side of Sarcasm)",
       "url": "https://youtu.be/sznSFYAu7sI",
@@ -487,15 +497,6 @@
       "hook_style": "outcome_first",
       "ok": true,
       "ts": "2026-10-03T14:51:09.172509"
-    },
-    {
-      "niche": "fact",
-      "title": "The Zombie-Ant Fungus That Turns Insects Into Murder-Bots",
-      "url": "https://youtu.be/npQFJa-QLpg",
-      "video_id": "npQFJa-QLpg",
-      "hook_style": "question_why_how",
-      "ok": true,
-      "ts": "2026-10-03T09:57:59.687536"
     }
   ],
   "stats": {
