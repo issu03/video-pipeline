@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "When My House Tried to Eat My Pizza (and Got a Side of Sarcasm)",
+      "url": "https://youtu.be/sznSFYAu7sI",
+      "video_id": "sznSFYAu7sI",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-10T12:33:25.156059"
+    },
+    {
       "niche": "rich",
       "title": "The $0.01 Trick Banks Hate",
       "url": "https://youtu.be/XVnWAMo1-Vg",
@@ -486,15 +496,6 @@
       "hook_style": "question_why_how",
       "ok": true,
       "ts": "2026-10-03T09:57:59.687536"
-    },
-    {
-      "niche": "lifehack",
-      "title": "Instant Drink Chiller Hack \u2013 No Ice Needed",
-      "url": "https://youtu.be/IoDRw6VfUWY",
-      "video_id": "IoDRw6VfUWY",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-10-02T16:22:35.251868"
     }
   ],
   "stats": {
