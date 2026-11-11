@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Secret Reason Your Coffee Is Killing Your Brain",
+      "url": "https://youtu.be/c04eTCAXmdM",
+      "video_id": "c04eTCAXmdM",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-11T11:59:01.414674"
+    },
+    {
       "niche": "rich",
       "title": "How a $5 App Is Quietly Robbing You of $500 a Year",
       "url": "https://youtu.be/vShlgOe2QUg",
@@ -488,15 +498,6 @@
       "hook_style": "contrarian",
       "ok": true,
       "ts": "2026-10-04T10:43:31.015348"
-    },
-    {
-      "niche": "lifehack",
-      "title": "Charge Your Phone in 5 Seconds With a Paperclip",
-      "url": "https://youtu.be/Xa1XgfSrsak",
-      "video_id": "Xa1XgfSrsak",
-      "hook_style": "outcome_first",
-      "ok": true,
-      "ts": "2026-10-03T14:51:09.172509"
     }
   ],
   "stats": {
