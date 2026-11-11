@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Redditors Banned for Declaring Their Roomba a \u2018Roommate\u2019 \u2013 The Chaos Explained",
+      "url": "https://youtu.be/qsdBGTD_9Xs",
+      "video_id": "qsdBGTD_9Xs",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-11T18:01:23.762094"
+    },
+    {
       "niche": "fact",
       "title": "The Secret Reason Your Coffee Is Killing Your Brain",
       "url": "https://youtu.be/c04eTCAXmdM",
@@ -489,15 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-19T10:09:32.475033"
-    },
-    {
-      "niche": "fact",
-      "title": "The Deadliest Creature You\u2019ve Never Heard Of",
-      "url": "https://youtu.be/gPVwDm1wzjU",
-      "video_id": "gPVwDm1wzjU",
-      "hook_style": "contrarian",
-      "ok": true,
-      "ts": "2026-10-04T10:43:31.015348"
     }
   ],
   "stats": {
