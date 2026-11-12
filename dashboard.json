@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "How $0.97 a Day Can Make You Richer Than Your Boss",
+      "url": "https://youtu.be/9l0Mc3dVvrs",
+      "video_id": "9l0Mc3dVvrs",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-12T18:12:03.340788"
+    },
+    {
       "niche": "scary",
       "title": "The Night My Closet Ate My Socks (and Then Laughed)",
       "url": "https://youtu.be/3C9S6FrArbY",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-19T17:03:19.509947"
-    },
-    {
-      "niche": "reddit",
-      "title": "Reddit Users Banned for Calling Their Cat a \u2018Roommate\u2019\u2014The Fallout",
-      "url": "https://youtu.be/SMls26OGWEk",
-      "video_id": "SMls26OGWEk",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-19T10:37:36.705135"
     }
   ],
   "stats": {
