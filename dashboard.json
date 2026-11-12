@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Night My Closet Ate My Socks (and Then Laughed)",
+      "url": "https://youtu.be/3C9S6FrArbY",
+      "video_id": "3C9S6FrArbY",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-12T12:34:53.408068"
+    },
+    {
       "niche": "reddit",
       "title": "Redditors Banned for Declaring Their Roomba a \u2018Roommate\u2019 \u2013 The Chaos Explained",
       "url": "https://youtu.be/qsdBGTD_9Xs",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-19T10:37:36.705135"
-    },
-    {
-      "niche": "scary",
-      "title": "The Closet That Laughed at Me",
-      "url": "https://youtu.be/rPzbUlWl78k",
-      "video_id": "rPzbUlWl78k",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-19T10:09:32.475033"
     }
   ],
   "stats": {
