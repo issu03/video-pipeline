@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "rich",
+      "title": "You\u2019re Losing $3,000 a Year Doing This One Silly Thing",
+      "url": "https://youtu.be/BjdWbShAUnE",
+      "video_id": "BjdWbShAUnE",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-14T16:38:38.850256"
+    },
+    {
+      "niche": "rich",
       "title": "The $0.01 Trick Banks Hate (And It\u2019s Hilariously Simple)",
       "url": "https://youtu.be/AbScl5qDzzQ",
       "video_id": "AbScl5qDzzQ",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-21T15:08:12.993465"
-    },
-    {
-      "niche": "scary",
-      "title": "Why does your bedroom mirror stare back?",
-      "url": "https://youtu.be/ZCxzdisdkGE",
-      "video_id": "ZCxzdisdkGE",
-      "hook_style": "question_why_how",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-21T09:22:17.480914"
     }
   ],
   "stats": {
