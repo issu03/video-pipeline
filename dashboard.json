@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "motivation",
+      "title": "From $5 Pizza to Million-Dollar Mindset",
+      "url": "https://youtu.be/V8GOlFE_ZCU",
+      "video_id": "V8GOlFE_ZCU",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-15T17:08:02.709805"
+    },
+    {
+      "niche": "motivation",
       "title": "From Zero to Hero: The Secret No One Talks About",
       "url": "https://youtu.be/K_be8mfDvuA",
       "video_id": "K_be8mfDvuA",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-22T15:11:21.515736"
-    },
-    {
-      "niche": "reddit",
-      "title": "Reddit Decided to Ban Mondays\u2014And It Got Weird",
-      "url": "https://youtu.be/EyYnSTZHZOg",
-      "video_id": "EyYnSTZHZOg",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-22T09:28:05.312761"
     }
   ],
   "stats": {
