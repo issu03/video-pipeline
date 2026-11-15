@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "motivation",
+      "title": "From Zero to Hero: The Secret No One Talks About",
+      "url": "https://youtu.be/K_be8mfDvuA",
+      "video_id": "K_be8mfDvuA",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-15T11:58:51.540828"
+    },
+    {
       "niche": "rich",
       "title": "You\u2019re Losing $3,000 a Year Doing This One Silly Thing",
       "url": "https://youtu.be/BjdWbShAUnE",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-22T09:28:05.312761"
-    },
-    {
-      "niche": "motivation",
-      "title": "From Zero to Hero: The Secret No One Told You",
-      "url": "https://youtu.be/FlV75_JruRE",
-      "video_id": "FlV75_JruRE",
-      "hook_style": "contrarian",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-21T15:08:12.993465"
     }
   ],
   "stats": {
