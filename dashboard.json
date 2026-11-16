@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Haunted Wi\u2011Fi That Killed My Pizza Delivery",
+      "url": "https://youtu.be/c-2CT3Woak4",
+      "video_id": "c-2CT3Woak4",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-16T20:24:20.231049"
+    },
+    {
       "niche": "rich",
       "title": "Why Saving on Coffee Is Actually Draining Your Wallet",
       "url": "https://youtu.be/tYWh-7pwFqk",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-23T15:24:17.305322"
-    },
-    {
-      "niche": "reddit",
-      "title": "Redditors Banned for Declaring Their Wi\u2011Fi is a \u2018Living Being\u2019",
-      "url": "https://youtu.be/ucZW3v0pKD0",
-      "video_id": "ucZW3v0pKD0",
-      "hook_style": "question_why_how",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-23T09:25:59.090925"
     }
   ],
   "stats": {
