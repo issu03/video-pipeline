@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "rich",
+      "title": "Everyone thinks tiny savings are useless. They're wrong.",
+      "url": "https://youtu.be/y_3NnPKQdXE",
+      "video_id": "y_3NnPKQdXE",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-17T19:12:14.515989"
+    },
+    {
+      "niche": "rich",
       "title": "Why Your Spare Change App Is Robbing You of $500 a Year",
       "url": "https://youtu.be/jAIwvMxKhJA",
       "video_id": "jAIwvMxKhJA",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-24T14:06:59.466505"
-    },
-    {
-      "niche": "scary",
-      "title": "The Haunted Mirror That Hates Your Reflection",
-      "url": "https://youtu.be/mU8bt4RKRIY",
-      "video_id": "mU8bt4RKRIY",
-      "hook_style": "contrarian",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-24T08:58:44.189877"
     }
   ],
   "stats": {
