@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "fact",
+      "title": "The Truth About Your Phone\u2019s Battery That No One Wants to Admit",
+      "url": "https://youtu.be/crejcYhvf9Y",
+      "video_id": "crejcYhvf9Y",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-18T13:06:14.763676"
+    },
+    {
       "niche": "rich",
       "title": "Everyone thinks tiny savings are useless. They're wrong.",
       "url": "https://youtu.be/y_3NnPKQdXE",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-25T09:16:14.438938"
-    },
-    {
-      "niche": "scary",
-      "title": "Why does the nightstand whisper your secrets?",
-      "url": "https://youtu.be/2GCbMQz4Nlg",
-      "video_id": "2GCbMQz4Nlg",
-      "hook_style": "question_why_how",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-24T14:06:59.466505"
     }
   ],
   "stats": {
