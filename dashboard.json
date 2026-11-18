@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Redditors Banned for Treating ChatGPT Like a Therapist\u2014The Fallout",
+      "url": "https://youtu.be/D_i42NBSW2g",
+      "video_id": "D_i42NBSW2g",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-18T18:59:02.523912"
+    },
+    {
       "niche": "fact",
       "title": "The Truth About Your Phone\u2019s Battery That No One Wants to Admit",
       "url": "https://youtu.be/crejcYhvf9Y",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-25T14:28:48.789165"
-    },
-    {
-      "niche": "fact",
-      "title": "The Truth About Your Morning Coffee",
-      "url": "https://youtu.be/PuCebcmkUBw",
-      "video_id": "PuCebcmkUBw",
-      "hook_style": "contrarian",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-25T09:16:14.438938"
     }
   ],
   "stats": {
