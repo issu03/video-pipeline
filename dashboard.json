@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "scary",
+      "title": "Why does the attic whisper your name at midnight?",
+      "url": "https://youtu.be/8dysEz7Qi0I",
+      "video_id": "8dysEz7Qi0I",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-19T19:10:53.733899"
+    },
+    {
+      "niche": "scary",
       "title": "The Closet That Ate My Socks (And Laughed)",
       "url": "https://youtu.be/tnWLrsQJMBY",
       "video_id": "tnWLrsQJMBY",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-26T16:55:00.065768"
-    },
-    {
-      "niche": "conspiracy",
-      "title": "The Government\u2019s Secret Pizza\u2011Shaping Satellites",
-      "url": "https://youtu.be/avcAFb0ShXU",
-      "video_id": "avcAFb0ShXU",
-      "hook_style": "question_why_how",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-26T10:39:09.664152"
     }
   ],
   "stats": {
