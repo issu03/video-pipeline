@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Closet That Ate My Socks (And Laughed)",
+      "url": "https://youtu.be/tnWLrsQJMBY",
+      "video_id": "tnWLrsQJMBY",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-19T12:54:31.808381"
+    },
+    {
       "niche": "reddit",
       "title": "Redditors Banned for Treating ChatGPT Like a Therapist\u2014The Fallout",
       "url": "https://youtu.be/D_i42NBSW2g",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-26T10:39:09.664152"
-    },
-    {
-      "niche": "scary",
-      "title": "The Night My Closet Whispered Back (And It Was Hilariously Deadly)",
-      "url": "https://youtu.be/UJYLast0w-I",
-      "video_id": "UJYLast0w-I",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-25T14:28:48.789165"
     }
   ],
   "stats": {
