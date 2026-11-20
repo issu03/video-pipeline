@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "scary",
+      "title": "What Happens When Your Closet Starts Talking?",
+      "url": "https://youtu.be/ycvhbJ3mIos",
+      "video_id": "ycvhbJ3mIos",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-20T12:55:03.718108"
+    },
+    {
+      "niche": "scary",
       "title": "Why does the attic whisper your name at midnight?",
       "url": "https://youtu.be/8dysEz7Qi0I",
       "video_id": "8dysEz7Qi0I",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-27T10:16:11.772937"
-    },
-    {
-      "niche": "conspiracy",
-      "title": "The Hidden Signal in Your Smartphone That\u2019s Controlling Your Snacks",
-      "url": "https://youtu.be/23tQYWOgUAc",
-      "video_id": "23tQYWOgUAc",
-      "hook_style": "question_why_how",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-26T16:55:00.065768"
     }
   ],
   "stats": {
