@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "Your Phone\u2019s Brightness Is Secretly Draining Your Bank Account",
+      "url": "https://youtu.be/4V4T2Jz2eNA",
+      "video_id": "4V4T2Jz2eNA",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-20T18:38:13.169357"
+    },
+    {
       "niche": "scary",
       "title": "What Happens When Your Closet Starts Talking?",
       "url": "https://youtu.be/ycvhbJ3mIos",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-27T16:01:56.961640"
-    },
-    {
-      "niche": "reddit",
-      "title": "Redditors Banned for Declaring Their Toaster a \u2018Roommate\u2019 \u2013 The Chaos",
-      "url": "https://youtu.be/ZlEAeXpP2-Y",
-      "video_id": "ZlEAeXpP2-Y",
-      "hook_style": "question_why_how",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-27T10:16:11.772937"
     }
   ],
   "stats": {
