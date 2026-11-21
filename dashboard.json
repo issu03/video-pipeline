@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "learn",
+      "title": "Your Brain Deletes Memories Faster Than Your Phone Installs Updates",
+      "url": "https://youtu.be/McGlDj__bQk",
+      "video_id": "McGlDj__bQk",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-21T12:28:43.553485"
+    },
+    {
+      "niche": "learn",
       "title": "Your Phone\u2019s Brightness Is Secretly Draining Your Bank Account",
       "url": "https://youtu.be/4V4T2Jz2eNA",
       "video_id": "4V4T2Jz2eNA",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-28T10:41:50.539667"
-    },
-    {
-      "niche": "reddit",
-      "title": "Redditors Banned for Treating Their Fridge Like a Therapist",
-      "url": "https://youtu.be/UNaJep9kvnA",
-      "video_id": "UNaJep9kvnA",
-      "hook_style": "contrarian",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-27T16:01:56.961640"
     }
   ],
   "stats": {
