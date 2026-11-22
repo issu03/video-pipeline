@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "reddit",
+      "title": "Redditors Banned for Declaring Their Fridge a Roommate\u2014The Chaos",
+      "url": "https://youtu.be/CrQZ2SsG6bc",
+      "video_id": "CrQZ2SsG6bc",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-22T17:51:59.260792"
+    },
+    {
       "niche": "scary",
       "title": "The Night the Bathroom Mirror Said \u2018Nice Try\u2019",
       "url": "https://youtu.be/umOB5vTxzwg",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-29T11:04:56.314931"
-    },
-    {
-      "niche": "scary",
-      "title": "The Closet That Ate My Socks (And Other Nighttime Lies)",
-      "url": "https://youtu.be/LpDPMDie7wU",
-      "video_id": "LpDPMDie7wU",
-      "hook_style": "contrarian",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-28T16:44:47.112740"
     }
   ],
   "stats": {
