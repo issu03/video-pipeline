@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "rich",
+      "title": "How $0.42 a Day Can Outearn Your CEO",
+      "url": "https://youtu.be/yhXmAg33q48",
+      "video_id": "yhXmAg33q48",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-23T22:12:10.628692"
+    },
+    {
       "niche": "reddit",
       "title": "Redditors Banned for Calling Their Houseplant a Child\u2014The Fallout",
       "url": "https://youtu.be/sfka_J7T1-o",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-30T11:00:21.814371"
-    },
-    {
-      "niche": "rich",
-      "title": "How $37 a Day Can Turn Your Couch into a Cash Machine",
-      "url": "https://youtu.be/_qVoqDlJElk",
-      "video_id": "_qVoqDlJElk",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-29T17:06:11.243269"
     }
   ],
   "stats": {
