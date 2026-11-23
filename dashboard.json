@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "reddit",
+      "title": "Redditors Banned for Calling Their Houseplant a Child\u2014The Fallout",
+      "url": "https://youtu.be/sfka_J7T1-o",
+      "video_id": "sfka_J7T1-o",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-23T14:25:57.903842"
+    },
+    {
+      "niche": "reddit",
       "title": "Redditors Banned for Declaring Their Fridge a Roommate\u2014The Chaos",
       "url": "https://youtu.be/CrQZ2SsG6bc",
       "video_id": "CrQZ2SsG6bc",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-29T17:06:11.243269"
-    },
-    {
-      "niche": "conspiracy",
-      "title": "The Hidden Code in Your Grocery Store That Makes You Buy More",
-      "url": "https://youtu.be/S3GBCXU6aRw",
-      "video_id": "S3GBCXU6aRw",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-29T11:04:56.314931"
     }
   ],
   "stats": {
