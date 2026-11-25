@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "lifehack",
+      "title": "Watch This Jar Pop Open in 2 Seconds\u2014No Tools Needed!",
+      "url": "https://youtu.be/bY7SHsCE8Vs",
+      "video_id": "bY7SHsCE8Vs",
+      "hook_style": "question_why_how",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-25T14:16:52.302946"
+    },
+    {
       "niche": "reddit",
       "title": "Redditors Banned for Calling Their Dog a Therapist\u2014The Fallout",
       "url": "https://youtu.be/mEhjC4VczGI",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-10-31T15:56:27.610174"
-    },
-    {
-      "niche": "learn",
-      "title": "Why Your Brain Loves Boredom More Than You Think",
-      "url": "https://youtu.be/7gj_9SqnPsk",
-      "video_id": "7gj_9SqnPsk",
-      "hook_style": "contrarian",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-31T10:30:57.178758"
     }
   ],
   "stats": {
