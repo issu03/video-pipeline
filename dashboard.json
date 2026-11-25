@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "lifehack",
+      "title": "The Sock\u2011Powered Coffee Hack That Will Blow Your Mind",
+      "url": "https://youtu.be/5BlFDpOoHa0",
+      "video_id": "5BlFDpOoHa0",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-25T20:02:11.161948"
+    },
+    {
+      "niche": "lifehack",
       "title": "Watch This Jar Pop Open in 2 Seconds\u2014No Tools Needed!",
       "url": "https://youtu.be/bY7SHsCE8Vs",
       "video_id": "bY7SHsCE8Vs",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-11-01T11:18:23.653519"
-    },
-    {
-      "niche": "dating",
-      "title": "Why Swiping Right Is the Biggest Lie You've Been Told",
-      "url": "https://youtu.be/RPDhMju6yoQ",
-      "video_id": "RPDhMju6yoQ",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-10-31T15:56:27.610174"
     }
   ],
   "stats": {
