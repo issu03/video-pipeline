@@ -2,6 +2,16 @@
   "videos": [
     {
       "niche": "conspiracy",
+      "title": "They Don't Want You to Know the Pizza Paradox",
+      "url": "https://youtu.be/4blc8Ik_C-Y",
+      "video_id": "4blc8Ik_C-Y",
+      "hook_style": "outcome_first",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-26T19:43:12.221111"
+    },
+    {
+      "niche": "conspiracy",
       "title": "The Secret Sauce in Fast Food That Controls Your Thoughts",
       "url": "https://youtu.be/sr72rcyn8Hg",
       "video_id": "sr72rcyn8Hg",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-11-01T16:55:57.036007"
-    },
-    {
-      "niche": "motivation",
-      "title": "From Zero to Hero in 30 Seconds",
-      "url": "https://youtu.be/ln5qHORSvKw",
-      "video_id": "ln5qHORSvKw",
-      "hook_style": "contrarian",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-11-01T14:45:06.746800"
     }
   ],
   "stats": {
