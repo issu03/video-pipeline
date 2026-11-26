@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "conspiracy",
+      "title": "The Secret Sauce in Fast Food That Controls Your Thoughts",
+      "url": "https://youtu.be/sr72rcyn8Hg",
+      "video_id": "sr72rcyn8Hg",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-26T13:52:00.611979"
+    },
+    {
       "niche": "lifehack",
       "title": "The Sock\u2011Powered Coffee Hack That Will Blow Your Mind",
       "url": "https://youtu.be/5BlFDpOoHa0",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-11-01T14:45:06.746800"
-    },
-    {
-      "niche": "scary",
-      "title": "The Haunted Smart Mirror That Outsmarted Its Owner",
-      "url": "https://youtu.be/XGKm6HD8Fuo",
-      "video_id": "XGKm6HD8Fuo",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-11-01T11:18:23.653519"
     }
   ],
   "stats": {
