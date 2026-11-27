@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "learn",
+      "title": "Your Phone Battery Lies to You",
+      "url": "https://youtu.be/_4k1P10iwy4",
+      "video_id": "_4k1P10iwy4",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-27T13:48:37.861846"
+    },
+    {
       "niche": "conspiracy",
       "title": "They Don't Want You to Know the Pizza Paradox",
       "url": "https://youtu.be/4blc8Ik_C-Y",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-11-02T12:21:33.455610"
-    },
-    {
-      "niche": "reddit",
-      "title": "Redditors Got Banned for Pretending Their Post Was a Miracle Cure",
-      "url": "https://youtu.be/BD4EGYuVqf0",
-      "video_id": "BD4EGYuVqf0",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-11-01T16:55:57.036007"
     }
   ],
   "stats": {
