@@ -1,6 +1,16 @@
 {
   "videos": [
     {
+      "niche": "scary",
+      "title": "The Closet That Eats Socks",
+      "url": "https://youtu.be/w8ynJMF3iSQ",
+      "video_id": "w8ynJMF3iSQ",
+      "hook_style": "contrarian",
+      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
+      "ok": true,
+      "ts": "2026-11-27T19:35:52.519212"
+    },
+    {
       "niche": "learn",
       "title": "Your Phone Battery Lies to You",
       "url": "https://youtu.be/_4k1P10iwy4",
@@ -489,16 +499,6 @@
       "tiktok_url": "https://www.tiktok.com/@vaultmindss",
       "ok": true,
       "ts": "2026-11-02T20:24:10.487697"
-    },
-    {
-      "niche": "scary",
-      "title": "When My Nightlight Became a Screaming Baby",
-      "url": "https://youtu.be/wySqxs3botM",
-      "video_id": "wySqxs3botM",
-      "hook_style": "outcome_first",
-      "tiktok_url": "https://www.tiktok.com/@vaultmindss",
-      "ok": true,
-      "ts": "2026-11-02T12:21:33.455610"
     }
   ],
   "stats": {
